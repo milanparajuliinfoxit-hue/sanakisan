@@ -1,30 +1,32 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function LoginPage() {
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ username: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const API_BASE =
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
       const res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Login failed');
-      window.location.href = '/';
+      if (!res.ok) throw new Error(data.message || "Login failed");
+      window.location.href = "/";
     } catch (err) {
       setError(err.message);
     } finally {
@@ -38,14 +40,15 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-primary-700 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-accent">
-              <svg viewBox="0 0 60 60" className="w-10 h-10" fill="none">
-                <circle cx="30" cy="30" r="28" fill="#14532d" />
-                <path d="M30 10 C20 20, 10 25, 15 35 C20 45, 30 50, 30 50 C30 50, 40 45, 45 35 C50 25, 40 20, 30 10Z" fill="#22c55e" opacity="0.8" />
-                <path d="M30 18 C24 24, 18 27, 21 33 C24 39, 30 43, 30 43 C30 43, 36 39, 39 33 C42 27, 36 24, 30 18Z" fill="#86efac" />
-                <circle cx="30" cy="31" r="5" fill="#fff" opacity="0.9" />
-              </svg>
+              <img
+                src="/assets/jalthal.png"
+                alt="Jalthal Logo"
+                className="w-cover h-cover object-contain"
+              />
             </div>
-            <h1 className="font-display text-2xl font-bold text-primary-900">Member Login</h1>
+            <h1 className="font-display text-2xl font-bold text-primary-900">
+              Member Login
+            </h1>
             <p className="text-gray-500 text-sm mt-1">SFACL Jalthal Portal</p>
           </div>
 
@@ -57,7 +60,9 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-gray-500 mb-1 block">Username / Email</label>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">
+                Username / Email
+              </label>
               <div className="relative">
                 <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
                 <input
@@ -72,11 +77,13 @@ export default function LoginPage() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-semibold text-gray-500 mb-1 block">Password</label>
+              <label className="text-xs font-semibold text-gray-500 mb-1 block">
+                Password
+              </label>
               <div className="relative">
                 <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
                 <input
-                  type={showPass ? 'text' : 'password'}
+                  type={showPass ? "text" : "password"}
                   name="password"
                   value={form.password}
                   onChange={handleChange}
@@ -84,7 +91,11 @@ export default function LoginPage() {
                   placeholder="Enter your password"
                   className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-500 transition-colors"
                 />
-                <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <button
+                  type="button"
+                  onClick={() => setShowPass(!showPass)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
                   {showPass ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
@@ -94,12 +105,17 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-primary-700 hover:bg-primary-800 text-white font-semibold py-3 rounded-xl transition-colors disabled:opacity-60"
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm text-gray-400">
-            <Link to="/" className="text-primary-600 hover:text-primary-800 font-semibold">← Back to Home</Link>
+            <Link
+              to="/"
+              className="text-primary-600 hover:text-primary-800 font-semibold"
+            >
+              ← Back to Home
+            </Link>
           </div>
         </div>
       </div>

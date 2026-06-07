@@ -1,9 +1,9 @@
-import { setCredentials, userInfo } from '@/redux/slice/authSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { setCredentials, userInfo } from "@/redux/slice/authSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { CiLogout } from "react-icons/ci";
-import { FaRegUserCircle } from 'react-icons/fa';
-import { persist } from '@/redux/store';
+import { FaRegUserCircle } from "react-icons/fa";
+import { persist } from "@/redux/store";
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -22,7 +22,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className="flex justify-between h-16 bg-slate-200 items-center px-4">
+    <div className="flex justify-between h-16 bg-slate-200 items-center px-4 ">
       <h1 className="text-2xl font-medium">Dashboard</h1>
 
       {/* ✅ Changed outer <button> to <div> to avoid invalid nesting */}
@@ -32,10 +32,7 @@ const Navbar = () => {
           <span>{user.fullname}</span>
         </h1>
 
-        <button
-          className="flex items-center"
-          onClick={handleLogout}
-        >
+        <button className="flex items-center" onClick={handleLogout}>
           <span>
             <CiLogout size={20} className="mr-1" />
           </span>

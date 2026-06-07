@@ -1,8 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaNewspaper, FaCalendarAlt, FaUser, FaArrowRight } from 'react-icons/fa';
-import { fetchBlogs, getImageUrl } from '../api/config';
-import { formatDate } from '../utils/dateUtils';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import {
+  FaNewspaper,
+  FaCalendarAlt,
+  FaUser,
+  FaArrowRight,
+} from "react-icons/fa";
+import { fetchBlogs, getImageUrl } from "../api/config";
+import { formatDate } from "../utils/dateUtils";
 
 export default function BlogsSection({ limit = 5 }) {
   const [blogs, setBlogs] = useState([]);
@@ -11,13 +16,18 @@ export default function BlogsSection({ limit = 5 }) {
 
   useEffect(() => {
     fetchBlogs(limit)
-      .then(data => {
-        const items = data?.data || data?.pressReleases || data?.rows || data || [];
+      .then((data) => {
+        console.log("Blogs:", data);
+
+        const items =
+          data?.data || data?.pressReleases || data?.rows || data || [];
+
         setBlogs(Array.isArray(items) ? items : []);
         setLoading(false);
       })
-      .catch(() => {
-        setError('Could not load news');
+      .catch((err) => {
+        console.error("Blog fetch error:", err);
+        setError("Could not load news");
         setLoading(false);
       });
   }, [limit]);
@@ -31,8 +41,12 @@ export default function BlogsSection({ limit = 5 }) {
               <FaNewspaper className="text-white text-lg" />
             </div>
             <div>
-              <h2 className="font-display text-2xl font-bold text-primary-900">News & Blogs</h2>
-              <div className="text-primary-500 text-sm">Latest news and updates</div>
+              <h2 className="font-display text-2xl font-bold text-primary-900">
+                News & Blogs
+              </h2>
+              <div className="text-primary-500 text-sm">
+                Latest news and updates
+              </div>
             </div>
           </div>
           <Link
@@ -46,7 +60,10 @@ export default function BlogsSection({ limit = 5 }) {
         {loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="rounded-xl overflow-hidden bg-gray-100 animate-pulse">
+              <div
+                key={i}
+                className="rounded-xl overflow-hidden bg-gray-100 animate-pulse"
+              >
                 <div className="h-48 bg-gray-200" />
                 <div className="p-4 space-y-2">
                   <div className="h-4 bg-gray-200 rounded w-3/4" />
@@ -75,11 +92,43 @@ export default function BlogsSection({ limit = 5 }) {
               >
                 {/* Thumbnail */}
                 <div className="h-48 overflow-hidden bg-primary-50">
-                  {blog.featuredImage ? (
+                  {blog.featuredImage ||
+                  blog.featured_image ||
+                  blog.image ||
+                  blog.thumbnail ? (
                     <img
-                      src={getImageUrl(blog.featuredImage)}
+                      src={getImageUrl(
+                        blog.featuredImage ||
+                          blog.featured_image ||
+                          blog.image ||
+                          blog.thumbnail,
+                      )}
                       alt={blog.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onLoad={() =>
+                        console.log(
+                          "Image Loaded:",
+                          getImageUrl(
+                            blog.featuredImage ||
+                              blog.featured_image ||
+                              blog.image ||
+                              blog.thumbnail,
+                          ),
+                        )
+                      }
+                      onError={(e) => {
+                        console.error(
+                          "Image Failed:",
+                          getImageUrl(
+                            blog.featuredImage ||
+                              blog.featured_image ||
+                              blog.image ||
+                              blog.thumbnail,
+                          ),
+                        );
+
+                        e.target.src = "/assets/default-news.jpg";
+                      }}
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary-700 to-primary-500 flex items-center justify-center">
@@ -95,7 +144,8 @@ export default function BlogsSection({ limit = 5 }) {
                   </h3>
                   {blog.content && (
                     <p className="text-gray-500 text-sm leading-relaxed mb-3 line-clamp-2">
-                      {blog.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                      {blog.content.replace(/<[^>]*>/g, "").substring(0, 100)}
+                      ...
                     </p>
                   )}
                   <div className="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-gray-100">

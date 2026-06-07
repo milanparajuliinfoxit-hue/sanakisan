@@ -1,136 +1,112 @@
-import { useState } from "react";
-import Slider from "react-slick";
-import {
-  FaChevronLeft,
-  FaChevronRight,
-  FaUpload,
-  FaArrowRight,
-} from "react-icons/fa";
+import { useState, useEffect, useCallback } from "react";
+import { FaChevronLeft, FaChevronRight, FaArrowRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import jalthal from "../assets/jalthal.png";
+import jalthal1 from "../assets/2.jpeg";
+import jalthal2 from "../assets/3.jpeg";
+import jalthal3 from "../assets/4.jpeg";
+import jalthal4 from "../assets/5.jpeg";
 
 const defaultSlides = [
   {
     id: 1,
-    image: null,
-    title: "सहकारी संस्था — समृद्धि र सेवा",
-    subtitle: "Building a Prosperous Community Together",
-    description:
-      "A trusted cooperative serving the Jalthal community with financial services, dairy industry support, and rural development.",
-    cta: { label: "Learn About Us", path: "/about" },
-    bgColor: "from-primary-900 to-primary-700",
+    image: jalthal,
+    bgColor: "transparent",
   },
   {
     id: 2,
-    image: null,
-    title: "Financial Services for All",
-    subtitle: "Deposits, Loans & More",
-    description:
-      "Flexible deposit schemes and affordable loan products designed to empower farmers, entrepreneurs, and families.",
-    cta: { label: "Explore Services", path: "/financial" },
-    bgColor: "from-primary-800 to-green-700",
+    image: jalthal1,
   },
   {
     id: 3,
-    image: null,
-    title: "Dairy Industry Excellence",
-    subtitle: "From Farm to Market",
-    description:
-      "Supporting local dairy farmers with modern processing, quality products, and fair market access across the region.",
-    cta: { label: "Discover Dairy", path: "/dairy" },
-    bgColor: "from-green-900 to-primary-600",
+    image: jalthal2,
+  },
+  {
+    id: 4,
+    image: jalthal3,
+  },
+  {
+    id: 5,
+    image: jalthal4,
   },
 ];
 
-const PrevArrow = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all"
-  >
-    <FaChevronLeft />
-  </button>
-);
-
-const NextArrow = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/20 hover:bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all"
-  >
-    <FaChevronRight />
-  </button>
-);
-
 export default function HeroSlider({ slides = defaultSlides }) {
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 800,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 5000,
-    prevArrow: <PrevArrow />,
-    nextArrow: <NextArrow />,
-    fade: true,
-  };
+  const [current, setCurrent] = useState(0);
+  const [animating, setAnimating] = useState(false);
+
+  const goTo = useCallback(
+    (index) => {
+      if (animating) return;
+      setAnimating(true);
+      setCurrent(index);
+      setTimeout(() => setAnimating(false), 700);
+    },
+    [animating],
+  );
+
+  const prev = () => goTo((current - 1 + slides.length) % slides.length);
+  const next = useCallback(
+    () => goTo((current + 1) % slides.length),
+    [current, slides.length, goTo],
+  );
+
+  useEffect(() => {
+    const timer = setInterval(next, 5000);
+    return () => clearInterval(timer);
+  }, [next]);
+
+  const slide = slides[current];
 
   return (
     <div className="relative overflow-hidden">
-      <div>
-        {slides.map((slide) => (
-          <div key={slide.id}>
-            <div
-              className={`relative min-h-[500px] md:min-h-[580px] flex items-center bg-gradient-to-br ${slide.bgColor}`}
-              style={
-                slide.image
-                  ? {
-                      backgroundImage: `url(${slide.image})`,
-                      backgroundSize: "cover",
-                      backgroundPosition: "center",
-                    }
-                  : {}
+      <div
+        className={`relative min-h-[450px] md:min-h-[450px] flex items-center bg-gradient-to-br ${slide.bgColor} transition-all duration-700`}
+        style={
+          slide.image
+            ? {
+                backgroundImage: `url(${slide.image})`,
+                backgroundSize: "contain",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
               }
-            >
-              {/* Overlay */}
-              <div className="absolute inset-0 hero-gradient" />
+            : {}
+        }
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0" />
 
-              {/* Decorative circles */}
-              <div className="absolute top-10 right-10 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-              <div className="absolute bottom-10 left-20 w-48 h-48 bg-accent/10 rounded-full blur-2xl" />
+        {/* Decorative circles */}
+        <div className="absolute top-10 right-10 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-10 left-20 w-48 h-48 bg-accent/10 rounded-full blur-2xl pointer-events-none" />
 
-              {/* Content */}
-              <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-16">
-                <div className="max-w-2xl">
-                  <div className="inline-block bg-accent/20 border border-accent/40 text-accent text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full mb-4">
-                    sfacljalthal.com.np
-                  </div>
-                  <h1 className="font-display text-white text-3xl md:text-5xl font-bold leading-tight mb-3">
-                    {slide.title}
-                  </h1>
-                  <div className="text-accent font-semibold text-lg md:text-xl mb-4">
-                    {slide.subtitle}
-                  </div>
-                  <p className="text-green-100 text-base md:text-lg leading-relaxed mb-8 max-w-lg">
-                    {slide.description}
-                  </p>
-                  <div className="flex flex-wrap gap-3">
-                    <Link
-                      to={slide.cta.path}
-                      className="inline-flex items-center gap-2 bg-accent hover:bg-yellow-600 text-white font-semibold px-6 py-3 rounded-lg transition-all hover:shadow-lg hover:-translate-y-0.5"
-                    >
-                      {slide.cta.label} <FaArrowRight className="text-sm" />
-                    </Link>
-                    <Link
-                      to="/contact"
-                      className="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 font-semibold px-6 py-3 rounded-lg transition-all"
-                    >
-                      Contact Us
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+        {/* Prev / Next arrows */}
+        <button
+          onClick={prev}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-black transition-all"
+          aria-label="Previous slide"
+        >
+          <FaChevronLeft />
+        </button>
+        <button
+          onClick={next}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-black transition-all"
+          aria-label="Next slide"
+        >
+          <FaChevronRight />
+        </button>
+
+        {/* Dots */}
+        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className={`rounded-full transition-all ${i === current ? "w-6 h-2.5 bg-accent" : "w-2.5 h-2.5 bg-white/50 hover:bg-white/80"}`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

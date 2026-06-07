@@ -25,9 +25,9 @@ const Sidebar = () => {
     <div className="flex flex-col px-2 min-h-screen sticky overflow-y-auto bg-slate-200">
       <div className="flex flex-row justify-center items-center py-2 gap-2">
         <img src="/jalthal.png" className="size-12" alt="Jalthal Logo" />
-        <h1 className="text-sm font-medium">
-          साना किसान कृषि सहकारी संस्था लि. जलथल
-        </h1>
+        <div className="font-display text-primary-800 font-bold text-lg leading-tight">
+          साना किसान कृषि सहकारी संस्था लि.
+        </div>
       </div>
       <hr className="bg-white h-[2px] rounded-full" />
       <nav className="flex flex-col mt-4 space-y-2">
