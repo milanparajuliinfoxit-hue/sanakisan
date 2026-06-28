@@ -183,16 +183,16 @@ export default function HomePage() {
       <BlogsSection limit={3} />
 
       {/* CTA Banner */}
-      <section className="py-14 px-4 bg-gradient-to-r from-primary-800 to-primary-600 relative overflow-hidden">
+      <section className="py-14 px-4 mb-44 bg-gradient-to-r from-primary-800 to-primary-600 relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-32 -translate-y-32" />
           <div className="absolute bottom-0 right-0 w-64 h-64 bg-white rounded-full translate-x-32 translate-y-32" />
         </div>
-        <div className="max-w-3xl mx-auto text-center relative z-10">
+        <div className="max-w-3xl mx-auto text-center relative z-10 pt-7 pb-6">
           <h2 className="font-display text-3xl font-bold text-white mb-3">
             Become a Member Today
           </h2>
-          <p className="text-primary-100 text-lg mb-8">
+          <p className="text-primary-100 text-lg mb-12">
             Join thousands of members benefiting from cooperative savings,
             loans, and agricultural support in Jalthal.
           </p>

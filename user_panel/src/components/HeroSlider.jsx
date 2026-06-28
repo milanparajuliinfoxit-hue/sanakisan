@@ -2,10 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { FaChevronLeft, FaChevronRight, FaArrowRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import jalthal from "../assets/jalthal.png";
-import jalthal1 from "../assets/2.jpeg";
-import jalthal2 from "../assets/3.jpeg";
-import jalthal3 from "../assets/4.jpeg";
-import jalthal4 from "../assets/5.jpeg";
+import jalthal1 from "../assets/2.jpg";
 
 const defaultSlides = [
   {
@@ -16,18 +13,6 @@ const defaultSlides = [
   {
     id: 2,
     image: jalthal1,
-  },
-  {
-    id: 3,
-    image: jalthal2,
-  },
-  {
-    id: 4,
-    image: jalthal3,
-  },
-  {
-    id: 5,
-    image: jalthal4,
   },
 ];
 
@@ -59,17 +44,17 @@ export default function HeroSlider({ slides = defaultSlides }) {
   const slide = slides[current];
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden w-full h-full ">
       <div
-        className={`relative min-h-[450px] md:min-h-[450px] flex items-center bg-gradient-to-br ${slide.bgColor} transition-all duration-700`}
+        className={`relative w-full h-full min-h-[450px] md:min-h-[550px] flex items-center bg-gradient-to-br ${slide.bgColor} transition-all duration-700`}
         style={
           slide.image
             ? {
-                backgroundImage: `url(${slide.image})`,
-                backgroundSize: "contain",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-              }
+              backgroundImage: `url(${slide.image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }
             : {}
         }
       >
