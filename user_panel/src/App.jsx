@@ -13,16 +13,31 @@ import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
 import CalendarModule from './pages/CalendarModule';
 import EventSinglePage from './pages/EventSinglePage';
+import { useAnchorNavigation } from './hooks/useAnchorNavigation';
+
+/** Scrolls to top on every route change EXCEPT when a hash is present (anchor links handle their own scroll). */
 function ScrollToTop() {
-  const { pathname } = useLocation();
-  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname, hash]);
   return null;
 }
+
+/** Mounts the global anchor navigation hook inside the Router context. */
+function GlobalAnchorNavigation() {
+  useAnchorNavigation();
+  return null;
+}
+
 
 export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <GlobalAnchorNavigation />
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-1">

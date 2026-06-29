@@ -1,13 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  FaNewspaper,
-  FaCalendarAlt,
-  FaUser,
-  FaArrowRight,
-} from "react-icons/fa";
-import { fetchBlogs, getImageUrl } from "../api/config";
-import { formatDate } from "../utils/dateUtils";
+import { Newspaper, ArrowRight } from "lucide-react";
+import { fetchBlogs } from "../api/config";
+import BlogCard from "./BlogCard";
 
 export default function BlogsSection({ limit = 5 }) {
   const [blogs, setBlogs] = useState([]);
@@ -33,78 +28,87 @@ export default function BlogsSection({ limit = 5 }) {
   }, [limit]);
 
   return (
-    <section className="bg-white px-4 py-12 sm:px-6 lg:px-8">
+    <section className="bg-emerald-50/80 px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
+        {/* Section Header */}
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white">
-              <FaNewspaper className="text-lg" />
+            <div className="icon-pulse-container flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-lg shadow-amber-500/20">
+              <Newspaper className="h-[22px] w-[22px]" strokeWidth={1.8} />
             </div>
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600">Stories & insights</p>
               <h2 className="font-display text-2xl font-semibold text-emerald-950">News & Blogs</h2>
             </div>
           </div>
-          <Link to="/blogs" className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition hover:text-emerald-900">
-            View All <FaArrowRight className="text-xs" />
-          </Link>
+          {!loading && blogs.length > 0 && (
+            <Link
+              to="/blogs"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition-all duration-300 hover:gap-3 hover:text-emerald-900"
+            >
+              View All Blogs <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          )}
         </div>
 
-        {loading && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="overflow-hidden rounded-3xl bg-slate-100 animate-pulse">
-                <div className="h-48 bg-slate-200" />
-                <div className="space-y-2 p-4">
-                  <div className="h-4 w-3/4 rounded bg-slate-200" />
-                  <div className="h-3 w-1/2 rounded bg-slate-200" />
-                  <div className="h-10 rounded bg-slate-200" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {!loading && !error && blogs.length === 0 && (
-          <div className="rounded-3xl border border-emerald-100 bg-emerald-50/60 py-10 text-center text-sm text-slate-500">No news available at this time.</div>
-        )}
-
-        {!loading && !error && blogs.length > 0 && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {blogs.slice(0, limit).map((blog, i) => (
-              <Link key={blog.id || i} to={`/blogs/${blog.id}`} className="card-hover group overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm hover:border-emerald-200">
-                <div className="h-48 overflow-hidden bg-emerald-50">
-                  {blog.featuredImage || blog.featured_image || blog.image || blog.thumbnail ? (
-                    <img src={getImageUrl(blog.featuredImage || blog.featured_image || blog.image || blog.thumbnail)} alt={blog.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" onError={(e) => { e.target.src = "/assets/default-news.jpg"; }} />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-800 to-emerald-600">
-                      <FaNewspaper className="text-4xl text-white opacity-40" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="p-5">
-                  <h3 className="mb-2 font-display text-lg font-semibold leading-tight text-emerald-950 transition group-hover:text-emerald-700">{blog.title}</h3>
-                  {blog.content && (
-                    <p className="mb-3 line-clamp-2 text-sm leading-7 text-slate-600">{blog.content.replace(/<[^>]*>/g, "").substring(0, 100)}...</p>
-                  )}
-                  <div className="flex items-center justify-between border-t border-emerald-100 pt-3 text-xs text-slate-500">
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1.5"><FaCalendarAlt className="text-emerald-500" />{formatDate(blog.publishDate || blog.createdAt)}</span>
-                      {blog.author ? <span className="flex items-center gap-1.5"><FaUser className="text-emerald-500" />{blog.author}</span> : null}
-                    </div>
-                    <span className="flex items-center gap-1 font-semibold text-emerald-600">Read <FaArrowRight className="text-[10px]" /></span>
+        {/* Card Container wrapping the content area */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-6 sm:p-8 lg:p-10 shadow-sm">
+          {/* Loading Shimmer skeleton */}
+          {loading && (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="overflow-hidden rounded-3xl bg-slate-100 animate-pulse">
+                  <div className="h-48 bg-slate-200" />
+                  <div className="space-y-2 p-4">
+                    <div className="h-4 w-3/4 rounded bg-slate-200" />
+                    <div className="h-3 w-1/2 rounded bg-slate-200" />
+                    <div className="h-10 rounded bg-slate-200" />
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
 
-        <div className="mt-8 text-center md:hidden">
-          <Link to="/blogs" className="inline-flex items-center gap-2 rounded-full bg-emerald-800 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
-            View All News <FaArrowRight className="text-xs" />
-          </Link>
+          {/* Error State */}
+          {!loading && error && (
+            <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <Newspaper className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-medium text-gray-500">No blog found</p>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && blogs.length === 0 && (
+            <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <Newspaper className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-medium text-gray-500">No blog found</p>
+            </div>
+          )}
+
+          {/* Blogs Grid */}
+          {!loading && !error && blogs.length > 0 && (
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {blogs.slice(0, limit).map((blog, i) => (
+                <BlogCard key={blog.id || i} blog={blog} />
+              ))}
+            </div>
+          )}
+
+          {/* Mobile View All Button inside the card container */}
+          {!loading && blogs.length > 0 && (
+            <div className="mt-8 text-center md:hidden">
+              <Link
+                to="/blogs"
+                className="inline-flex items-center gap-2 rounded-full bg-emerald-800 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              >
+                View All Blogs <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </section>

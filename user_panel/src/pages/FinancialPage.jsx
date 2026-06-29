@@ -93,22 +93,19 @@ const Accordion = ({ title, children }) => {
 export default function FinancialPage() {
   const [activeTab, setActiveTab] = useState('deposit');
 
+  // Sync active tab from URL hash (scrolling is handled globally by useAnchorNavigation)
   useEffect(() => {
-    const handleHashChange = () => {
+    const syncFromHash = () => {
       const hash = window.location.hash.slice(1);
       if (hash === 'deposit' || hash === 'loan') {
         setActiveTab(hash);
-        setTimeout(() => {
-          const element = document.getElementById(hash);
-          if (element) element.scrollIntoView({ behavior: 'smooth' });
-        }, 50);
       }
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    handleHashChange();
+    window.addEventListener('hashchange', syncFromHash);
+    syncFromHash();
 
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', syncFromHash);
   }, []);
 
   const handleTabChange = (tabId) => {

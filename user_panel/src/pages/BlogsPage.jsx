@@ -4,7 +4,7 @@ import { FaNewspaper, FaCalendarAlt, FaUser, FaArrowLeft, FaSearch } from 'react
 import { fetchBlogs, fetchBlogById, getImageUrl } from '../api/config';
 import { formatDate, formatFullDate } from '../utils/dateUtils';
 import PageBanner from '../components/PageBanner';
-
+import BlogCard from '../components/BlogCard';
 
 export function BlogsPage() {
   const [blogs, setBlogs] = useState([]);
@@ -66,35 +66,12 @@ useEffect(() => {
           {!loading && filtered.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((blog, i) => (
-                <Link
+                <BlogCard
                   key={blog.id || i}
-                  to={`/blogs/${blog.id}`}
-                  className="card-hover group overflow-hidden rounded-[1.6rem] border border-emerald-100 bg-white shadow-sm hover:border-emerald-200"
-                >
-                  <div className="h-48 overflow-hidden bg-emerald-50">
-                    {blog.featuredImage ? (
-                      <img src={getImageUrl(blog.featuredImage)} alt={blog.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-800 to-emerald-600">
-                        <FaNewspaper className="text-4xl text-white opacity-40" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-5">
-                    <h3 className="mb-2 font-display text-lg font-semibold leading-tight text-emerald-950 transition group-hover:text-emerald-700">
-                      {blog.title}
-                    </h3>
-                    {blog.content && (
-                      <p className="mb-3 text-sm leading-7 text-slate-600 line-clamp-2">
-                        {blog.content.replace(/<[^>]*>/g, '').substring(0, 120)}...
-                      </p>
-                    )}
-                    <div className="flex items-center gap-3 border-t border-emerald-100 pt-3 text-xs text-slate-500">
-                      <span className="flex items-center gap-1.5"><FaCalendarAlt className="text-emerald-500" />{formatDate(blog.publishDate || blog.createdAt)}</span>
-                      {blog.author && <span className="flex items-center gap-1.5 truncate"><FaUser className="text-emerald-500" />{blog.author}</span>}
-                    </div>
-                  </div>
-                </Link>
+                  blog={blog}
+                  contentLength={120}
+                  showReadMore={true}
+                />
               ))}
             </div>
           )}

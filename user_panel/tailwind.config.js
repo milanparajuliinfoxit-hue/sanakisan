@@ -29,7 +29,7 @@ export default {
       fontFamily: {
         display: ['Playfair Display', 'serif'],
         body: ['Source Serif 4', 'serif'],
-        sans: ['Inter', 'Segoe UI', 'sans-serif'],
+        sans: ['Poppins', 'Inter', 'Segoe UI', 'sans-serif'],
         nepali: ['Mukta', 'sans-serif'],
       },
       boxShadow: {
@@ -44,6 +44,8 @@ export default {
         'fade-up': 'fadeUp 0.6s ease-out forwards',
         'slide-in': 'slideIn 0.5s ease-out forwards',
         'pulse-slow': 'pulse 3s ease-in-out infinite',
+        'shimmer': 'shimmer 1.8s ease-in-out infinite',
+        'icon-pulse': 'iconPulse 2.5s ease-in-out infinite',
       },
       keyframes: {
         fadeUp: {
@@ -53,6 +55,14 @@ export default {
         slideIn: {
           '0%': { opacity: '0', transform: 'translateX(-20px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        iconPulse: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.08)', opacity: '0.85' },
         },
       },
     },

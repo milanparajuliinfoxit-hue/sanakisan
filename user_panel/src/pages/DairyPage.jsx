@@ -1,14 +1,5 @@
 import { useState, useEffect } from 'react';
-
-const PageBanner = ({ title, subtitle, breadcrumb }) => (
-  <div className="bg-gradient-to-r from-primary-900 to-primary-700 py-12 px-4">
-    <div className="max-w-7xl mx-auto">
-      <div className="text-primary-300 text-sm mb-2">{breadcrumb}</div>
-      <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">{title}</h1>
-      {subtitle && <p className="text-primary-200">{subtitle}</p>}
-    </div>
-  </div>
-);
+import PageBanner from '../components/PageBanner';
 
 const products = [
   {
@@ -58,22 +49,19 @@ const products = [
 export default function DairyPage() {
   const [activeSection, setActiveSection] = useState('description');
 
+  // Sync active tab state from URL hash (scrolling is handled globally by useAnchorNavigation)
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash.slice(1) || 'description';
-      setActiveSection(hash);
-      setTimeout(() => {
-        const element = document.getElementById(hash);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 50);
+    const syncFromHash = () => {
+      const hash = window.location.hash.slice(1);
+      if (hash === 'description' || hash === 'products') {
+        setActiveSection(hash);
+      }
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    handleHashChange();
+    window.addEventListener('hashchange', syncFromHash);
+    syncFromHash();
 
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', syncFromHash);
   }, []);
 
   const handleSectionChange = (sectionId) => {

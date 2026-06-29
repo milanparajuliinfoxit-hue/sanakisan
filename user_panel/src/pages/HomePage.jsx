@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import HeroSlider from "../components/HeroSlider";
 import NoticeBoard from "../components/NoticeBoard";
@@ -5,18 +6,109 @@ import BlogsSection from "../components/BlogsSection";
 import CalendarModule from "../pages/CalendarModule";
 import {
   FaLeaf,
-  FaHandshake,
-  FaChartLine,
-  FaUsers,
   FaArrowRight,
-  FaStar,
 } from "react-icons/fa";
+import {
+  Users,
+  CalendarDays,
+  Briefcase,
+  MapPin,
+} from "lucide-react";
 
+/* ───── Animated Counter Hook ───── */
+function useCountUp(target, duration = 2000) {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
+  const ref = useRef(null);
+
+  const start = useCallback(() => {
+    if (started) return;
+    setStarted(true);
+
+    const startTime = performance.now();
+    const tick = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      // Ease-out cubic for smooth deceleration
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        setCount(target);
+      }
+    };
+    requestAnimationFrame(tick);
+  }, [target, duration, started]);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          start();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [start]);
+
+  return { count, ref };
+}
+
+/* ───── Stat Card Component ───── */
+function AnimatedStatCard({ stat, index }) {
+  const numericValue = parseInt(stat.value.replace(/[^\d]/g, ""), 10);
+  const suffix = stat.value.replace(/[\d]/g, "");
+  const { count, ref } = useCountUp(numericValue, 2200);
+  const Icon = stat.icon;
+
+  const gradients = [
+    "from-emerald-800 via-emerald-700 to-emerald-600",
+    "from-emerald-900 via-emerald-800 to-teal-700",
+    "from-emerald-800 via-teal-700 to-emerald-600",
+    "from-emerald-900 via-emerald-700 to-emerald-600",
+  ];
+
+  return (
+    <div
+      ref={ref}
+      className={`stat-card group rounded-[1.6rem] border border-white/10 bg-gradient-to-br ${gradients[index % 4]} px-5 py-6 text-center text-white shadow-lg`}
+      style={{ animationDelay: `${index * 100}ms` }}
+    >
+      {/* Icon */}
+      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-white/25">
+        <Icon className="h-7 w-7 text-amber-300" strokeWidth={1.8} />
+      </div>
+
+      {/* Animated Number */}
+      <div className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        {count}
+        <span className="text-amber-300">{suffix}</span>
+      </div>
+
+      {/* Label */}
+      <div className="mt-2 text-xs font-semibold uppercase tracking-[0.22em] text-emerald-100/80 sm:text-sm">
+        {stat.label}
+      </div>
+
+      {/* Decorative dot */}
+      <div className="mx-auto mt-3 h-1 w-8 rounded-full bg-amber-400/40 transition-all duration-300 group-hover:w-12 group-hover:bg-amber-400/70" />
+    </div>
+  );
+}
+
+/* ───── Stats Data ───── */
 const stats = [
-  { value: "2500+", label: "Members", icon: FaUsers },
-  { value: "15+", label: "Years of Service", icon: FaStar },
-  { value: "50+", label: "Loan Products", icon: FaChartLine },
-  { value: "10+", label: "Villages Served", icon: FaHandshake },
+  { value: "2500+", label: "Members", icon: Users },
+  { value: "15+", label: "Years of Service", icon: CalendarDays },
+  { value: "50+", label: "Loan Products", icon: Briefcase },
+  { value: "10+", label: "Villages Served", icon: MapPin },
 ];
 
 const quickLinks = [
@@ -46,23 +138,55 @@ const quickLinks = [
   },
 ];
 
+/* ───── Fade-in on Scroll Hook ───── */
+function useFadeInOnScroll() {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          el.classList.add("visible");
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return ref;
+}
+
 export default function HomePage() {
+  const quickLinksRef = useFadeInOnScroll();
+  const aboutRef = useFadeInOnScroll();
+  const ctaRef = useFadeInOnScroll();
+
   return (
     <div>
       <HeroSlider />
 
-      <section className="border-y border-emerald-100/70 bg-emerald-900 px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 md:grid-cols-4">
+      {/* ───── Stats Section ───── */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        {/* Decorative background elements */}
+        <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="absolute -bottom-16 -right-16 h-56 w-56 rounded-full bg-amber-400/10 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl" />
+
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
           {stats.map((stat, i) => (
-            <div key={i} className="rounded-[1.4rem] border border-white/10 bg-white/10 px-4 py-4 text-center text-white backdrop-blur-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-              <div className="font-display text-2xl font-semibold text-amber-300 sm:text-3xl">{stat.value}</div>
-              <div className="mt-1 text-xs font-medium uppercase tracking-[0.2em] text-emerald-100/90 sm:text-sm">{stat.label}</div>
-            </div>
+            <AnimatedStatCard key={i} stat={stat} index={i} />
           ))}
         </div>
       </section>
 
-      <section className="bg-white px-4 py-10 sm:px-6 lg:px-8">
+      {/* ───── Quick Links ───── */}
+      <section ref={quickLinksRef} className="fade-in-up bg-white px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="mb-6 flex items-end justify-between gap-3">
             <div>
@@ -82,7 +206,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="pattern-bg px-4 py-14 sm:px-6 lg:px-8">
+      {/* ───── About Section ───── */}
+      <section ref={aboutRef} className="fade-in-up pattern-bg px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-sm font-semibold text-emerald-700">
@@ -128,7 +253,8 @@ export default function HomePage() {
       <CalendarModule />
       <BlogsSection limit={3} />
 
-      <section className="relative mb-24 overflow-hidden bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-700 px-4 py-16 sm:px-6 lg:px-8">
+      {/* ───── CTA Section ───── */}
+      <section ref={ctaRef} className="fade-in-up relative mb-24 overflow-hidden bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-700 px-4 py-16 sm:px-6 lg:px-8">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute left-0 top-0 h-64 w-64 -translate-x-24 -translate-y-24 rounded-full bg-white" />
           <div className="absolute bottom-0 right-0 h-72 w-72 translate-x-24 translate-y-24 rounded-full bg-amber-300" />

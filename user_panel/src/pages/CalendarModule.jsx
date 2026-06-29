@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { FaCalendarAlt, FaArrowRight, FaMapMarkerAlt, FaGift } from "react-icons/fa";
+import { CalendarRange, ArrowRight, MapPin, Gift, CalendarDays } from "lucide-react";
+import { FaArrowRight } from "react-icons/fa";
 import { fetchEvents } from "../api/config";
 import { formatDate } from "../utils/dateUtils";
 
@@ -89,7 +90,7 @@ export default function CalendarModule() {
   const selectedHolidayTitles = holidayMap.get(selectedHolidayKey) || [];
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0);8
+  today.setHours(0, 0, 0, 0);
 
   const allUpcomingEvents = events
     .filter(e => {
@@ -116,17 +117,25 @@ export default function CalendarModule() {
         {/* Section header */}
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-800 text-white">
-              <FaCalendarAlt className="text-lg" />
+            {/* Gradient icon container with pulse animation */}
+            <div className="icon-pulse-container flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-700 to-emerald-900 text-white shadow-lg shadow-emerald-900/20">
+              <CalendarRange className="h-[22px] w-[22px]" strokeWidth={1.8} />
             </div>
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600">Community calendar</p>
               <h2 className="font-display text-2xl font-semibold text-emerald-950">Event Calendar</h2>
             </div>
           </div>
-          <Link to="/events" className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition hover:text-emerald-900">
-            View All <FaArrowRight className="text-xs" />
-          </Link>
+
+          {/* Conditional "View All" — only when events exist */}
+          {!loading && events.length > 0 && (
+            <Link
+              to="/events"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition-all duration-300 hover:gap-3 hover:text-emerald-900"
+            >
+              View All <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          )}
         </div>
 
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2">
@@ -158,7 +167,7 @@ export default function CalendarModule() {
               </div>
               {isShowingSelected && (selectedEvents.length + selectedHolidayTitles.length) > 2 && (
                 <Link to="/events" className="flex items-center gap-1 text-xs font-semibold text-emerald-700 transition hover:text-emerald-900">
-                  +{(selectedEvents.length + selectedHolidayTitles.length) - 2} more <FaArrowRight className="text-[10px]" />
+                  +{(selectedEvents.length + selectedHolidayTitles.length) - 2} more <ArrowRight className="h-2.5 w-2.5" />
                 </Link>
               )}
             </div>
@@ -167,7 +176,17 @@ export default function CalendarModule() {
             {loading && (
               <div className="space-y-3">
                 {[...Array(2)].map((_, i) => (
-                  <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />
+                  <div
+                    key={i}
+                    className="skeleton-shimmer flex gap-3 rounded-xl p-3"
+                    style={{ animationDelay: `${i * 200}ms` }}
+                  >
+                    <div className="h-12 w-12 flex-shrink-0 rounded-2xl bg-emerald-200/50" />
+                    <div className="flex-1 space-y-2 py-1">
+                      <div className="h-4 w-3/4 rounded-full bg-emerald-200/50" />
+                      <div className="h-3 w-1/2 rounded-full bg-emerald-200/40" />
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
@@ -185,7 +204,7 @@ export default function CalendarModule() {
                         >
                         
                           <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
-                            <FaGift className="text-red-600" />
+                            <Gift className="h-4 w-4 text-red-600" strokeWidth={1.8} />
                           </div>
                           <div className="flex-1">
                             <div className="font-semibold text-red-800">{title}</div>
@@ -202,7 +221,7 @@ export default function CalendarModule() {
                   <div>
                     {selectedHolidayTitles.length > 0 && (
                       <div className="mb-2 mt-2 flex items-center gap-2 text-sm font-semibold text-emerald-700">
-                        <FaCalendarAlt className="text-accent" />
+                        <CalendarDays className="h-4 w-4 text-accent" strokeWidth={1.8} />
                         <span>Events</span>
                       </div>
                     )}
@@ -236,7 +255,7 @@ export default function CalendarModule() {
                               )}
                               {event.location && (
                                 <div className="mt-1 flex items-center gap-1 text-xs text-slate-400">
-                                  <FaMapMarkerAlt className="text-accent text-[10px]" />
+                                  <MapPin className="h-2.5 w-2.5 text-accent" strokeWidth={1.8} />
                                   {event.location}
                                 </div>
                               )}
@@ -244,7 +263,7 @@ export default function CalendarModule() {
                                 <div className="mt-1 text-xs text-slate-400">{formatDate(event.event_date)}</div>
                               )}
                             </div>
-                            <FaArrowRight className="flex-shrink-0 self-center text-xs text-emerald-400 transition group-hover:text-emerald-600" />
+                            <ArrowRight className="flex-shrink-0 self-center h-3.5 w-3.5 text-emerald-400 transition group-hover:text-emerald-600" />
                           </Link>
                         );
                       })}
@@ -255,15 +274,19 @@ export default function CalendarModule() {
                 {/* Empty states */}
                 {isShowingSelected && selectedHolidayTitles.length === 0 && displayEvents.length === 0 && (
                   <div className="text-center py-8 text-gray-400">
-                    <FaCalendarAlt className="text-4xl mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">No events or holidays on this date.</p>
+                    <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50">
+                      <CalendarRange className="h-7 w-7 text-emerald-300" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-sm font-medium">No events or holidays on this date.</p>
                   </div>
                 )}
 
                 {!isShowingSelected && displayEvents.length === 0 && (
                   <div className="text-center py-8 text-gray-400">
-                    <FaCalendarAlt className="text-4xl mx-auto mb-2 opacity-20" />
-                    <p className="text-sm">No upcoming events at this time.</p>
+                    <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50">
+                      <CalendarRange className="h-7 w-7 text-emerald-300" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-sm font-medium">No upcoming events at this time.</p>
                   </div>
                 )}
               </>
@@ -276,22 +299,24 @@ export default function CalendarModule() {
                   to="/events"
                   className="flex items-center justify-center gap-1.5 text-primary-700 hover:text-accent font-semibold text-sm transition-colors"
                 >
-                  View All Events <FaArrowRight className="text-xs" />
+                  View All Events <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             )}
           </div>
         </div>
 
-        {/* Mobile View All */}
-        <div className="mt-6 md:hidden text-center">
-          <Link
-            to="/events"
-            className="inline-flex items-center gap-2 bg-primary-700 text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-primary-800 transition-colors"
-          >
-            View All Events <FaArrowRight className="text-xs" />
-          </Link>
-        </div>
+        {/* Conditional Mobile View All — only when events exist */}
+        {!loading && events.length > 0 && (
+          <div className="mt-6 md:hidden text-center">
+            <Link
+              to="/events"
+              className="inline-flex items-center gap-2 bg-primary-700 text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-primary-800 transition-colors"
+            >
+              View All Events <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

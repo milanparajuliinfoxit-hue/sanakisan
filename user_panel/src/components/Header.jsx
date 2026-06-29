@@ -119,7 +119,15 @@ export default function Header() {
                 {item.sub ? (
                   <div className="invisible absolute left-0 top-full z-50 min-w-48 rounded-b-xl border-t-2 border-amber-400 bg-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
                     {item.sub.map((sub) => (
-                      <Link key={sub.path} to={sub.path} className="block px-4 py-2.5 text-sm text-emerald-800 transition hover:bg-emerald-50 hover:text-emerald-700">
+                      <Link
+                        key={sub.path}
+                        to={sub.path}
+                        className={`block px-4 py-2.5 text-sm transition ${
+                          location.pathname + location.hash === sub.path
+                            ? "bg-emerald-50 text-emerald-700 font-semibold"
+                            : "text-emerald-800 hover:bg-emerald-50 hover:text-emerald-700"
+                        }`}
+                      >
                         {sub.label}
                       </Link>
                     ))}
@@ -140,7 +148,11 @@ export default function Header() {
             {navItems.map((item) => (
               <div key={item.path}>
                 <div className="flex items-center justify-between">
-                  <Link to={item.path} className="flex-1 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10">
+                  <Link
+                    to={item.path}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex-1 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10"
+                  >
                     {item.label}
                   </Link>
                   {item.sub ? (
@@ -152,7 +164,16 @@ export default function Header() {
                 {item.sub && openDropdown === item.path ? (
                   <div className="bg-emerald-900/80">
                     {item.sub.map((sub) => (
-                      <Link key={sub.path} to={sub.path} className="block pl-10 pr-5 py-2.5 text-sm text-emerald-100 transition hover:bg-white/10 hover:text-white">
+                      <Link
+                        key={sub.path}
+                        to={sub.path}
+                        onClick={() => setMobileOpen(false)}
+                        className={`block pl-10 pr-5 py-2.5 text-sm transition ${
+                          location.pathname + location.hash === sub.path
+                            ? "bg-emerald-800/40 text-white font-semibold"
+                            : "text-emerald-100 hover:bg-white/10 hover:text-white"
+                        }`}
+                      >
                         → {sub.label}
                       </Link>
                     ))}
