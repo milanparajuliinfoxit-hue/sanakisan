@@ -1,16 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FaImages, FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { fetchGallery, getImageUrl } from '../api/config';
-
-const PageBanner = ({ title, subtitle, breadcrumb }) => (
-  <div className="bg-gradient-to-r from-primary-900 to-primary-700 py-12 px-4">
-    <div className="max-w-7xl mx-auto">
-      <div className="text-primary-300 text-sm mb-2">{breadcrumb}</div>
-      <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">{title}</h1>
-      {subtitle && <p className="text-primary-200">{subtitle}</p>}
-    </div>
-  </div>
-);
+import PageBanner from '../components/PageBanner';
 
 export default function GalleryPage() {
   const [images, setImages] = useState([]);
@@ -61,16 +52,16 @@ export default function GalleryPage() {
 
   return (
     <div>
-      <PageBanner title="Photo Gallery" subtitle="Moments from our cooperative activities & events" breadcrumb="Home › Gallery" />
+      <PageBanner title="Photo Gallery" subtitle="Moments from our cooperative activities & events" breadcrumb="Home › Gallery" eyebrow="Visual stories" />
 
-      <section className="py-10 px-4">
-        <div className="max-w-7xl mx-auto">
+      <section className="px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
           {/* Filter tabs */}
           {events.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-8">
+            <div className="mb-8 flex flex-wrap gap-2">
               <button
                 onClick={() => setFilter('')}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${!filter ? 'bg-primary-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-primary-50'}`}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${!filter ? 'bg-emerald-800 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
               >
                 All Photos
               </button>
@@ -78,7 +69,7 @@ export default function GalleryPage() {
                 <button
                   key={event}
                   onClick={() => setFilter(event)}
-                  className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${filter === event ? 'bg-primary-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-primary-50'}`}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold transition ${filter === event ? 'bg-emerald-800 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
                 >
                   {event}
                 </button>
@@ -89,14 +80,14 @@ export default function GalleryPage() {
           {loading && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {[...Array(12)].map((_, i) => (
-                <div key={i} className="aspect-square bg-gray-200 rounded-xl animate-pulse" />
+                <div key={i} className="aspect-square animate-pulse rounded-3xl bg-emerald-100" />
               ))}
             </div>
           )}
 
           {!loading && filtered.length === 0 && (
-            <div className="text-center py-16 text-gray-400">
-              <FaImages className="text-5xl mx-auto mb-3 opacity-20" />
+            <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 py-16 text-center text-slate-500">
+              <FaImages className="mx-auto mb-3 text-5xl opacity-20" />
               <p>No photos available.</p>
             </div>
           )}
@@ -106,24 +97,24 @@ export default function GalleryPage() {
               {filtered.map((img, i) => (
                 <div
                   key={img.id || i}
-                  className="aspect-square overflow-hidden rounded-xl cursor-pointer group relative bg-primary-100"
+                  className="group relative aspect-square cursor-pointer overflow-hidden rounded-3xl border border-emerald-100 bg-emerald-100"
                   onClick={() => openLightbox(i)}
                 >
                   <img
                     src={getGalleryImageUrl(img)}
                     alt={img.event || 'Gallery'}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                     onError={e => {
-                      e.target.parentNode.classList.add('bg-primary-700');
+                      e.target.parentNode.classList.add('bg-emerald-800');
                       e.target.style.display = 'none';
                     }}
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all flex items-center justify-center">
-                    <FaImages className="text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all group-hover:bg-black/30">
+                    <FaImages className="text-3xl text-white opacity-0 transition-opacity group-hover:opacity-100" />
                   </div>
                   {img.event && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent py-2 px-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <p className="text-white text-xs truncate">{img.event}</p>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-2 opacity-0 transition-opacity group-hover:opacity-100">
+                      <p className="truncate text-xs text-white">{img.event}</p>
                     </div>
                   )}
                 </div>

@@ -10,18 +10,7 @@ import {
 } from "react-icons/fa";
 import { fetchNotices, fetchNoticeById, getImageUrl } from "../api/config";
 import { formatDate, formatFullDate } from "../utils/dateUtils";
-
-const PageBanner = ({ title, subtitle, breadcrumb }) => (
-  <div className="bg-gradient-to-r from-primary-900 to-primary-700 py-12 px-4">
-    <div className="max-w-7xl mx-auto">
-      <div className="text-primary-300 text-sm mb-2">{breadcrumb}</div>
-      <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">
-        {title}
-      </h1>
-      {subtitle && <p className="text-primary-200">{subtitle}</p>}
-    </div>
-  </div>
-);
+import PageBanner from "../components/PageBanner";
 
 export function NoticesPage() {
   const [notices, setNotices] = useState([]);
@@ -54,18 +43,19 @@ export function NoticesPage() {
         title="Notice Board"
         subtitle="Latest announcements and official notices"
         breadcrumb="Home › Notice Board"
+        eyebrow="Official updates"
       />
-      <section className="py-10 px-4">
-        <div className="max-w-4xl mx-auto">
+      <section className="px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
           {/* Search */}
           <div className="relative mb-6">
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Search notices..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-primary-500 text-sm"
+              className="w-full rounded-2xl border border-emerald-100 bg-white py-3 pl-10 pr-4 text-sm text-slate-700 outline-none transition focus:border-emerald-500"
             />
           </div>
 
@@ -74,15 +64,15 @@ export function NoticesPage() {
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className="h-20 bg-gray-100 rounded-xl animate-pulse"
+                  className="h-20 animate-pulse rounded-[1.4rem] bg-emerald-100"
                 />
               ))}
             </div>
           )}
 
           {!loading && filtered.length === 0 && (
-            <div className="text-center py-16 text-gray-400">
-              <FaBell className="text-5xl mx-auto mb-3 opacity-20" />
+            <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 py-16 text-center text-slate-500">
+              <FaBell className="mx-auto mb-3 text-5xl opacity-20" />
               <p>No notices found.</p>
             </div>
           )}
@@ -93,9 +83,9 @@ export function NoticesPage() {
                 <Link
                   key={notice.id || i}
                   to={`/notices/${notice.id}`}
-                  className="card-hover flex items-start gap-4 bg-white rounded-xl p-4 border border-gray-100 hover:border-primary-300 shadow-sm group"
+                  className="card-hover group flex items-start gap-4 rounded-[1.4rem] border border-emerald-100 bg-white p-4 shadow-sm hover:border-emerald-200"
                 >
-                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-primary-100">
+                  <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-emerald-100">
                     {notice.featuredImage ? (
                       <img
                         src={getImageUrl(notice.featuredImage)}
@@ -103,29 +93,29 @@ export function NoticesPage() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full bg-primary-700 flex items-center justify-center">
-                        <FaBell className="text-white text-xl" />
+                      <div className="flex h-full w-full items-center justify-center bg-emerald-800">
+                        <FaBell className="text-xl text-white" />
                       </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-primary-900 group-hover:text-primary-600 text-sm leading-tight mb-1.5 line-clamp-2">
+                    <h3 className="mb-1.5 text-sm font-semibold leading-tight text-emerald-950 transition group-hover:text-emerald-700">
                       {notice.title}
                     </h3>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <FaCalendarAlt className="text-primary-400" />
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                      <span className="flex items-center gap-1.5">
+                        <FaCalendarAlt className="text-emerald-500" />
                         {formatDate(notice.publishDate || notice.createdAt)}
                       </span>
                       {notice.author && (
                         <span className="flex items-center gap-1">
-                          <FaUser className="text-primary-400" />
+                          <FaUser className="text-emerald-500" />
                           {notice.author}
                         </span>
                       )}
                     </div>
                   </div>
-                  <FaArrowRight className="text-primary-300 group-hover:text-primary-600 transition-colors flex-shrink-0 mt-1" />
+                  <FaArrowRight className="mt-1 flex-shrink-0 text-emerald-400 transition group-hover:text-emerald-600" />
                 </Link>
               ))}
             </div>
@@ -141,7 +131,7 @@ export function NoticesPage() {
               >
                 ← Prev
               </button>
-              <span className="px-4 py-2 text-sm text-gray-500">
+              <span className="px-4 py-2 text-sm text-slate-500">
                 Page {page}
               </span>
               <button
@@ -179,15 +169,15 @@ export function NoticeSinglePage() {
 
   return (
     <div>
-      <div className="bg-gradient-to-r from-primary-900 to-primary-700 py-8 px-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_35%),linear-gradient(135deg,#14532d_0%,#166534_48%,#15803d_100%)] px-4 py-8">
+        <div className="mx-auto max-w-4xl">
           <Link
             to="/notices"
-            className="inline-flex items-center gap-2 text-primary-200 hover:text-white text-sm mb-4 transition-colors"
+            className="mb-4 inline-flex items-center gap-2 text-sm text-emerald-50/90 transition hover:text-white"
           >
             <FaArrowLeft /> Back to Notice Board
           </Link>
-          <h1 className="font-display text-2xl md:text-3xl font-bold text-white">
+          <h1 className="font-display text-2xl font-semibold text-white md:text-3xl">
             {loading ? "Loading..." : notice?.title || "Notice"}
           </h1>
         </div>
@@ -196,13 +186,13 @@ export function NoticeSinglePage() {
       <section className="py-10 px-4">
         <div className="max-w-4xl mx-auto">
           {loading && (
-            <div className="h-64 bg-gray-100 rounded-xl animate-pulse" />
+            <div className="h-64 animate-pulse rounded-[1.6rem] bg-emerald-100" />
           )}
           {error && (
             <div className="text-center py-12 text-gray-400">{error}</div>
           )}
           {!loading && !error && notice && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white shadow-sm">
               {notice.featuredImage && (
                 <div className="h-56 overflow-hidden">
                   <img
@@ -213,9 +203,9 @@ export function NoticeSinglePage() {
                 </div>
               )}
               <div className="p-8">
-                <div className="flex flex-wrap gap-4 text-sm text-gray-400 mb-6 pb-6 border-b border-gray-100">
+                <div className="mb-6 flex flex-wrap gap-4 border-b border-emerald-100 pb-6 text-sm text-slate-500">
                   <span className="flex items-center gap-1.5">
-                    <FaCalendarAlt className="text-primary-400" />
+                    <FaCalendarAlt className="text-emerald-500" />
                     {formatFullDate(notice.publishDate || notice.createdAt)}
                   </span>
                   {notice.author && (
@@ -227,7 +217,7 @@ export function NoticeSinglePage() {
                 </div>
                 {notice.content ? (
                   <div
-                    className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                    className="prose prose-sm max-w-none leading-8 text-slate-700"
                     dangerouslySetInnerHTML={{ __html: notice.content }}
                   />
                 ) : (

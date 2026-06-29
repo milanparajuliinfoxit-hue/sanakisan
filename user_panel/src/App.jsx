@@ -41,11 +41,11 @@ export default function App() {
             <Route path="/events" element={<CalendarModule />} /> 
             <Route path='/events/:id' element={<EventSinglePage/>}/>
             <Route path="*" element={
-              <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-                <div className="text-6xl mb-4">🌿</div>
-                <h1 className="font-display text-3xl font-bold text-primary-900 mb-2">Page Not Found</h1>
-                <p className="text-gray-500 mb-6">The page you're looking for doesn't exist.</p>
-                <a href="/" className="bg-primary-700 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-primary-800 transition-colors">
+              <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-16 text-center">
+                <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-4xl">🌿</div>
+                <h1 className="mb-2 font-display text-3xl font-semibold text-emerald-950">Page Not Found</h1>
+                <p className="mb-6 max-w-md text-base leading-8 text-slate-600">The page you are looking for may have moved or no longer exists.</p>
+                <a href="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-800 px-6 py-2.5 font-semibold text-white transition hover:bg-emerald-700">
                   Go Home
                 </a>
               </div>

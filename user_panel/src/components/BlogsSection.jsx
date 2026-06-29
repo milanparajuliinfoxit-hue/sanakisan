@@ -33,42 +33,32 @@ export default function BlogsSection({ limit = 5 }) {
   }, [limit]);
 
   return (
-    <section className="py-12 px-4 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+    <section className="bg-white px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-              <FaNewspaper className="text-white text-lg" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white">
+              <FaNewspaper className="text-lg" />
             </div>
             <div>
-              <h2 className="font-display text-2xl font-bold text-primary-900">
-                News & Blogs
-              </h2>
-              <div className="text-primary-500 text-sm">
-                Latest news and updates
-              </div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600">Stories & insights</p>
+              <h2 className="font-display text-2xl font-semibold text-emerald-950">News & Blogs</h2>
             </div>
           </div>
-          <Link
-            to="/blogs"
-            className="hidden md:flex items-center gap-1.5 text-primary-700 hover:text-accent font-semibold text-sm transition-colors border border-primary-700 hover:border-accent px-4 py-2 rounded-lg"
-          >
+          <Link to="/blogs" className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition hover:text-emerald-900">
             View All <FaArrowRight className="text-xs" />
           </Link>
         </div>
 
         {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[...Array(3)].map((_, i) => (
-              <div
-                key={i}
-                className="rounded-xl overflow-hidden bg-gray-100 animate-pulse"
-              >
-                <div className="h-48 bg-gray-200" />
-                <div className="p-4 space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-3/4" />
-                  <div className="h-3 bg-gray-200 rounded w-1/2" />
-                  <div className="h-10 bg-gray-200 rounded" />
+              <div key={i} className="overflow-hidden rounded-3xl bg-slate-100 animate-pulse">
+                <div className="h-48 bg-slate-200" />
+                <div className="space-y-2 p-4">
+                  <div className="h-4 w-3/4 rounded bg-slate-200" />
+                  <div className="h-3 w-1/2 rounded bg-slate-200" />
+                  <div className="h-10 rounded bg-slate-200" />
                 </div>
               </div>
             ))}
@@ -76,94 +66,34 @@ export default function BlogsSection({ limit = 5 }) {
         )}
 
         {!loading && !error && blogs.length === 0 && (
-          <div className="text-center py-10 text-gray-400">
-            <FaNewspaper className="text-4xl mx-auto mb-2 opacity-30" />
-            <p className="text-sm">No news available at this time.</p>
-          </div>
+          <div className="rounded-3xl border border-emerald-100 bg-emerald-50/60 py-10 text-center text-sm text-slate-500">No news available at this time.</div>
         )}
 
         {!loading && !error && blogs.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {blogs.slice(0, limit).map((blog, i) => (
-              <Link
-                key={blog.id || i}
-                to={`/blogs/${blog.id}`}
-                className="card-hover group rounded-xl overflow-hidden border border-gray-100 hover:border-primary-200 bg-white shadow-sm"
-              >
-                {/* Thumbnail */}
-                <div className="h-48 overflow-hidden bg-primary-50">
-                  {blog.featuredImage ||
-                  blog.featured_image ||
-                  blog.image ||
-                  blog.thumbnail ? (
-                    <img
-                      src={getImageUrl(
-                        blog.featuredImage ||
-                          blog.featured_image ||
-                          blog.image ||
-                          blog.thumbnail,
-                      )}
-                      alt={blog.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onLoad={() =>
-                        console.log(
-                          "Image Loaded:",
-                          getImageUrl(
-                            blog.featuredImage ||
-                              blog.featured_image ||
-                              blog.image ||
-                              blog.thumbnail,
-                          ),
-                        )
-                      }
-                      onError={(e) => {
-                        console.error(
-                          "Image Failed:",
-                          getImageUrl(
-                            blog.featuredImage ||
-                              blog.featured_image ||
-                              blog.image ||
-                              blog.thumbnail,
-                          ),
-                        );
-
-                        e.target.src = "/assets/default-news.jpg";
-                      }}
-                    />
+              <Link key={blog.id || i} to={`/blogs/${blog.id}`} className="card-hover group overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm hover:border-emerald-200">
+                <div className="h-48 overflow-hidden bg-emerald-50">
+                  {blog.featuredImage || blog.featured_image || blog.image || blog.thumbnail ? (
+                    <img src={getImageUrl(blog.featuredImage || blog.featured_image || blog.image || blog.thumbnail)} alt={blog.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" onError={(e) => { e.target.src = "/assets/default-news.jpg"; }} />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-primary-700 to-primary-500 flex items-center justify-center">
-                      <FaNewspaper className="text-white text-4xl opacity-40" />
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-800 to-emerald-600">
+                      <FaNewspaper className="text-4xl text-white opacity-40" />
                     </div>
                   )}
                 </div>
 
-                {/* Content */}
-                <div className="p-4">
-                  <h3 className="font-display font-bold text-primary-900 group-hover:text-primary-600 transition-colors leading-tight mb-2 line-clamp-2">
-                    {blog.title}
-                  </h3>
+                <div className="p-5">
+                  <h3 className="mb-2 font-display text-lg font-semibold leading-tight text-emerald-950 transition group-hover:text-emerald-700">{blog.title}</h3>
                   {blog.content && (
-                    <p className="text-gray-500 text-sm leading-relaxed mb-3 line-clamp-2">
-                      {blog.content.replace(/<[^>]*>/g, "").substring(0, 100)}
-                      ...
-                    </p>
+                    <p className="mb-3 line-clamp-2 text-sm leading-7 text-slate-600">{blog.content.replace(/<[^>]*>/g, "").substring(0, 100)}...</p>
                   )}
-                  <div className="flex items-center justify-between text-xs text-gray-400 pt-3 border-t border-gray-100">
+                  <div className="flex items-center justify-between border-t border-emerald-100 pt-3 text-xs text-slate-500">
                     <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1">
-                        <FaCalendarAlt className="text-primary-400" />
-                        {formatDate(blog.publishDate || blog.createdAt)}
-                      </span>
-                      {blog.author && (
-                        <span className="flex items-center gap-1">
-                          <FaUser className="text-primary-400" />
-                          {blog.author}
-                        </span>
-                      )}
+                      <span className="flex items-center gap-1.5"><FaCalendarAlt className="text-emerald-500" />{formatDate(blog.publishDate || blog.createdAt)}</span>
+                      {blog.author ? <span className="flex items-center gap-1.5"><FaUser className="text-emerald-500" />{blog.author}</span> : null}
                     </div>
-                    <span className="text-primary-600 font-semibold flex items-center gap-1">
-                      Read <FaArrowRight className="text-xs" />
-                    </span>
+                    <span className="flex items-center gap-1 font-semibold text-emerald-600">Read <FaArrowRight className="text-[10px]" /></span>
                   </div>
                 </div>
               </Link>
@@ -171,11 +101,8 @@ export default function BlogsSection({ limit = 5 }) {
           </div>
         )}
 
-        <div className="mt-8 md:hidden text-center">
-          <Link
-            to="/blogs"
-            className="inline-flex items-center gap-2 bg-primary-700 text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-primary-800 transition-colors"
-          >
+        <div className="mt-8 text-center md:hidden">
+          <Link to="/blogs" className="inline-flex items-center gap-2 rounded-full bg-emerald-800 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
             View All News <FaArrowRight className="text-xs" />
           </Link>
         </div>

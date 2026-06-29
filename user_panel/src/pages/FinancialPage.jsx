@@ -1,15 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-
-const PageBanner = ({ title, subtitle, breadcrumb }) => (
-  <div className="bg-gradient-to-r from-primary-900 to-primary-700 py-12 px-4">
-    <div className="max-w-7xl mx-auto">
-      <div className="text-primary-300 text-sm mb-2">{breadcrumb}</div>
-      <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">{title}</h1>
-      {subtitle && <p className="text-primary-200">{subtitle}</p>}
-    </div>
-  </div>
-);
+import PageBanner from '../components/PageBanner';
 
 const deposits = [
   {
@@ -86,15 +77,15 @@ const loans = [
 const Accordion = ({ title, children }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden mb-3">
+    <div className="mb-3 overflow-hidden rounded-[1.2rem] border border-emerald-100">
       <button
-        className="w-full flex items-center justify-between px-5 py-4 text-left bg-white hover:bg-primary-50 transition-colors"
+        className="flex w-full items-center justify-between bg-white px-5 py-4 text-left transition hover:bg-emerald-50"
         onClick={() => setOpen(!open)}
       >
         <span className="font-semibold text-primary-900 text-sm">{title}</span>
         {open ? <FaChevronUp className="text-primary-500 flex-shrink-0" /> : <FaChevronDown className="text-primary-500 flex-shrink-0" />}
       </button>
-      {open && <div className="px-5 pb-5 bg-gray-50 text-sm text-gray-600 leading-relaxed">{children}</div>}
+      {open && <div className="bg-emerald-50/70 px-5 pb-5 text-sm leading-8 text-slate-600">{children}</div>}
     </div>
   );
 };
@@ -102,24 +93,48 @@ const Accordion = ({ title, children }) => {
 export default function FinancialPage() {
   const [activeTab, setActiveTab] = useState('deposit');
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1);
+      if (hash === 'deposit' || hash === 'loan') {
+        setActiveTab(hash);
+        setTimeout(() => {
+          const element = document.getElementById(hash);
+          if (element) element.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    handleHashChange();
+
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    window.location.hash = tabId;
+  };
+
   return (
     <div>
       <PageBanner
         title="Financial Services"
         subtitle="Deposits, Loans & More"
         breadcrumb="Home › Financial"
+        eyebrow="Member-centered finance"
       />
 
       {/* Overview */}
-      <section id="overview" className="py-10 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <section id="overview" className="bg-white px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <h2 className="font-display text-2xl font-bold text-primary-900 mb-3">Financial Services Overview</h2>
-              <p className="text-gray-600 leading-relaxed mb-3">
+              <h2 className="mb-3 font-display text-2xl font-semibold text-emerald-950">Financial Services Overview</h2>
+              <p className="mb-3 text-base leading-8 text-slate-600">
                 SFACL offers a comprehensive range of financial products designed for the specific needs of cooperative members in Jalthal. From daily savings to long-term fixed deposits, and from agricultural loans to home financing — we provide affordable, member-centric financial solutions.
               </p>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-base leading-8 text-slate-600">
                 All services are available exclusively to registered members of the cooperative. Membership is open to all residents of the Jalthal area. Interest rates are reviewed periodically by the Board of Directors in line with Nepal Rastra Bank guidelines.
               </p>
             </div>
@@ -130,27 +145,27 @@ export default function FinancialPage() {
                 { value: '98.5%', label: 'Recovery Rate' },
                 { value: '2,500+', label: 'Loan Members' },
               ].map((stat, i) => (
-                <div key={i} className="bg-primary-700 text-white rounded-xl p-4 text-center">
-                  <div className="text-xl font-display font-bold text-accent">{stat.value}</div>
-                  <div className="text-xs text-primary-200 mt-1">{stat.label}</div>
+                <div key={i} className="rounded-2xl bg-emerald-800 p-4 text-center text-white">
+                  <div className="text-xl font-display font-semibold text-amber-300">{stat.value}</div>
+                  <div className="mt-1 text-xs uppercase tracking-[0.2em] text-emerald-100">{stat.label}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Tabs */}
-          <div className="flex border-b border-gray-200 mb-6">
+          <div className="mb-6 flex border-b border-emerald-100">
             {[
               { id: 'deposit', label: '💰 Deposit Schemes' },
               { id: 'loan', label: '🏦 Loan Products' },
             ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-5 py-3 text-sm font-semibold transition-colors border-b-2 -mb-0.5 ${
+                onClick={() => handleTabChange(tab.id)}
+                className={`-mb-0.5 border-b-2 px-5 py-3 text-sm font-semibold transition ${
                   activeTab === tab.id
-                    ? 'border-primary-700 text-primary-700'
-                    : 'border-transparent text-gray-500 hover:text-primary-600'
+                    ? 'border-emerald-700 text-emerald-700'
+                    : 'border-transparent text-slate-500 hover:text-emerald-700'
                 }`}
               >
                 {tab.label}
@@ -162,20 +177,20 @@ export default function FinancialPage() {
 
       {/* Deposit Services */}
       {activeTab === 'deposit' && (
-        <section id="deposit" className="px-4 pb-12 bg-white">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <section id="deposit" className="bg-white px-4 pb-12 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {deposits.map((dep, i) => (
-                <div key={i} className="card-hover border border-gray-100 rounded-2xl p-5 bg-gray-50 hover:bg-white shadow-sm">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-display font-bold text-primary-900 text-sm leading-tight flex-1">{dep.type}</h3>
-                    <span className="ml-2 bg-primary-700 text-white text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0">{dep.rate}</span>
+                <div key={i} className="card-hover rounded-[1.6rem] border border-emerald-100 bg-emerald-50/60 p-5 shadow-sm hover:bg-white">
+                  <div className="mb-3 flex items-start justify-between">
+                    <h3 className="flex-1 font-display text-sm font-semibold leading-tight text-emerald-950">{dep.type}</h3>
+                    <span className="ml-2 flex-shrink-0 rounded-full bg-emerald-800 px-2.5 py-1 text-xs font-semibold text-white">{dep.rate}</span>
                   </div>
-                  <p className="text-gray-500 text-xs leading-relaxed mb-3">{dep.description}</p>
+                  <p className="mb-3 text-xs leading-7 text-slate-600">{dep.description}</p>
                   <ul className="space-y-1.5">
                     {dep.features.map((f, fi) => (
-                      <li key={fi} className="flex gap-1.5 text-xs text-gray-600">
-                        <span className="text-primary-500 font-bold flex-shrink-0">✓</span>
+                      <li key={fi} className="flex gap-1.5 text-xs text-slate-600">
+                        <span className="flex-shrink-0 font-bold text-emerald-600">✓</span>
                         {f}
                       </li>
                     ))}
@@ -189,20 +204,20 @@ export default function FinancialPage() {
 
       {/* Loan Services */}
       {activeTab === 'loan' && (
-        <section id="loan" className="px-4 pb-12 bg-white">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <section id="loan" className="bg-white px-4 pb-12 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {loans.map((loan, i) => (
-                <div key={i} className="card-hover border border-gray-100 rounded-2xl p-5 bg-gray-50 hover:bg-white shadow-sm">
-                  <div className="flex items-start justify-between mb-3">
-                    <h3 className="font-display font-bold text-primary-900 text-sm leading-tight flex-1">{loan.type}</h3>
-                    <span className="ml-2 bg-accent text-white text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0">{loan.rate}</span>
+                <div key={i} className="card-hover rounded-[1.6rem] border border-emerald-100 bg-emerald-50/60 p-5 shadow-sm hover:bg-white">
+                  <div className="mb-3 flex items-start justify-between">
+                    <h3 className="flex-1 font-display text-sm font-semibold leading-tight text-emerald-950">{loan.type}</h3>
+                    <span className="ml-2 flex-shrink-0 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-semibold text-white">{loan.rate}</span>
                   </div>
-                  <p className="text-gray-500 text-xs leading-relaxed mb-3">{loan.description}</p>
+                  <p className="mb-3 text-xs leading-7 text-slate-600">{loan.description}</p>
                   <ul className="space-y-1.5">
                     {loan.features.map((f, fi) => (
-                      <li key={fi} className="flex gap-1.5 text-xs text-gray-600">
-                        <span className="text-accent font-bold flex-shrink-0">✓</span>
+                      <li key={fi} className="flex gap-1.5 text-xs text-slate-600">
+                        <span className="flex-shrink-0 font-bold text-amber-500">✓</span>
                         {f}
                       </li>
                     ))}
@@ -217,17 +232,17 @@ export default function FinancialPage() {
       <div className="section-divider" />
 
       {/* Required Documents */}
-      <section id="documents" className="py-14 px-4 bg-gray-50">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="font-display text-2xl font-bold text-primary-900 mb-2">Required Documents</h2>
-            <p className="text-gray-500 text-sm">Documents needed for membership, account opening, and loan processing</p>
+      <section id="documents" className="bg-emerald-50/70 px-4 py-14 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-10 text-center">
+            <h2 className="mb-2 font-display text-2xl font-semibold text-emerald-950">Required Documents</h2>
+            <p className="text-sm text-slate-500">Documents needed for membership, account opening, and loan processing</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <h3 className="font-display font-bold text-primary-900 text-lg mb-5 pb-3 border-b border-gray-100 flex items-center gap-2">
-                <span className="w-8 h-8 bg-primary-700 text-white rounded-lg flex items-center justify-center text-sm">📋</span>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="rounded-[1.6rem] border border-emerald-100 bg-white p-6 shadow-sm">
+              <h3 className="mb-5 flex items-center gap-2 border-b border-emerald-100 pb-3 font-display text-lg font-semibold text-emerald-950">
+                <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-emerald-800 text-sm text-white">📋</span>
                 New Membership & Account Opening
               </h3>
               <ul className="space-y-2">
@@ -249,14 +264,14 @@ export default function FinancialPage() {
               </ul>
             </div>
 
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-              <h3 className="font-display font-bold text-primary-900 text-lg mb-5 pb-3 border-b border-gray-100 flex items-center gap-2">
-                <span className="w-8 h-8 bg-accent text-white rounded-lg flex items-center justify-center text-sm">📄</span>
+            <div className="rounded-[1.6rem] border border-emerald-100 bg-white p-6 shadow-sm">
+              <h3 className="mb-5 flex items-center gap-2 border-b border-emerald-100 pb-3 font-display text-lg font-semibold text-emerald-950">
+                <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-amber-500 text-sm text-white">📄</span>
                 Loan Application Processing
               </h3>
               <div className="space-y-4">
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase mb-1.5">Basic Documents (All Loans)</div>
+                  <div className="mb-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Basic Documents (All Loans)</div>
                   <ul className="space-y-1.5">
                     {[
                       'Membership certificate and share passbook',
@@ -272,7 +287,7 @@ export default function FinancialPage() {
                   </ul>
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase mb-1.5">For Property Collateral Loans</div>
+                  <div className="mb-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">For Property Collateral Loans</div>
                   <ul className="space-y-1.5">
                     {[
                       'Land ownership certificate (लालपुर्जा)',
@@ -287,7 +302,7 @@ export default function FinancialPage() {
                   </ul>
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-gray-400 uppercase mb-1.5">Business Loan Additional</div>
+                  <div className="mb-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Business Loan Additional</div>
                   <ul className="space-y-1.5">
                     {[
                       'Business registration certificate',
@@ -304,8 +319,8 @@ export default function FinancialPage() {
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-primary-50 border border-primary-200 rounded-xl">
-            <p className="text-sm text-primary-800">
+          <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4">
+            <p className="text-sm text-emerald-800">
               <strong>Note:</strong> Document requirements may vary based on loan type and amount. Please visit our office or call us for specific requirements for your loan application. All documents should be submitted in original along with photocopies.
             </p>
           </div>

@@ -111,28 +111,25 @@ export default function CalendarModule() {
   const selectedAdLabel = selectedAdDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
   return (
-    <section className="py-12 px-4 bg-primary-50">
-      <div className="max-w-7xl mx-auto">
+    <section className="bg-emerald-50/70 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
         {/* Section header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-700 rounded-lg flex items-center justify-center">
-              <FaCalendarAlt className="text-white text-lg" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-800 text-white">
+              <FaCalendarAlt className="text-lg" />
             </div>
             <div>
-              <h2 className="font-display text-2xl font-bold text-primary-900">Event Calendar</h2>
-              <div className="text-primary-500 text-sm">Upcoming events & holidays</div>
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600">Community calendar</p>
+              <h2 className="font-display text-2xl font-semibold text-emerald-950">Event Calendar</h2>
             </div>
           </div>
-          <Link
-            to="/events"
-            className="hidden md:flex items-center gap-1.5 text-primary-700 hover:text-accent font-semibold text-sm transition-colors border border-primary-700 hover:border-accent px-4 py-2 rounded-lg"
-          >
+          <Link to="/events" className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition hover:text-emerald-900">
             View All <FaArrowRight className="text-xs" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2">
           {/* BS Calendar */}
           <BSCalendar
             selectedBs={selectedBs}
@@ -142,15 +139,15 @@ export default function CalendarModule() {
           />
 
           {/* Events & Holidays panel */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-primary-100">
+          <div className="rounded-[2rem] border border-emerald-100 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
                 {isShowingSelected && (
                   <>
-                    <h3 className="font-display font-semibold text-primary-900 text-lg leading-tight">
+                    <h3 className="font-display text-lg font-semibold leading-tight text-emerald-950">
                       Event on {selectedBsLabel}
                     </h3>
-                    <div className="text-xs text-gray-400 mt-0.5">{selectedAdLabel}</div>
+                    <div className="mt-0.5 text-xs text-slate-400">{selectedAdLabel}</div>
                   </>
                 )}
                 {!isShowingSelected && (
@@ -160,7 +157,7 @@ export default function CalendarModule() {
                 )}
               </div>
               {isShowingSelected && (selectedEvents.length + selectedHolidayTitles.length) > 2 && (
-                <Link to="/events" className="text-xs text-primary-600 hover:text-accent font-semibold flex items-center gap-1">
+                <Link to="/events" className="flex items-center gap-1 text-xs font-semibold text-emerald-700 transition hover:text-emerald-900">
                   +{(selectedEvents.length + selectedHolidayTitles.length) - 2} more <FaArrowRight className="text-[10px]" />
                 </Link>
               )}
@@ -184,10 +181,10 @@ export default function CalendarModule() {
                       {selectedHolidayTitles.map((title, idx) => (
                         <div
                           key={`holiday-${idx}`}
-                          className="flex items-center gap-3 p-3 rounded-xl border border-red-200 bg-red-50"
+                          className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-3"
                         >
                         
-                          <div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
                             <FaGift className="text-red-600" />
                           </div>
                           <div className="flex-1">
@@ -204,7 +201,7 @@ export default function CalendarModule() {
                 {displayEvents.length > 0 && (
                   <div>
                     {selectedHolidayTitles.length > 0 && (
-                      <div className="flex items-center gap-2 text-primary-600 font-semibold text-sm mb-2 mt-2">
+                      <div className="mb-2 mt-2 flex items-center gap-2 text-sm font-semibold text-emerald-700">
                         <FaCalendarAlt className="text-accent" />
                         <span>Events</span>
                       </div>
@@ -216,10 +213,10 @@ export default function CalendarModule() {
                           <Link
                             key={event.id || i}
                             to={`/events/${event.id}`}
-                            className="group flex gap-3 p-3 rounded-xl border border-primary-100 hover:border-primary-300 hover:bg-primary-50 transition-all"
+                            className="group flex gap-3 rounded-2xl border border-emerald-100 p-3 transition hover:border-emerald-200 hover:bg-emerald-50/70"
                           >
                             {evBs && (
-                              <div className="flex-shrink-0 w-12 bg-primary-700 text-white rounded-lg py-2 text-center">
+                              <div className="flex-shrink-0 w-12 rounded-2xl bg-emerald-800 py-2 text-center text-white">
                                 <div className="text-base font-bold leading-none">{nepaliDigits(evBs.day)}</div>
                                 <div className="text-[10px] opacity-80 mt-0.5">{BS_MONTHS_EN[evBs.month].slice(0, 4)}</div>
                                 <div className="text-[9px] opacity-60 mt-0.5">
@@ -229,25 +226,25 @@ export default function CalendarModule() {
                               </div>
                             )}
                             <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-primary-900 text-sm group-hover:text-primary-600 transition-colors leading-snug line-clamp-2">
+                              <div className="line-clamp-2 text-sm font-semibold leading-snug text-emerald-950 transition group-hover:text-emerald-700">
                                 {event.title}
                               </div>
                               {event.content && (
-                                <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                                <div className="mt-0.5 line-clamp-1 text-xs text-slate-500">
                                   {event.content.replace(/<[^>]*>/g, "")}
                                 </div>
                               )}
                               {event.location && (
-                                <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
+                                <div className="mt-1 flex items-center gap-1 text-xs text-slate-400">
                                   <FaMapMarkerAlt className="text-accent text-[10px]" />
                                   {event.location}
                                 </div>
                               )}
                               {!event.content && !event.location && event.event_date && (
-                                <div className="text-xs text-gray-400 mt-1">{formatDate(event.event_date)}</div>
+                                <div className="mt-1 text-xs text-slate-400">{formatDate(event.event_date)}</div>
                               )}
                             </div>
-                            <FaArrowRight className="flex-shrink-0 text-primary-300 group-hover:text-primary-600 text-xs self-center transition-colors" />
+                            <FaArrowRight className="flex-shrink-0 self-center text-xs text-emerald-400 transition group-hover:text-emerald-600" />
                           </Link>
                         );
                       })}

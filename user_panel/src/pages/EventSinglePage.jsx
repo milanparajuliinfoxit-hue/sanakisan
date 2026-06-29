@@ -69,13 +69,13 @@ export default function EventSinglePage() {
     const fullImageUrl = imageUrl ? getImageUrl(imageUrl) : null;
 
     return (
-      <section className="py-12 px-4 bg-primary-50 min-h-screen">
-        <div className="max-w-4xl mx-auto">
-          <Link to="/events" className="inline-flex items-center gap-2 text-primary-600 hover:text-accent mb-6">
+      <section className="min-h-screen bg-emerald-50/70 px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl">
+          <Link to="/events" className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition hover:text-emerald-900">
             <FaArrowLeft /> Back to all events
           </Link>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-primary-100 overflow-hidden">
+          <div className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white shadow-sm">
             {/* Image Display Section */}
             {fullImageUrl ? (
               <div className="relative w-full h-60 md:h-96 bg-gray-100">
@@ -101,17 +101,17 @@ export default function EventSinglePage() {
             )}
 
             <div className="p-6 md:p-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-primary-900 mb-4">
+              <h1 className="mb-4 font-display text-3xl font-semibold text-emerald-950 md:text-4xl">
                 {event.title}
               </h1>
               
-              <div className="flex flex-wrap gap-4 mb-6 text-sm text-gray-600">
+              <div className="mb-6 flex flex-wrap gap-4 text-sm text-slate-600">
                 {event.event_date && (
                   <div className="flex items-center gap-2">
                     <FaCalendarAlt className="text-accent" />
                     <span>{formatDate(event.event_date)}</span>
                     {evBs && (
-                      <span className="text-gray-400">
+                      <span className="text-slate-400">
                         ({nepaliDigits(evBs.day)} {BS_MONTHS[evBs.month]} {nepaliDigits(evBs.year)} BS)
                       </span>
                     )}
@@ -127,7 +127,7 @@ export default function EventSinglePage() {
 
               {event.content && (
                 <div 
-                  className="prose prose-primary max-w-none" 
+                  className="prose prose-sm max-w-none leading-8 text-slate-700" 
                   dangerouslySetInnerHTML={{ __html: event.content }} 
                 />
               )}
@@ -140,14 +140,14 @@ export default function EventSinglePage() {
 
   // Events listing view (when no id)
   return (
-    <section className="py-12 px-4 bg-primary-50 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <FaCalendarAlt className="text-white text-2xl" />
+    <section className="min-h-screen bg-emerald-50/70 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-800">
+            <FaCalendarAlt className="text-2xl text-white" />
           </div>
-          <h1 className="text-4xl font-bold text-primary-900 mb-2">All Events</h1>
-          <p className="text-gray-600">Browse through all our events and activities</p>
+          <h1 className="mb-2 font-display text-4xl font-semibold text-emerald-950">All Events</h1>
+          <p className="text-slate-600">Browse through all our events and activities</p>
         </div>
 
         {loading && (
@@ -159,9 +159,9 @@ export default function EventSinglePage() {
         )}
 
         {!loading && events.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-xl border border-primary-100">
-            <FaCalendarAlt className="text-5xl mx-auto mb-3 text-gray-300" />
-            <p className="text-gray-500">No events found.</p>
+          <div className="rounded-[2rem] border border-emerald-100 bg-white py-16 text-center">
+            <FaCalendarAlt className="mx-auto mb-3 text-5xl text-slate-300" />
+            <p className="text-slate-500">No events found.</p>
           </div>
         )}
 
@@ -173,7 +173,7 @@ export default function EventSinglePage() {
               const fullImageUrl = imageUrl ? getImageUrl(imageUrl) : null;
               
               return (
-                <Link key={eventItem.id} to={`/events/${eventItem.id}`} className="group bg-white rounded-xl border border-primary-100 overflow-hidden hover:shadow-lg transition-all">
+                <Link key={eventItem.id} to={`/events/${eventItem.id}`} className="group overflow-hidden rounded-[1.6rem] border border-emerald-100 bg-white shadow-sm transition hover:border-emerald-200">
                   {fullImageUrl ? (
                     <div className="h-48 overflow-hidden">
                       <img 
@@ -198,16 +198,16 @@ export default function EventSinglePage() {
                   <div className="p-5">
                     <div className="flex items-start gap-3 mb-2">
                       {evBs && (
-                        <div className="flex-shrink-0 w-12 bg-primary-700 text-white rounded-lg py-1.5 text-center">
+                        <div className="flex-shrink-0 w-12 rounded-2xl bg-emerald-800 py-1.5 text-center text-white">
                           <div className="text-base font-bold leading-none">{nepaliDigits(evBs.day)}</div>
                           <div className="text-[9px] opacity-80">{BS_MONTHS_EN[evBs.month].slice(0, 3)}</div>
                         </div>
                       )}
                       <div className="flex-1">
-                        <h3 className="font-semibold text-primary-900 text-lg group-hover:text-primary-600 transition-colors line-clamp-2">
+                        <h3 className="line-clamp-2 text-lg font-semibold text-emerald-950 transition group-hover:text-emerald-700">
                           {eventItem.title}
                         </h3>
-                        <div className="flex flex-wrap gap-3 mt-2 text-xs text-gray-500">
+                        <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-500">
                           {eventItem.event_date && (
                             <span className="flex items-center gap-1">
                               <FaCalendarAlt className="text-accent text-[10px]" />
@@ -224,7 +224,7 @@ export default function EventSinglePage() {
                       </div>
                     </div>
                     {eventItem.content && (
-                      <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+                      <p className="mt-2 line-clamp-2 text-sm leading-7 text-slate-600">
                         {eventItem.content.replace(/<[^>]*>/g, "")}
                       </p>
                     )}

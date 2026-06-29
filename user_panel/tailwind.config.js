@@ -8,25 +8,37 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
-          950: '#052e16',
+          50: '#f5fbf7',
+          100: '#e8f7ed',
+          200: '#ccefd8',
+          300: '#9ed8b0',
+          400: '#66bf84',
+          500: '#3fa063',
+          600: '#2f804d',
+          700: '#24653d',
+          800: '#1f4d33',
+          900: '#1a3f2a',
+          950: '#112b1d',
         },
         accent: '#d4a017',
         dark: '#0f2318',
+        slate: {
+          950: '#0f172a',
+        },
       },
       fontFamily: {
         display: ['Playfair Display', 'serif'],
         body: ['Source Serif 4', 'serif'],
+        sans: ['Inter', 'Segoe UI', 'sans-serif'],
         nepali: ['Mukta', 'sans-serif'],
+      },
+      boxShadow: {
+        soft: '0 20px 60px rgba(15, 23, 42, 0.08)',
+        premium: '0 24px 80px rgba(15, 23, 42, 0.08)',
+      },
+      borderRadius: {
+        '4xl': '2rem',
+        '5xl': '2.5rem',
       },
       animation: {
         'fade-up': 'fadeUp 0.6s ease-out forwards',
@@ -41,8 +53,8 @@ export default {
         slideIn: {
           '0%': { opacity: '0', transform: 'translateX(-20px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
-        }
-      }
+        },
+      },
     },
   },
   plugins: [],

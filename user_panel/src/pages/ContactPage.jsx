@@ -1,15 +1,6 @@
 import { useState } from 'react';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaFacebook, FaYoutube, FaTwitter, FaPaperPlane } from 'react-icons/fa';
-
-const PageBanner = ({ title, subtitle, breadcrumb }) => (
-  <div className="bg-gradient-to-r from-primary-900 to-primary-700 py-12 px-4">
-    <div className="max-w-7xl mx-auto">
-      <div className="text-primary-300 text-sm mb-2">{breadcrumb}</div>
-      <h1 className="font-display text-3xl md:text-4xl font-bold text-white mb-2">{title}</h1>
-      {subtitle && <p className="text-primary-200">{subtitle}</p>}
-    </div>
-  </div>
-);
+import PageBanner from '../components/PageBanner';
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
@@ -26,13 +17,13 @@ export default function ContactPage() {
 
   return (
     <div>
-      <PageBanner title="Contact Us" subtitle="Get in touch with our team" breadcrumb="Home › Contact Us" />
+      <PageBanner title="Contact Us" subtitle="Get in touch with our team" breadcrumb="Home › Contact Us" eyebrow="Reach out" />
 
-      <section className="py-14 px-4">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <section className="px-4 py-14 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-10 lg:grid-cols-2">
           {/* Contact Info */}
           <div>
-            <h2 className="font-display text-2xl font-bold text-primary-900 mb-6">Get In Touch</h2>
+            <h2 className="mb-6 font-display text-2xl font-semibold text-emerald-950">Get In Touch</h2>
 
             <div className="space-y-5 mb-8">
               <div className="flex gap-4 items-start">
@@ -40,8 +31,8 @@ export default function ContactPage() {
                   <FaMapMarkerAlt className="text-white" />
                 </div>
                 <div>
-                  <div className="font-semibold text-primary-900 text-sm mb-0.5">Office Address</div>
-                  <div className="text-gray-600 text-sm">Jalthal, Sunsari District<br />Province No. 1, Nepal<br />Postal Code: 56700</div>
+                  <div className="mb-0.5 text-sm font-semibold text-emerald-950">Office Address</div>
+                  <div className="text-sm leading-7 text-slate-600">Jalthal, Sunsari District<br />Province No. 1, Nepal<br />Postal Code: 56700</div>
                 </div>
               </div>
 
@@ -50,10 +41,10 @@ export default function ContactPage() {
                   <FaPhone className="text-white" />
                 </div>
                 <div>
-                  <div className="font-semibold text-primary-900 text-sm mb-0.5">Phone Numbers</div>
-                  <div className="text-gray-600 text-sm">
-                    <a href="tel:+977-025-500000" className="hover:text-primary-700 transition-colors block">+977-025-500000 (Main)</a>
-                    <a href="tel:+977-9800000000" className="hover:text-primary-700 transition-colors block">+977-9800000000 (Mobile)</a>
+                  <div className="mb-0.5 text-sm font-semibold text-emerald-950">Phone Numbers</div>
+                  <div className="text-sm text-slate-600">
+                    <a href="tel:+977-025-500000" className="block transition hover:text-emerald-700">+977-025-500000 (Main)</a>
+                    <a href="tel:+977-9800000000" className="block transition hover:text-emerald-700">+977-9800000000 (Mobile)</a>
                   </div>
                 </div>
               </div>
@@ -63,8 +54,8 @@ export default function ContactPage() {
                   <FaEnvelope className="text-white" />
                 </div>
                 <div>
-                  <div className="font-semibold text-primary-900 text-sm mb-0.5">Email Address</div>
-                  <a href="mailto:info@sfacljalthal.com.np" className="text-gray-600 text-sm hover:text-primary-700 transition-colors">
+                  <div className="mb-0.5 text-sm font-semibold text-emerald-950">Email Address</div>
+                  <a href="mailto:info@sfacljalthal.com.np" className="text-sm text-slate-600 transition hover:text-emerald-700">
                     info@sfacljalthal.com.np
                   </a>
                 </div>
@@ -75,8 +66,8 @@ export default function ContactPage() {
                   <FaClock className="text-white" />
                 </div>
                 <div>
-                  <div className="font-semibold text-primary-900 text-sm mb-0.5">Office Hours</div>
-                  <div className="text-gray-600 text-sm">
+                  <div className="mb-0.5 text-sm font-semibold text-emerald-950">Office Hours</div>
+                  <div className="text-sm text-slate-600">
                     Sunday – Friday: 9:00 AM – 5:00 PM<br />
                     Saturday: Closed<br />
                     Public Holidays: Closed
@@ -87,7 +78,7 @@ export default function ContactPage() {
 
             {/* Social */}
             <div className="mb-8">
-              <div className="font-semibold text-primary-900 text-sm mb-3">Follow Us</div>
+              <div className="mb-3 text-sm font-semibold text-emerald-950">Follow Us</div>
               <div className="flex gap-3">
                 {[
                   { Icon: FaFacebook, label: 'Facebook', color: 'hover:bg-blue-600', href: 'https://www.facebook.com' },
@@ -95,7 +86,7 @@ export default function ContactPage() {
                   { Icon: FaTwitter, label: 'Twitter', color: 'hover:bg-sky-500', href: 'https://www.twitter.com' },
                 ].map(({ Icon, label, color, href }) => (
                   <a key={label} href={href} target="_blank" rel="noreferrer"
-                    className={`w-10 h-10 bg-gray-100 ${color} text-gray-600 hover:text-white rounded-full flex items-center justify-center transition-colors`}>
+                    className={`flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 ${color} text-emerald-700 transition hover:text-white`}>
                     <Icon />
                   </a>
                 ))}
@@ -103,7 +94,7 @@ export default function ContactPage() {
             </div>
 
             {/* Google Map placeholder */}
-            <div className="rounded-2xl overflow-hidden border border-gray-200 h-52 bg-primary-50 flex items-center justify-center">
+            <div className="flex h-52 items-center justify-center overflow-hidden rounded-3xl border border-emerald-100 bg-emerald-50/80">
               <iframe
                 title="SFACL Jalthal Location"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d113997.21!2d87.19!3d26.73!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjbCsDQzJzQ4LjAiTiA4N8KwMTEnMjQuMCJF!5e0!3m2!1sen!2snp!4v1615000000000!5m2!1sen!2snp"
@@ -120,12 +111,12 @@ export default function ContactPage() {
 
           {/* Contact Form */}
           <div>
-            <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
-              <h2 className="font-display text-2xl font-bold text-primary-900 mb-2">Send a Message</h2>
-              <p className="text-gray-500 text-sm mb-6">We typically respond within 1–2 business days.</p>
+            <div className="rounded-[2rem] border border-emerald-100 bg-white p-8 shadow-sm">
+              <h2 className="mb-2 font-display text-2xl font-semibold text-emerald-950">Send a Message</h2>
+              <p className="mb-6 text-sm text-slate-500">We typically respond within 1–2 business days.</p>
 
               {submitted && (
-                <div className="mb-5 p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
+                <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
                   ✓ Your message has been sent. We'll get back to you soon!
                 </div>
               )}
@@ -133,7 +124,7 @@ export default function ContactPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 mb-1 block">Full Name *</label>
+                    <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Full Name *</label>
                     <input
                       type="text"
                       name="name"
@@ -145,7 +136,7 @@ export default function ContactPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-gray-500 mb-1 block">Phone Number</label>
+                    <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Phone Number</label>
                     <input
                       type="tel"
                       name="phone"
@@ -157,7 +148,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 mb-1 block">Email Address *</label>
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Email Address *</label>
                   <input
                     type="email"
                     name="email"
@@ -169,7 +160,7 @@ export default function ContactPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-500 mb-1 block">Message *</label>
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Message *</label>
                   <textarea
                     name="message"
                     value={form.message}
@@ -177,12 +168,12 @@ export default function ContactPage() {
                     required
                     rows={5}
                     placeholder="How can we help you? Please describe your query or request..."
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary-500 transition-colors resize-none"
+                    className="w-full resize-none rounded-2xl border border-emerald-100 px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-emerald-500"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-primary-700 hover:bg-primary-800 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-800 py-3 font-semibold text-white transition hover:bg-emerald-700"
                 >
                   <FaPaperPlane className="text-sm" /> Send Message
                 </button>

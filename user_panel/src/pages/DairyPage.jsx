@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 const PageBanner = ({ title, subtitle, breadcrumb }) => (
   <div className="bg-gradient-to-r from-primary-900 to-primary-700 py-12 px-4">
     <div className="max-w-7xl mx-auto">
@@ -54,22 +56,70 @@ const products = [
 ];
 
 export default function DairyPage() {
+  const [activeSection, setActiveSection] = useState('description');
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1) || 'description';
+      setActiveSection(hash);
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 50);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    handleHashChange();
+
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleSectionChange = (sectionId) => {
+    setActiveSection(sectionId);
+    window.location.hash = sectionId;
+  };
+
   return (
     <div>
       <PageBanner
         title="Dairy Industry"
         subtitle="From Local Farms to Quality Products"
         breadcrumb="Home › Dairy Industry"
+        eyebrow="Agricultural excellence"
       />
 
+      {/* Section Navigation */}
+      <div className="sticky top-0 z-40 border-b border-emerald-100 bg-white/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80">
+        <div className="mx-auto flex max-w-7xl items-center px-4 sm:px-6 lg:px-8">
+          {[
+            { id: 'description', label: 'Description' },
+            { id: 'products', label: 'Product Catalog' },
+          ].map(section => (
+            <button
+              key={section.id}
+              onClick={() => handleSectionChange(section.id)}
+              className={`-mb-px border-b-2 px-4 py-3.5 text-sm font-semibold transition ${
+                activeSection === section.id
+                  ? 'border-emerald-700 text-emerald-700'
+                  : 'border-transparent text-slate-600 hover:text-emerald-700'
+              }`}
+            >
+              {section.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Description */}
-      <section id="description" className="py-14 px-4">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section id="description" className="px-4 py-14 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
           <div>
-            <div className="inline-flex items-center gap-2 text-primary-600 font-semibold text-sm mb-3">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
               🐄 <span>Dairy Sector</span>
             </div>
-            <h2 className="font-display text-3xl font-bold text-primary-900 mb-4">
+            <h2 className="mb-4 font-display text-3xl font-semibold text-emerald-950 sm:text-4xl">
               Supporting Dairy Farming in Jalthal
             </h2>
             <p className="text-gray-600 leading-relaxed mb-4">
@@ -81,22 +131,22 @@ export default function DairyPage() {
             <p className="text-gray-600 leading-relaxed mb-4">
               We work in partnership with local government bodies, the National Dairy Development Board (NDDB), and international organizations to bring modern dairy technology and best practices to rural Jalthal.
             </p>
-            <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="mt-6 grid grid-cols-2 gap-4">
               {[
                 { label: 'Daily Collection', value: '5,000+ liters' },
                 { label: 'Farmer Members', value: '800+ families' },
                 { label: 'Processing Capacity', value: '10,000 L/day' },
                 { label: 'Coverage Area', value: '15 VDCs' },
               ].map((stat, i) => (
-                <div key={i} className="bg-primary-50 rounded-xl p-3 border border-primary-100 text-center">
-                  <div className="text-xl font-display font-bold text-primary-700">{stat.value}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{stat.label}</div>
+                <div key={i} className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3 text-center">
+                  <div className="text-xl font-display font-semibold text-emerald-800">{stat.value}</div>
+                  <div className="mt-0.5 text-xs text-slate-500">{stat.label}</div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="bg-gradient-to-br from-primary-800 to-primary-600 rounded-2xl p-8 text-white">
-            <h3 className="font-display text-xl font-bold mb-6">Our Dairy Services</h3>
+          <div className="rounded-[2rem] bg-gradient-to-br from-emerald-800 to-emerald-700 p-8 text-white shadow-soft">
+            <h3 className="mb-6 font-display text-xl font-semibold">Our Dairy Services</h3>
             <div className="space-y-4">
               {[
                 { icon: '🐄', title: 'Livestock Support', desc: 'Veterinary services, AI (artificial insemination), and livestock insurance for member farmers.' },
@@ -108,8 +158,8 @@ export default function DairyPage() {
                 <div key={i} className="flex gap-3">
                   <span className="text-2xl flex-shrink-0">{service.icon}</span>
                   <div>
-                    <div className="font-semibold text-sm">{service.title}</div>
-                    <div className="text-primary-200 text-xs mt-0.5">{service.desc}</div>
+                    <div className="text-sm font-semibold">{service.title}</div>
+                    <div className="mt-0.5 text-xs leading-6 text-emerald-100/90">{service.desc}</div>
                   </div>
                 </div>
               ))}
@@ -121,32 +171,32 @@ export default function DairyPage() {
       <div className="section-divider" />
 
       {/* Product Catalog */}
-      <section id="products" className="py-14 px-4 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="font-display text-3xl font-bold text-primary-900 mb-2">Product Catalog</h2>
-            <p className="text-gray-500 text-sm">Quality dairy products from our cooperative members</p>
+      <section id="products" className="bg-emerald-50/60 px-4 py-14 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-10 text-center">
+            <h2 className="mb-2 font-display text-3xl font-semibold text-emerald-950 sm:text-4xl">Product Catalog</h2>
+            <p className="text-sm text-slate-500">Quality dairy products from our cooperative members</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {products.map((product, i) => (
-              <div key={i} className="card-hover bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                <div className="text-4xl mb-3">{product.icon}</div>
-                <h3 className="font-display font-bold text-primary-900 text-lg mb-2">{product.name}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-4">{product.description}</p>
-                <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
-                  <span className="text-xs text-gray-400">Sold {product.unit}</span>
+              <div key={i} className="card-hover rounded-[1.6rem] border border-emerald-100 bg-white p-6 shadow-sm">
+                <div className="mb-3 text-4xl">{product.icon}</div>
+                <h3 className="mb-2 font-display text-lg font-semibold text-emerald-950">{product.name}</h3>
+                <p className="mb-4 text-sm leading-7 text-slate-600">{product.description}</p>
+                <div className="mt-auto flex items-center justify-between border-t border-emerald-100 pt-3">
+                  <span className="text-xs text-slate-500">Sold {product.unit}</span>
                   {product.available && (
-                    <span className="bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">Available</span>
+                    <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">Available</span>
                   )}
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 bg-primary-900 rounded-2xl p-6 text-white text-center">
-            <h3 className="font-display text-xl font-bold mb-2">Interested in Our Products?</h3>
-            <p className="text-primary-200 text-sm mb-4">Contact us for bulk orders, wholesale pricing, or to become a supplier member.</p>
-            <a href="/contact" className="inline-flex items-center gap-2 bg-accent hover:bg-yellow-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors">
+          <div className="mt-10 rounded-[2rem] bg-emerald-900 p-6 text-center text-white shadow-soft">
+            <h3 className="mb-2 font-display text-xl font-semibold">Interested in Our Products?</h3>
+            <p className="mb-4 text-sm text-emerald-100">Contact us for bulk orders, wholesale pricing, or to become a supplier member.</p>
+            <a href="/contact" className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-6 py-2.5 font-semibold text-white transition hover:bg-amber-400">
               Contact for Pricing
             </a>
           </div>
