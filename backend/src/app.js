@@ -26,7 +26,12 @@ const holidayRoutes = require("./routes/holidayRoutes");
 
 // CORS Options
 const corsOptions = {
-  origin: [REACT_APP_URL, REACT_ADMIN_APP_URL, "http://localhost:3000", "http://localhost:5173"],
+  origin: [
+    REACT_APP_URL,
+    REACT_ADMIN_APP_URL,
+    "http://localhost:3000",
+    "http://localhost:5173",
+  ],
   credentials: true,
 };
 
@@ -36,7 +41,7 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-//CORP header for image  access issues 
+//CORP header for image  access issues
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   next();
@@ -44,12 +49,10 @@ app.use((req, res, next) => {
 // Serve public folder
 app.use(express.static(path.join(__dirname, "../public")));
 
-
 // Serve gallery images with proper CORS & cross-origin headers
 app.use(
   "/api/getgalleryimage",
   (req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", REACT_APP_URL);
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     next();
   },
@@ -65,7 +68,6 @@ app.use("/api", pressReleaseRoutes);
 app.use("/api", noticeRoutes);
 app.use("/api", eventRoutes);
 app.use("/api", imageRoutes);
-
 
 // Swagger for dev
 if (NODE_ENV === "development") {
