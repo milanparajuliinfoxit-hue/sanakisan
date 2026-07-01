@@ -1,48 +1,57 @@
-import axios from "axios";
+// components/CustomImage.jsx
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import { useImage } from "@/hooks/useImage";
 
-const CustomImage = ({ src, className }) => {
-  const [showImage, setShowImage] = useState(null);
+const CustomImage = ({ src, className, alt, onClick, fallbackSrc }) => {
+  const { imageUrl, isLoading, error } = useImage(src);
 
-  const fetchImage = async () => {
-    const baseUrl = import.meta.env.VITE_REACT_APP_API_URL;
-    const fullUrl = `${baseUrl.replace(/\/?$/, "/")}api/${src}`;
+  // Show loading skeleton
+  if (isLoading) {
+    return (
+      <div 
+        className={`${className} bg-gray-200 animate-pulse`}
+        style={{ minWidth: '20px', minHeight: '20px' }}
+      />
+    );
+  }
 
-    // Validate the constructed URL
-    if (!/^https?:\/\/.+/.test(fullUrl)) {
-      console.error("Invalid image URL:", fullUrl);
-      return;
-    }
+  // Show placeholder on error or no image
+  if (error || !imageUrl) {
+    return (
+      <img
+        src={fallbackSrc || "/assets/image-placeholder.png"}
+        className={className}
+        alt={alt || "Image placeholder"}
+        onClick={onClick}
+      />
+    );
+  }
 
-    try {
-      const response = await axios.get(fullUrl, { responseType: "blob" });
-      const imageBlob = response.data;
-      const imageUrl = URL.createObjectURL(imageBlob);
-      setShowImage(imageUrl);
-    } catch (error) {
-      console.error("Error fetching the image:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (src) {
-      fetchImage();
-    }
-  }, [src]);
-
+  // Show the actual image
   return (
     <img
-      src={showImage || "/assets/image-placeholder.png"}
+      src={imageUrl}
       className={className}
-      alt="Member"
+      alt={alt || "Image"}
+      onClick={onClick}
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = fallbackSrc || "/assets/image-placeholder.png";
+      }}
     />
   );
 };
 
 CustomImage.propTypes = {
-  src: PropTypes.string.isRequired,
+  src: PropTypes.string,
   className: PropTypes.string,
+  alt: PropTypes.string,
+  onClick: PropTypes.func,
+  fallbackSrc: PropTypes.string,
+};
+
+CustomImage.defaultProps = {
+  fallbackSrc: "/assets/image-placeholder.png",
 };
 
 export default CustomImage;

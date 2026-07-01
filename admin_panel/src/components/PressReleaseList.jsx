@@ -1,9 +1,11 @@
-import { useState } from "react";
+// components/PressReleaseList.jsx (already correct)
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Button } from "@/components/ui/button";
 import { DeleteIcon, Edit } from "lucide-react";
 import AlertDialog from "./AlertDialog";
 import CustomImage from "./CustomImage";
+import { useImage } from "@/hooks/useImage";
 
 const PressReleaseList = ({
   currentPressReleases,
@@ -15,11 +17,25 @@ const PressReleaseList = ({
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [pressReleaseId, setPressReleaseId] = useState(null);
+  const [previewPath, setPreviewPath] = useState(null);
+  
+  // Use the hook to fetch the preview image
+  const { imageUrl: previewImageUrl, isLoading: isPreviewLoading } = useImage(previewPath);
 
 
+  const showImagePreview = (imgPath) => {
+    if (imgPath) {
+      setPreviewPath(imgPath);
+    }
+  };
+
+  const closePreview = () => {
+    setPreviewPath(null);
+  };
 
   return (
     <div>
+      {/* Delete Dialog */}
       {isDialogOpen && (
         <AlertDialog
           onSubmit={() => {
@@ -35,6 +51,48 @@ const PressReleaseList = ({
           isCancel={true}
           message="Are you sure want to delete press release?"
         />
+      )}
+
+      {/* Image Preview Modal */}
+      {previewPath && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={closePreview}
+        >
+          <div
+            className="relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={closePreview}
+              className="absolute -top-10 right-0 text-white text-4xl hover:text-gray-300"
+            >
+              ✕
+            </button>
+
+            {/* Large Image */}
+            <div className="min-w-[200px] min-h-[200px] flex items-center justify-center">
+              {isPreviewLoading ? (
+                <div className="flex flex-col items-center justify-center text-white">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+                  <span>Loading image...</span>
+                </div>
+              ) : (
+                <img
+                  src={previewImageUrl || "/assets/image-placeholder.png"}
+                  alt="Preview"
+                  className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                  onError={(e) => {
+                    console.error('Preview image failed to load');
+                    e.target.onerror = null;
+                    e.target.src = '/assets/image-placeholder.png';
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="relative">
@@ -70,16 +128,24 @@ const PressReleaseList = ({
           <table className="table-fixed w-full border-collapse">
             <tbody>
               {currentPressReleases?.map((pressRelease) => (
-                <tr key={pressRelease.id} className="hover:bg-slate-200 text-left">
+                <tr
+                  key={pressRelease.id}
+                  className="hover:bg-slate-200 text-left"
+                >
                   <td
                     className="py-2 border-b border-gray-300"
                     style={{ width: "10%" }}
                   >
-                    <CustomImage
-                  
-                      src={pressRelease.featuredImage}
-                      className="h-16 w-20 object-cover rounded"
-                    />
+                    <div 
+                      onClick={() => showImagePreview(pressRelease.featuredImage)}
+                      className="cursor-pointer"
+                    >
+                      <CustomImage
+                        src={pressRelease.featuredImage}
+                        className="h-16 w-20 object-cover rounded hover:opacity-80 transition"
+                        alt={pressRelease.title}
+                      />
+                    </div>
                   </td>
 
                   <td

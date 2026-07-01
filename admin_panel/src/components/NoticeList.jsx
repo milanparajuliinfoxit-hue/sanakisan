@@ -1,9 +1,11 @@
-import { useState } from "react";
+// components/NoticeList.jsx
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Button } from "@/components/ui/button";
 import { DeleteIcon, Edit } from "lucide-react";
 import AlertDialog from "./AlertDialog";
 import CustomImage from "./CustomImage";
+import { useImage } from "@/hooks/useImage";
 
 const NoticeList = ({
   currentNotices,
@@ -15,9 +17,39 @@ const NoticeList = ({
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [noticeId, setNoticeId] = useState(null);
+  const [previewPath, setPreviewPath] = useState(null);
+  
+  // Use the hook to fetch the preview image
+  const { imageUrl: previewImageUrl, isLoading: isPreviewLoading } = useImage(previewPath);
+
+  // Add keyboard support for ESC key
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape' && previewPath) {
+        closePreview();
+      }
+    };
+    
+    document.addEventListener('keydown', handleEsc);
+    
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [previewPath]);
+
+  const showImagePreview = (imgPath) => {
+    if (imgPath) {
+      setPreviewPath(imgPath);
+    }
+  };
+
+  const closePreview = () => {
+    setPreviewPath(null);
+  };
 
   return (
     <div>
+      {/* Delete Dialog */}
       {isDialogOpen && (
         <AlertDialog
           onSubmit={() => {
@@ -33,6 +65,48 @@ const NoticeList = ({
           isCancel={true}
           message="Are you sure want to delete notice?"
         />
+      )}
+
+      {/* Image Preview Modal */}
+      {previewPath && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={closePreview}
+        >
+          <div
+            className="relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={closePreview}
+              className="absolute -top-10 right-0 text-white text-4xl hover:text-gray-300"
+            >
+              ✕
+            </button>
+
+            {/* Large Image */}
+            <div className="min-w-[200px] min-h-[200px] flex items-center justify-center">
+              {isPreviewLoading ? (
+                <div className="flex flex-col items-center justify-center text-white">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
+                  <span>Loading image...</span>
+                </div>
+              ) : (
+                <img
+                  src={previewImageUrl || "/assets/image-placeholder.png"}
+                  alt="Preview"
+                  className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                  onError={(e) => {
+                    console.error('Preview image failed to load');
+                    e.target.onerror = null;
+                    e.target.src = '/assets/image-placeholder.png';
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="relative">
@@ -91,10 +165,16 @@ const NoticeList = ({
                     className="py-2 border-b border-gray-300"
                     style={{ width: "10%" }}
                   >
-                    <CustomImage
-                      src={notice.featuredImage}
-                      className="h-16 w-20 object-cover rounded"
-                    />
+                    <div 
+                      onClick={() => showImagePreview(notice.featuredImage)}
+                      className="cursor-pointer"
+                    >
+                      <CustomImage
+                        src={notice.featuredImage}
+                        className="h-16 w-20 object-cover rounded hover:opacity-80 transition"
+                        alt={notice.title}
+                      />
+                    </div>
                   </td>
 
                   <td
