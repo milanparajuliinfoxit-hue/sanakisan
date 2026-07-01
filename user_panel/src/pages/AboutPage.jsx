@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import {
   FaLeaf,
-  FaHandshake,
   FaUsers,
   FaAward,
   FaCheckCircle,
@@ -136,7 +135,6 @@ function LeadershipCard({ initials, name, role, delay }) {
 export default function AboutPage() {
   const whoWeAreRef = useScrollAnimation();
   const mvRef = useScrollAnimation();
-  const chairpersonRef = useScrollAnimation();
   const leadershipRef = useScrollAnimation();
   const registrationRef = useScrollAnimation();
 
@@ -289,68 +287,7 @@ export default function AboutPage() {
       </section>
 
       {/* ═════════════════════════════════════════════════════════════════════════
-          SECTION 3: MESSAGE FROM THE CHAIRPERSON
-          ═════════════════════════════════════════════════════════════════════════ */}
-      <section ref={chairpersonRef} className="px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-emerald-50/40 to-white">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16 items-center">
-            {/* LEFT: IMAGE PLACEHOLDER WITH DECORATIVE SHAPE */}
-            <div className="relative flex justify-center">
-              <div className="absolute -top-8 -left-8 w-40 h-40 bg-amber-300 rounded-full opacity-20 blur-3xl" />
-              <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-emerald-400 rounded-full opacity-20 blur-3xl" />
-
-              <div className="relative z-10">
-                <div className="rounded-3xl border-8 border-white shadow-2xl overflow-hidden bg-gradient-to-br from-emerald-200 to-emerald-100 w-80 h-96 flex items-center justify-center text-emerald-400 text-6xl">
-                  👤
-                </div>
-                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-white rounded-2xl border-2 border-emerald-100 px-6 py-3 shadow-lg">
-                  <div className="text-center">
-                    <p className="font-display font-bold text-emerald-950">Ram Bahadur Rai</p>
-                    <p className="text-xs text-emerald-700 font-medium">Chairperson</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* RIGHT: MESSAGE CONTENT */}
-            <div>
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-                <FaHandshake className="text-amber-500" />
-                Leadership Message
-              </div>
-
-              <h2 className="mb-6 font-display text-3xl sm:text-4xl font-bold text-emerald-950">
-                Message from the Chairperson
-              </h2>
-
-              <div className="relative">
-                <div className="absolute -top-4 -left-4 text-8xl opacity-10 text-emerald-900 font-display">"</div>
-                <div className="relative z-10 space-y-5 text-slate-700 leading-relaxed">
-                  <p>
-                    As the Chairperson of Sana Kisan Agro Cooperative Ltd., I am proud to lead an institution that has remained steadfast in its commitment to our members and the broader Jalthal community for over two decades.
-                  </p>
-                  <p>
-                    Our cooperative is built on the foundation of trust, transparency, and democratic participation. Every decision we make is guided by the well-being of our members and the sustainable development of our region. We believe that together, through collective effort and shared resources, we can create lasting economic prosperity.
-                  </p>
-                  <p>
-                    I invite all community members to join us in this journey towards a more inclusive, prosperous, and empowered cooperative society.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-8 flex items-end gap-4">
-                <div>
-                  <p className="font-display text-lg font-bold text-emerald-950">Ram Bahadur Rai</p>
-                  <p className="text-sm text-emerald-700 font-medium">Chairperson, SFACL</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═════════════════════════════════════════════════════════════════════════
-          SECTION 4: LEADERSHIP TEAM
+          SECTION 3: LEADERSHIP TEAM
           ═════════════════════════════════════════════════════════════════════════ */}
       <section ref={leadershipRef} className="px-4 py-20 sm:px-6 lg:px-8 bg-white">
         <div className="mx-auto max-w-7xl text-center">
@@ -435,7 +372,7 @@ export default function AboutPage() {
                 </div>
 
                 {/* TRUST BADGES */}
-                <div className="flex flex-wrap gap-3">
+                {/* <div className="flex flex-wrap gap-3">
                   {[
                     "✓ Govt. Registered",
                     "✓ Legally Certified",
@@ -445,7 +382,7 @@ export default function AboutPage() {
                       {badge}
                     </span>
                   ))}
-                </div>
+                </div> */}
               </div>
             </div>
 

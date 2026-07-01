@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import HeroSlider from "../components/HeroSlider";
 import NoticeBoard from "../components/NoticeBoard";
+import ChairpersonMessage from "../components/ChairpersonMessage";
 import BlogsSection from "../components/BlogsSection";
 import CalendarModule from "../pages/CalendarModule";
 import {
@@ -249,6 +250,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ───── Message from Chairperson (DYNAMIC) ───── */}
+      <ChairpersonMessage />
 
       <NoticeBoard limit={5} />
       <CalendarModule />
