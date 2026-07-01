@@ -29,6 +29,7 @@ const PressReleaseList = ({
     }
   };
 
+  
   const closePreview = () => {
     setPreviewPath(null);
   };

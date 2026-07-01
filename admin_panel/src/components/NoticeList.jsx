@@ -253,6 +253,7 @@ const NoticeList = ({
         <span>
           Page {currentPage} of {totalPages}
         </span>
+        
 
         <Button
           disabled={currentPage === totalPages}

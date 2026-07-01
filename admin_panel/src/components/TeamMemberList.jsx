@@ -246,6 +246,7 @@ const TeamMemberList = ({
         <span>
           Page {currentPage} of {totalPages}
         </span>
+        
         <Button
           disabled={currentPage === totalPages}
           onClick={() => handlePageChange(currentPage + 1)}
