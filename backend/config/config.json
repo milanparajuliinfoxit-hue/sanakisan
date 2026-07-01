@@ -1,7 +1,7 @@
 {
   "development": {
     "username": "root",
-    "password": "rootpassword123",
+    "password": "",
     "database": "sfacljalthal_db",
     "host": "localhost",
     "dialect": "mysql",

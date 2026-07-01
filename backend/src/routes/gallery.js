@@ -6,7 +6,7 @@ const GalleryImage = require("../../models/GalleryImage");
 
 const router = express.Router();
 
-const uploadDir = path.join(__dirname, "../public/uploads/gallery");
+const uploadDir = path.join(__dirname, "../../src/public/uploads/gallery");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -26,7 +26,12 @@ router.post("/upload", upload.single("image"), async (req, res) => {
     const save_by = req.body.save_by || "admin";
     const status = "1";
 
-    const saved = await GalleryImage.create({ image_name, event, status, save_by });
+    const saved = await GalleryImage.create({
+      image_name,
+      event,
+      status,
+      save_by,
+    });
     res.json({ message: "Image uploaded successfully", data: saved });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -40,13 +45,15 @@ router.get("/", async (req, res) => {
     if (event) where.event = event;
 
     const images = await GalleryImage.findAll({ where });
-    res.json(images.map(img => ({
-      id: img.id,
-      title: img.image_name,
-      event: img.event,
-      save_by: img.save_by,
-      save_in: img.save_in,
-    })));
+    res.json(
+      images.map((img) => ({
+        id: img.id,
+        title: img.image_name,
+        event: img.event,
+        save_by: img.save_by,
+        save_in: img.save_in,
+      })),
+    );
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
