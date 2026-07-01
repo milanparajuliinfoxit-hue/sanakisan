@@ -1,0 +1,42 @@
+require('dotenv').config()
+
+const {
+    PORT,
+    NODE_ENV,
+    DB_HOST,
+    DB_USERNAME,
+    DB_PASSWORD,
+    DB_NAME,
+    JWT_SECRET,
+    JWT_EXPIRY,
+    REFRESH_SECRET,
+    REFRESH_EXPIRY,
+    CAPTCHA_SECRET_KEY,
+    CAPTCHA,
+    FACEBOOK_ACCESS_TOKEN,
+    REACT_APP_URL,
+    REACT_ADMIN_APP_URL,
+    YOUTUBE_CHANNEL_ID,
+    YOUTUBE_API_KEY
+
+} = process.env
+
+module.exports = {
+    PORT,
+    NODE_ENV,
+    DB_HOST,
+    DB_USERNAME,
+    DB_PASSWORD,
+    DB_NAME,
+    JWT_SECRET,
+    JWT_EXPIRY,
+    REFRESH_SECRET,
+    REFRESH_EXPIRY,
+    CAPTCHA_SECRET_KEY,
+    CAPTCHA,
+    FACEBOOK_ACCESS_TOKEN,
+    REACT_APP_URL,
+    REACT_ADMIN_APP_URL,
+    YOUTUBE_CHANNEL_ID,
+    YOUTUBE_API_KEY
+}

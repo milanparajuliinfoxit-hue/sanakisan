@@ -1,0 +1,9 @@
+export { default as Events } from "./Events";
+export { default as Dashboard } from "./Dashboard";
+export { default as Login } from "./Login";
+export { default as PressRelease } from "./PressRelease";
+export { default as Notice } from "./Notice";
+export { default as Team } from "./Team"
+ export { default as SharedLayout } from "./SharedLayout";
+export { default as PageNotfound } from "./PageNotFound";
+export { default as Gallery } from "./Gallery";

@@ -1,0 +1,49 @@
+{
+  "name": "jalthal",
+  "version": "1.0.0",
+  "description": "1. Command to migrate the models : **npx sequelize db:migrate**\r    This will migrate all the models and migration files\r 2. Command to insert the initial datas from seeders: **npx sequelize db:seed:all**\r    This will insert any default values from all the seed files",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "swagger:generate": "node ./src/config/swaggerUi.js",
+    "sequelize:migrate": "npx sequelize db:migrate",
+    "sequelize-cli:install": "npx install -g sequelize-cli"
+  },
+  "author": "Tribikram Sen",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.7",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "helmet": "^7.1.0",
+    "joi": "^17.11.1",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.22.5",
+    "sequelize": "^3.30.0",
+    "serve-favicon": "^2.5.1",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.0",
+    "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "sequelize-cli": "^6.6.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/infoxit-services/backend.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://bitbucket.org/infoxit-services/backend/issues"
+  },
+  "homepage": "https://bitbucket.org/infoxit-services/backend#readme"
+}
