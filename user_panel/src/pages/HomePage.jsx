@@ -7,6 +7,7 @@ import CalendarModule from "../pages/CalendarModule";
 import {
   FaLeaf,
   FaArrowRight,
+  FaCheckCircle,
 } from "react-icons/fa";
 import {
   Users,
@@ -254,23 +255,55 @@ export default function HomePage() {
       <BlogsSection limit={3} />
 
       {/* ───── CTA Section ───── */}
-      <section ref={ctaRef} className="fade-in-up relative mb-24 overflow-hidden bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-700 px-4 py-16 sm:px-6 lg:px-8">
+      <section
+        ref={ctaRef}
+        className="fade-in-up relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.16),_transparent_32%),linear-gradient(135deg,_#0f5a3d_0%,_#146a45_45%,_#0b3d2e_100%)] px-4 py-20 sm:px-6 lg:px-8 lg:py-24"
+      >
         <div className="absolute inset-0 opacity-20">
           <div className="absolute left-0 top-0 h-64 w-64 -translate-x-24 -translate-y-24 rounded-full bg-white" />
           <div className="absolute bottom-0 right-0 h-72 w-72 translate-x-24 translate-y-24 rounded-full bg-amber-300" />
+          <div className="absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20" />
         </div>
-        <div className="relative z-10 mx-auto max-w-3xl text-center">
-          <h2 className="mb-3 font-display text-3xl font-semibold text-white sm:text-4xl">Become a member today</h2>
-          <p className="mx-auto mb-8 max-w-2xl text-lg leading-8 text-emerald-100">
+        <div className="absolute inset-x-0 bottom-0 h-20">
+          <svg viewBox="0 0 1440 120" className="h-full w-full" preserveAspectRatio="none">
+            <path d="M0,96 C180,40 360,40 540,76 C720,112 900,120 1080,88 C1260,56 1380,24 1440,10 L1440,120 L0,120 Z" fill="#0a2e22" />
+          </svg>
+        </div>
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold uppercase tracking-[0.24em] text-amber-200 backdrop-blur-sm">
+            <FaCheckCircle className="text-amber-300" />
+            Trusted by the community
+          </div>
+          <h2 className="mb-4 font-display text-3xl font-semibold tracking-[0.02em] text-white sm:text-4xl lg:text-[2.7rem]">
+            Become a Member Today
+          </h2>
+          <p className="mx-auto mb-8 max-w-2xl text-lg leading-8 text-emerald-50/90 sm:text-xl">
             Join thousands of members benefiting from cooperative savings, loans, and agricultural support in Jalthal.
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link to="/contact" className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-7 py-3 text-sm font-semibold text-white transition hover:bg-amber-400">
+          <div className="mb-8 flex flex-wrap justify-center gap-3">
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 rounded-full bg-amber-500 px-7 py-3.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(245,166,35,0.35)] transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-amber-400 hover:shadow-[0_12px_28px_rgba(245,166,35,0.4)]"
+            >
               Contact Us Now <FaArrowRight />
             </Link>
-            <Link to="/financial" className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3 text-sm font-semibold text-white transition hover:bg-white/20">
+            <Link
+              to="/financial"
+              className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:bg-white hover:text-emerald-900"
+            >
               View Services
             </Link>
+          </div>
+          <div className="flex flex-wrap justify-center gap-3 text-sm font-medium text-emerald-50/90 sm:gap-4">
+            {[
+              "✓ 1000+ Members",
+              "✓ Govt. Registered",
+              "✓ Secure & Trusted",
+            ].map((item) => (
+              <span key={item} className="rounded-full border border-white/15 bg-white/10 px-3 py-2 backdrop-blur-sm">
+                {item}
+              </span>
+            ))}
           </div>
         </div>
       </section>

@@ -51,10 +51,10 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
+  const closeMenu = () => {
     setMobileOpen(false);
     setOpenDropdown(null);
-  }, [location]);
+  };
 
   return (
     <>
@@ -107,12 +107,16 @@ export default function Header() {
         </div>
       </header>
 
-      <nav className={`sticky top-0 z-50 border-b border-white/10 bg-emerald-900/95 backdrop-blur transition-shadow ${scrolled ? "shadow-xl" : ""}`}>
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="hidden items-center lg:flex">
+      <nav className={`sticky top-0 z-50 min-h-[68px] border-b border-white/10 bg-emerald-900/95 backdrop-blur transition-all duration-300 ease-out ${scrolled ? "shadow-xl" : ""}`}>
+        <div className="mx-auto flex min-h-[68px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="hidden items-center lg:flex gap-x-2">
             {navItems.map((item) => (
               <div key={item.path} className="relative group">
-                <Link to={item.path} className={`nav-link flex items-center gap-1 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 hover:text-amber-300 ${location.pathname === item.path ? "bg-white/10 text-amber-300 active" : ""}`}>
+                <Link
+                  to={item.path}
+                  onClick={() => setOpenDropdown(null)}
+                  className={`nav-link flex items-center gap-1 rounded-full px-6 py-3.5 text-sm font-semibold text-white transition-all duration-300 ease-out no-underline hover:-translate-y-0.5 hover:bg-white/10 hover:text-amber-300 hover:shadow-[0_0_16px_rgba(251,191,36,0.2)] ${location.pathname === item.path ? "bg-white/10 text-amber-300 shadow-[0_0_14px_rgba(251,191,36,0.24)] ring-1 ring-white/10" : ""}`}
+                >
                   {item.label}
                   {item.sub ? <FaChevronDown className="text-[10px] opacity-70 transition group-hover:rotate-180" /> : null}
                 </Link>
@@ -137,7 +141,7 @@ export default function Header() {
             ))}
           </div>
 
-          <button className="rounded-lg p-3 text-white transition hover:bg-white/10 lg:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-expanded={mobileOpen} aria-label="Toggle navigation menu">
+          <button className="rounded-lg p-3 text-white transition-all duration-300 ease-out hover:bg-white/10 hover:shadow-[0_0_12px_rgba(251,191,36,0.2)] lg:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-expanded={mobileOpen} aria-label="Toggle navigation menu">
             {mobileOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
           </button>
           <div className="text-sm font-semibold text-white lg:hidden">Menu</div>
@@ -150,13 +154,13 @@ export default function Header() {
                 <div className="flex items-center justify-between">
                   <Link
                     to={item.path}
-                    onClick={() => setMobileOpen(false)}
-                    className="flex-1 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/10"
+                    onClick={closeMenu}
+                    className="flex-1 px-6 py-3.5 text-sm font-medium text-white transition-all duration-300 ease-out hover:bg-white/10 hover:text-amber-200"
                   >
                     {item.label}
                   </Link>
                   {item.sub ? (
-                    <button className="px-4 py-3 text-white transition hover:bg-white/10" onClick={() => setOpenDropdown(openDropdown === item.path ? null : item.path)} aria-label={`Toggle ${item.label}`}> 
+                    <button className="px-4 py-3.5 text-white transition-all duration-300 ease-out hover:bg-white/10 hover:text-amber-200" onClick={() => setOpenDropdown(openDropdown === item.path ? null : item.path)} aria-label={`Toggle ${item.label}`}> 
                       <FaChevronDown className={`text-xs transition ${openDropdown === item.path ? "rotate-180" : ""}`} />
                     </button>
                   ) : null}
@@ -167,8 +171,8 @@ export default function Header() {
                       <Link
                         key={sub.path}
                         to={sub.path}
-                        onClick={() => setMobileOpen(false)}
-                        className={`block pl-10 pr-5 py-2.5 text-sm transition ${
+                        onClick={closeMenu}
+                        className={`block pl-10 pr-5 py-2.5 text-sm transition-all duration-300 ease-out ${
                           location.pathname + location.hash === sub.path
                             ? "bg-emerald-800/40 text-white font-semibold"
                             : "text-emerald-100 hover:bg-white/10 hover:text-white"
