@@ -1,4 +1,4 @@
-// components/CustomImage.jsx
+
 import PropTypes from "prop-types";
 import { useImage } from "@/hooks/useImage";
 
