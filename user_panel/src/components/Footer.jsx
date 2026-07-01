@@ -13,21 +13,22 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-emerald-100/70 bg-emerald-950 text-emerald-100">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
+    <footer className="relative overflow-hidden bg-[#0a2e22] text-emerald-50">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.08),_transparent_30%)]" />
+      <div className="relative mx-auto grid max-w-7xl gap-8 px-4 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
         <div className="lg:col-span-1">
           <div className="mb-4 flex items-center gap-3">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-200 bg-gradient-to-br from-white to-amber-50 shadow-sm">
               <img src="/assets/jalthal.png" alt="Jalthal Logo" className="h-10 w-10 object-contain" />
             </div>
             <div>
-              <div className="font-display text-sm font-semibold leading-tight text-white">
+              <div className="font-display text-sm font-semibold leading-tight text-white whitespace-nowrap">
                 साना किसान कृषि सहकारी संस्था लि.
               </div>
-              <div className="text-xs text-emerald-300">Sana Kisan Agro Cooperative Ltd.</div>
+              <div className="text-xs text-emerald-200/80">Sana Kisan Agro Cooperative Ltd.</div>
             </div>
           </div>
-          <p className="mb-4 text-sm leading-7 text-emerald-300/90">
+          <p className="mb-5 text-sm leading-7 text-emerald-200/85">
             A trusted cooperative institution serving the Jalthal community with dedication to prosperity and financial empowerment.
           </p>
           <div className="flex gap-3">
@@ -36,7 +37,13 @@ export default function Footer() {
               { href: "https://www.youtube.com", Icon: FaYoutube, hover: "hover:bg-red-600" },
               { href: "https://www.twitter.com", Icon: FaTwitter, hover: "hover:bg-sky-500" },
             ].map(({ href, Icon, hover }) => (
-              <a key={href} href={href} target="_blank" rel="noreferrer" className={`flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-emerald-100 transition ${hover}`}>
+              <a
+                key={href}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className={`flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/10 text-emerald-100 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg ${hover}`}
+              >
                 <Icon />
               </a>
             ))}
@@ -44,8 +51,9 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="mb-4 border-b border-white/10 pb-2 text-lg font-semibold text-white">Quick Links</h3>
-          <ul className="space-y-2 text-sm">
+          <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">Quick Links</h3>
+          <div className="mb-4 h-0.5 w-12 bg-amber-400/80" />
+          <ul className="space-y-2.5 text-sm">
             {[
               { label: "Home", path: "/" },
               { label: "About Us", path: "/about" },
@@ -55,8 +63,9 @@ export default function Footer() {
               { label: "Contact Us", path: "/contact" },
             ].map((link) => (
               <li key={link.path}>
-                <Link to={link.path} className="flex items-center gap-1.5 text-emerald-300 transition hover:text-amber-300">
-                  <span className="text-xs text-amber-300">›</span> {link.label}
+                <Link to={link.path} className="group flex items-center gap-2 text-emerald-200/90 transition-all duration-300 ease-out hover:translate-x-1 hover:text-white">
+                  <span className="text-base text-amber-300 transition group-hover:text-white">›</span>
+                  <span>{link.label}</span>
                 </Link>
               </li>
             ))}
@@ -64,8 +73,9 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="mb-4 border-b border-white/10 pb-2 text-lg font-semibold text-white">Our Services</h3>
-          <ul className="space-y-2 text-sm">
+          <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">Our Services</h3>
+          <div className="mb-4 h-0.5 w-12 bg-amber-400/80" />
+          <ul className="space-y-2.5 text-sm">
             {[
               { label: "Deposit Services", path: "/financial#deposit" },
               { label: "Loan Services", path: "/financial#loan" },
@@ -74,8 +84,9 @@ export default function Footer() {
               { label: "Product Catalog", path: "/dairy#products" },
             ].map((link) => (
               <li key={link.label}>
-                <Link to={link.path} className="flex items-center gap-1.5 text-emerald-300 transition hover:text-amber-300">
-                  <span className="text-xs text-amber-300">›</span> {link.label}
+                <Link to={link.path} className="group flex items-center gap-2 text-emerald-200/90 transition-all duration-300 ease-out hover:translate-x-1 hover:text-white">
+                  <span className="text-base text-amber-300 transition group-hover:text-white">›</span>
+                  <span>{link.label}</span>
                 </Link>
               </li>
             ))}
@@ -83,31 +94,32 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="mb-4 border-b border-white/10 pb-2 text-lg font-semibold text-white">Contact Information</h3>
+          <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">Contact Information</h3>
+          <div className="mb-4 h-0.5 w-12 bg-amber-400/80" />
           <ul className="space-y-3 text-sm">
-            <li className="flex gap-3 text-emerald-300/90">
+            <li className="flex gap-3 text-emerald-200/90">
               <FaMapMarkerAlt className="mt-1 flex-shrink-0 text-amber-300" />
               <span>Haldibari-2, Jhapa, Nepal<br />Province No. 1, Nepal</span>
             </li>
-            <li className="flex items-center gap-3 text-emerald-300/90">
+            <li className="flex items-center gap-3 text-emerald-200/90">
               <FaPhone className="flex-shrink-0 text-amber-300" />
               <a href="tel:+977-1-4000000" className="transition hover:text-amber-300">+977-1-4000000</a>
             </li>
-            <li className="flex items-center gap-3 text-emerald-300/90">
+            <li className="flex items-center gap-3 text-emerald-200/90">
               <FaEnvelope className="flex-shrink-0 text-amber-300" />
               <a href="mailto:info@sfacljalthal.com.np" className="transition hover:text-amber-300">info@sfacljalthal.com.np</a>
             </li>
           </ul>
-          <div className="mt-4 rounded-[1.4rem] border border-white/10 bg-white/10 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]">
-            <div className="mb-1 text-xs uppercase tracking-[0.24em] text-emerald-300">Information Administrator</div>
+          <div className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
+            <div className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-amber-300">Information Administrator</div>
             <div className="text-sm font-semibold text-white">Ramesh Kumar Shrestha</div>
-            <div className="text-xs text-emerald-300">Executive Director</div>
+            <div className="text-xs text-emerald-200/80">Executive Director</div>
           </div>
         </div>
       </div>
 
       <div className="border-t border-white/10 bg-black/20">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-4 text-xs text-emerald-300/80 sm:px-6 md:flex-row lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 py-4 text-xs text-emerald-200/70 sm:px-6 md:flex-row lg:px-8">
           <div>© {year} साना किसान कृषि सहकारी संस्था लि. (Sana Kishan Agro Cooperative Ltd.) — All Rights Reserved</div>
           <div className="flex flex-wrap items-center gap-1">
             <span>sfacljalthal.com.np</span>

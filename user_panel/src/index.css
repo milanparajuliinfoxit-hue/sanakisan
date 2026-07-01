@@ -6,6 +6,16 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .text-shadow-amber-glow {
+    text-shadow: 0 0 8px rgba(252, 211, 77, 0.8); /* Amber 300 with 80% opacity */
+  }
+  .text-shadow-amber-glow-hover {
+    text-shadow: 0 0 4px rgba(252, 211, 77, 0.6); /* Lighter amber glow for hover */
+  }
+}
+
+
 :root {
   --green-primary: #15803d;
   --green-dark: #14532d;

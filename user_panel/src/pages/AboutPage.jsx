@@ -1,15 +1,163 @@
+import { useEffect, useRef } from "react";
 import {
   FaLeaf,
   FaHandshake,
   FaUsers,
   FaAward,
-  FaChartLine,
+  FaCheckCircle,
+  FaFileAlt,
+  FaArrowRight,
 } from "react-icons/fa";
 import PageBanner from "../components/PageBanner";
 
+/* ─────────────────────────────────────────────────────────────────────────
+   ANIMATION HOOK: Fade-in-up on Scroll
+   ───────────────────────────────────────────────────────────────────────── */
+function useScrollAnimation(triggerOnce = true) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const currentRef = ref.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("animate-fade-up");
+          if (triggerOnce) {
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -100px 0px" }
+    );
+
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [triggerOnce]);
+
+  return ref;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   STAT CARD COMPONENT with Staggered Animation
+   ───────────────────────────────────────────────────────────────────────── */
+function StatItem({ label, value, delay = 0 }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.style.animation = `fadeUpStagger 0.6s ease-out ${delay}ms both`;
+    }
+  }, [delay]);
+
+  return (
+    <div ref={ref} className="flex justify-between items-center py-3 border-b border-emerald-100 last:border-0 hover:bg-white/40 transition-colors px-2 rounded">
+      <span className="text-sm font-medium text-emerald-700">{label}</span>
+      <span className="text-base font-bold text-emerald-950">{value}</span>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   MISSION/VISION CARD COMPONENT with Hover Effects
+   ───────────────────────────────────────────────────────────────────────── */
+function MVCard({ icon, title, color, borderColor, content, delay }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.style.animation = `fadeUpStagger 0.6s ease-out ${delay}ms both`;
+    }
+  }, [delay]);
+
+  return (
+    <div
+      ref={ref}
+      className={`rounded-2xl border-2 ${borderColor} ${color} p-8 shadow-sm transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-lg group cursor-default`}
+    >
+      <div className="w-16 h-16 rounded-2xl bg-white/60 backdrop-blur-sm flex items-center justify-center text-3xl mb-5 group-hover:scale-110 transition-transform duration-300">
+        {icon}
+      </div>
+      <h3 className="mb-4 font-display text-xl font-semibold text-emerald-950 group-hover:text-emerald-900 transition-colors">
+        {title}
+      </h3>
+      <p className="text-sm leading-7 text-slate-700">{content}</p>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   LEADERSHIP CARD COMPONENT with Enhanced Visuals
+   ───────────────────────────────────────────────────────────────────────── */
+function LeadershipCard({ initials, name, role, delay }) {
+  const ref = useRef(null);
+  const colorIndex = initials.charCodeAt(0) % 4;
+
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.style.animation = `fadeUpStagger 0.6s ease-out ${delay}ms both`;
+    }
+  }, [delay]);
+
+  const colorPairs = [
+    { bg: "from-emerald-600 to-emerald-700", accent: "emerald" },
+    { bg: "from-amber-500 to-amber-600", accent: "amber" },
+    { bg: "from-teal-600 to-teal-700", accent: "teal" },
+    { bg: "from-emerald-700 to-teal-700", accent: "emerald" },
+  ];
+  const { bg } = colorPairs[colorIndex];
+
+  return (
+    <div
+      ref={ref}
+      className="group rounded-2xl border border-emerald-100 bg-white p-6 text-center shadow-sm transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-xl hover:border-emerald-300"
+    >
+      <div className={`mx-auto mb-4 h-20 w-20 rounded-full bg-gradient-to-br ${bg} flex items-center justify-center text-2xl font-bold text-white shadow-md group-hover:scale-110 transition-transform duration-300`}>
+        {initials}
+      </div>
+      <h4 className="text-base font-semibold text-emerald-950 group-hover:text-amber-500 transition-colors">
+        {name}
+      </h4>
+      <p className="mt-1 text-xs font-medium text-emerald-600">{role}</p>
+      <div className="mt-3 h-0.5 w-8 bg-gradient-to-r from-emerald-400 to-amber-400 mx-auto scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   MAIN COMPONENT
+   ───────────────────────────────────────────────────────────────────────── */
 export default function AboutPage() {
+  const whoWeAreRef = useScrollAnimation();
+  const mvRef = useScrollAnimation();
+  const chairpersonRef = useScrollAnimation();
+  const leadershipRef = useScrollAnimation();
+  const registrationRef = useScrollAnimation();
+
   return (
     <div>
+      <style>{`
+        @keyframes fadeUpStagger {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-up {
+          animation: fadeUpStagger 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+      `}</style>
+
       <PageBanner
         title="About Us"
         subtitle="Our Story, Mission & Vision"
@@ -17,144 +165,122 @@ export default function AboutPage() {
         eyebrow="Cooperative identity"
       />
 
-      {/* Main About */}
-      <section className="px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700">
-              <FaLeaf className="text-amber-500" /> Who We Are
+      {/* ═════════════════════════════════════════════════════════════════════════
+          SECTION 1: WHO WE ARE + KEY STATISTICS
+          ═════════════════════════════════════════════════════════════════════════ */}
+      <section ref={whoWeAreRef} className="px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-emerald-50/30">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-5 lg:gap-8">
+          {/* LEFT COLUMN: TEXT CONTENT */}
+          <div className="lg:col-span-3">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/80 px-4 py-2 text-sm font-semibold text-emerald-700 backdrop-blur-sm">
+              <FaLeaf className="text-amber-500" />
+              Who We Are
             </div>
-            <h2 className="mb-4 font-display text-3xl font-semibold text-emerald-950 sm:text-4xl">
-              साना किसान कृषि सहकारी संस्था लिमिटेड
+
+            <h2 className="mb-4 font-display text-3xl sm:text-4xl font-bold leading-tight text-emerald-950">
+              <span className="block text-2xl sm:text-3xl text-emerald-800 mb-2">साना किसान कृषि सहकारी संस्था लिमिटेड</span>
+              <span className="text-amber-600">Sana Kisan Agro Cooperative Ltd.</span>
             </h2>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Sana Kisan Agro Cooperative Ltd. (SFACL) is a registered
-              cooperative institution serving the Jalthal community of Sunsari
-              District in Province No. 1, Nepal. Established with the core
-              principle of "member-owned, member-controlled, member-benefited,"
-              SFACL has been a pillar of rural financial and agricultural
-              development.
-            </p>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Our cooperative brings together farmers, entrepreneurs, and
-              community members to create a collective force for economic
-              empowerment. Through pooled savings, affordable credit, and
-              agricultural support services — especially in the dairy industry —
-              we help our members achieve financial security and prosperity.
-            </p>
-            <p className="text-base leading-8 text-slate-600">
-              Registered with the Department of Cooperatives of the Government
-              of Nepal, SFACL operates under the Cooperative Act and maintains
-              strict adherence to cooperative values including democracy,
-              equality, equity, and solidarity.
-            </p>
-          </div>
-          <div className="rounded-3xl border border-emerald-100 bg-emerald-50/70 p-8 shadow-sm">
-            <div className="space-y-5">
-              {[
-                { label: "Established", value: "2060 B.S. (2003 A.D.)" },
-                { label: "Registration No.", value: "SUA-009/2060" },
-                {
-                  label: "Location",
-                  value: "Jalthal, Sunsari, Province No. 1",
-                },
-                { label: "Membership", value: "2,500+ Active Members" },
-                { label: "Share Capital", value: "NPR 5 Crore+" },
-                { label: "Total Savings", value: "NPR 15 Crore+" },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="flex justify-between items-center py-2 border-b border-primary-100 last:border-0"
-                >
-                  <span className="text-sm text-slate-500">{item.label}</span>
-                  <span className="text-sm font-semibold text-emerald-950">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <div className="section-divider" />
+            <div className="space-y-5 text-slate-700 leading-8 max-w-2xl">
+              <p>
+                Sana Kisan Agro Cooperative Ltd. (SFACL) is a registered cooperative institution serving the Jalthal community of Sunsari District in Province No. 1, Nepal. Established with the core principle of <span className="font-semibold text-emerald-900">"member-owned, member-controlled, member-benefited,"</span> SFACL has been a pillar of rural financial and agricultural development.
+              </p>
 
-      {/* Mission Vision Objectives */}
-      <section className="bg-white px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 text-center">
-            <h2 className="mb-2 font-display text-3xl font-semibold text-emerald-950 sm:text-4xl">
-              Mission, Vision & Objectives
-            </h2>
-            <div className="text-sm text-slate-500">
-              Our guiding principles and strategic direction
+              <p>
+                Our cooperative brings together farmers, entrepreneurs, and community members to create a collective force for economic empowerment. Through pooled savings, affordable credit, and agricultural support services — especially in the dairy industry — we help our members achieve financial security and prosperity.
+              </p>
+
+              <p>
+                Registered with the Department of Cooperatives of the Government of Nepal, SFACL operates under the Cooperative Act and maintains strict adherence to cooperative values including democracy, equality, equity, and solidarity.
+              </p>
             </div>
           </div>
 
-          <div className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-3">
-            {[
-              {
-                icon: "🌱",
-                title: "Our Mission",
-                color: "bg-green-50 border-green-200",
-                iconBg: "bg-green-100",
-                content:
-                  "To empower members economically and socially through cooperative financial services, technical assistance, and collective market access — with a focus on agricultural and dairy sectors of Jalthal.",
-              },
-              {
-                icon: "🎯",
-                title: "Our Vision",
-                color: "bg-blue-50 border-blue-200",
-                iconBg: "bg-blue-100",
-                content:
-                  "To be the leading cooperative institution in Sunsari District, creating a self-reliant and prosperous community through transparent, democratic, and innovative cooperative practices.",
-              },
-              {
-                icon: "⭐",
-                title: "Core Values",
-                color: "bg-yellow-50 border-yellow-200",
-                iconBg: "bg-yellow-100",
-                content:
-                  "Democratic member control · Voluntary and open membership · Member economic participation · Autonomy and independence · Education, training and information · Cooperation among cooperatives · Community concern.",
-              },
-            ].map((item, i) => (
-              <div key={i} className={`rounded-3xl border p-6 shadow-sm ${item.color}`}>
-                <div
-                  className={`w-12 h-12 ${item.iconBg} rounded-xl flex items-center justify-center text-2xl mb-4`}
-                >
-                  {item.icon}
-                </div>
-                <h3 className="mb-3 font-display text-lg font-semibold text-emerald-950">
-                  {item.title}
-                </h3>
-                <p className="text-sm leading-7 text-slate-600">
-                  {item.content}
-                </p>
+          {/* RIGHT COLUMN: STATISTICS CARD */}
+          <div className="lg:col-span-2">
+            <div className="rounded-3xl border-2 border-emerald-100 bg-gradient-to-br from-white to-emerald-50/50 p-8 shadow-lg backdrop-blur-sm hover:shadow-2xl transition-shadow duration-300">
+              <h3 className="mb-1 text-sm font-bold uppercase tracking-widest text-emerald-700">Key Statistics</h3>
+              <div className="mb-6 h-1 w-12 bg-gradient-to-r from-emerald-500 to-amber-400" />
+
+              <div className="space-y-0">
+                <StatItem label="Established" value="2060 B.S." delay={0} />
+                <StatItem label="Reg. No." value="SUA-009/2060" delay={50} />
+                <StatItem label="Location" value="Sunsari, Province 1" delay={100} />
+                <StatItem label="Members" value="2,500+ Active" delay={150} />
+                <StatItem label="Share Capital" value="NPR 5 Crore+" delay={200} />
+                <StatItem label="Total Savings" value="NPR 15 Crore+" delay={250} />
               </div>
-            ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═════════════════════════════════════════════════════════════════════════
+          SECTION 2: MISSION, VISION & CORE VALUES
+          ═════════════════════════════════════════════════════════════════════════ */}
+      <section ref={mvRef} className="px-4 py-20 sm:px-6 lg:px-8 bg-white">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-16 text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+              <FaAward className="text-amber-500" />
+              Our Principles
+            </div>
+            <h2 className="mb-3 font-display text-3xl sm:text-4xl font-bold text-emerald-950">
+              Mission, Vision & Core Values
+            </h2>
+            <p className="mx-auto max-w-2xl text-slate-600 text-lg">
+              Guided by timeless cooperative principles and unwavering commitment to our community
+            </p>
           </div>
 
-          {/* Objectives */}
-          <div className="rounded-[2rem] bg-emerald-900 p-8 text-white shadow-soft">
-            <h3 className="mb-6 text-center font-display text-2xl font-semibold">
-              Our Objectives
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* MISSION, VISION, VALUES CARDS */}
+          <div className="mb-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+            <MVCard
+              icon="🌱"
+              title="Our Mission"
+              color="bg-green-50"
+              borderColor="border-green-200"
+              content="To empower members economically and socially through cooperative financial services, technical assistance, and collective market access — with a focus on agricultural and dairy sectors."
+              delay={0}
+            />
+            <MVCard
+              icon="🎯"
+              title="Our Vision"
+              color="bg-blue-50"
+              borderColor="border-blue-200"
+              content="To be the leading cooperative institution in Sunsari District, creating a self-reliant and prosperous community through transparent, democratic, and innovative cooperative practices."
+              delay={100}
+            />
+            <MVCard
+              icon="⭐"
+              title="Core Values"
+              color="bg-amber-50"
+              borderColor="border-amber-200"
+              content="Democratic control · Voluntary membership · Member participation · Autonomy · Education & training · Cooperation among cooperatives · Community concern."
+              delay={200}
+            />
+          </div>
+
+          {/* OBJECTIVES SECTION */}
+          <div className="rounded-3xl bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-900 p-10 sm:p-12 text-white shadow-2xl border border-emerald-700/50">
+            <h3 className="mb-2 font-display text-2xl sm:text-3xl font-bold text-center">Our Strategic Objectives</h3>
+            <p className="mb-10 text-center text-emerald-100/80 text-sm">Driving sustainable growth and community empowerment</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {[
-                "Mobilize savings of members and provide productive credit at affordable rates",
-                "Develop and promote dairy industry and agro-based enterprises in the region",
+                "Mobilize savings and provide productive credit at affordable rates",
+                "Develop and promote dairy industry and agro-based enterprises",
                 "Create employment opportunities for rural youth and farmers",
-                "Provide financial literacy and cooperative education to members",
-                "Support women empowerment through targeted cooperative programs",
+                "Provide financial literacy and cooperative education",
+                "Support women empowerment through targeted programs",
                 "Contribute to community infrastructure and rural development",
-                "Maintain transparency and accountability in all financial operations",
-                "Foster cooperation among cooperative institutions for collective strength",
+                "Maintain transparency and accountability in all operations",
+                "Foster cooperation among cooperative institutions",
               ].map((obj, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <span className="mt-0.5 flex-shrink-0 font-bold text-amber-300">
-                    ✓
-                  </span>
-                  <span className="text-sm text-emerald-100">{obj}</span>
+                <div key={i} className="flex items-start gap-3 group">
+                  <FaCheckCircle className="mt-0.5 flex-shrink-0 text-amber-300 group-hover:scale-110 transition-transform" />
+                  <span className="text-sm text-emerald-50 leading-6 group-hover:text-white transition-colors">{obj}</span>
                 </div>
               ))}
             </div>
@@ -162,37 +288,180 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Board/Team intro */}
-      <section className="bg-emerald-50/80 px-4 py-14 sm:px-6 lg:px-8">
+      {/* ═════════════════════════════════════════════════════════════════════════
+          SECTION 3: MESSAGE FROM THE CHAIRPERSON
+          ═════════════════════════════════════════════════════════════════════════ */}
+      <section ref={chairpersonRef} className="px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-emerald-50/40 to-white">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16 items-center">
+            {/* LEFT: IMAGE PLACEHOLDER WITH DECORATIVE SHAPE */}
+            <div className="relative flex justify-center">
+              <div className="absolute -top-8 -left-8 w-40 h-40 bg-amber-300 rounded-full opacity-20 blur-3xl" />
+              <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-emerald-400 rounded-full opacity-20 blur-3xl" />
+
+              <div className="relative z-10">
+                <div className="rounded-3xl border-8 border-white shadow-2xl overflow-hidden bg-gradient-to-br from-emerald-200 to-emerald-100 w-80 h-96 flex items-center justify-center text-emerald-400 text-6xl">
+                  👤
+                </div>
+                <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-white rounded-2xl border-2 border-emerald-100 px-6 py-3 shadow-lg">
+                  <div className="text-center">
+                    <p className="font-display font-bold text-emerald-950">Ram Bahadur Rai</p>
+                    <p className="text-xs text-emerald-700 font-medium">Chairperson</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: MESSAGE CONTENT */}
+            <div>
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+                <FaHandshake className="text-amber-500" />
+                Leadership Message
+              </div>
+
+              <h2 className="mb-6 font-display text-3xl sm:text-4xl font-bold text-emerald-950">
+                Message from the Chairperson
+              </h2>
+
+              <div className="relative">
+                <div className="absolute -top-4 -left-4 text-8xl opacity-10 text-emerald-900 font-display">"</div>
+                <div className="relative z-10 space-y-5 text-slate-700 leading-relaxed">
+                  <p>
+                    As the Chairperson of Sana Kisan Agro Cooperative Ltd., I am proud to lead an institution that has remained steadfast in its commitment to our members and the broader Jalthal community for over two decades.
+                  </p>
+                  <p>
+                    Our cooperative is built on the foundation of trust, transparency, and democratic participation. Every decision we make is guided by the well-being of our members and the sustainable development of our region. We believe that together, through collective effort and shared resources, we can create lasting economic prosperity.
+                  </p>
+                  <p>
+                    I invite all community members to join us in this journey towards a more inclusive, prosperous, and empowered cooperative society.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8 flex items-end gap-4">
+                <div>
+                  <p className="font-display text-lg font-bold text-emerald-950">Ram Bahadur Rai</p>
+                  <p className="text-sm text-emerald-700 font-medium">Chairperson, SFACL</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═════════════════════════════════════════════════════════════════════════
+          SECTION 4: LEADERSHIP TEAM
+          ═════════════════════════════════════════════════════════════════════════ */}
+      <section ref={leadershipRef} className="px-4 py-20 sm:px-6 lg:px-8 bg-white">
         <div className="mx-auto max-w-7xl text-center">
-          <h2 className="mb-2 font-display text-2xl font-semibold text-emerald-950">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+            <FaUsers className="text-amber-500" />
+            Core Team
+          </div>
+          <h2 className="mb-3 font-display text-3xl sm:text-4xl font-bold text-emerald-950">
             Our Leadership
           </h2>
-          <p className="mb-8 text-sm text-slate-500">
-            Dedicated committee members steering our cooperative forward
+          <p className="mx-auto mb-12 max-w-2xl text-slate-600 text-lg">
+            Dedicated individuals steering our cooperative toward greater heights
           </p>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {[
-              { role: "Chairperson", name: "Ram Bahadur Rai" },
-              { role: "Vice-Chairperson", name: "Sita Devi Shrestha" },
-              { role: "Executive Director", name: "Ramesh Kumar Thapa" },
-              { role: "Treasurer", name: "Gita Kumari Tamang" },
-            ].map((person, i) => (
-              <div
-                key={i}
-                className="rounded-2xl border border-emerald-100 bg-white p-5 text-center shadow-sm"
-              >
-                <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-800 text-xl font-bold text-white">
-                  {person.name[0]}
-                </div>
-                <div className="text-sm font-semibold text-emerald-950">
-                  {person.name}
-                </div>
-                <div className="mt-0.5 text-xs text-slate-500">
-                  {person.role}
+
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+            <LeadershipCard initials="RB" name="Ram Bahadur Rai" role="Chairperson" delay={0} />
+            <LeadershipCard initials="SD" name="Sita Devi Shrestha" role="Vice-Chairperson" delay={100} />
+            <LeadershipCard initials="RK" name="Ramesh Kumar Thapa" role="Executive Director" delay={200} />
+            <LeadershipCard initials="GK" name="Gita Kumari Tamang" role="Treasurer" delay={300} />
+          </div>
+        </div>
+      </section>
+
+      {/* ═════════════════════════════════════════════════════════════════════════
+          SECTION 5: OFFICIAL REGISTRATION - NAGARIK BADA PATRA
+          ═════════════════════════════════════════════════════════════════════════ */}
+      <section ref={registrationRef} className="px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-emerald-50/40 to-white">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-12">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+              <FaFileAlt className="text-amber-500" />
+              Legal Standing
+            </div>
+            <h2 className="mb-3 font-display text-3xl sm:text-4xl font-bold text-emerald-950">
+              Official Registration & Certification
+            </h2>
+          </div>
+
+          {/* REGISTRATION CARD */}
+          <div className="rounded-3xl border-2 border-emerald-100 bg-white p-8 sm:p-12 shadow-xl hover:shadow-2xl transition-all duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+              {/* DOCUMENT VISUAL */}
+              <div className="md:col-span-1 flex justify-center">
+                <div className="relative">
+                  <div className="absolute -top-3 -right-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold rotate-12 shadow-lg">
+                    Verified
+                  </div>
+                  <div className="w-32 h-48 bg-gradient-to-b from-slate-100 to-slate-50 rounded-lg border-2 border-slate-300 shadow-lg flex flex-col items-center justify-center p-4">
+                    <FaFileAlt className="text-4xl text-emerald-600 mb-2" />
+                    <p className="text-xs text-center text-slate-600 font-medium">Official<br/>Registration<br/>Document</p>
+                  </div>
                 </div>
               </div>
-            ))}
+
+              {/* CONTENT */}
+              <div className="md:col-span-2">
+                <h3 className="mb-2 font-display text-2xl font-bold text-emerald-950">
+                  नागरिक बडा पत्र
+                </h3>
+                <p className="text-base text-slate-600 mb-6">
+                  Official Registration Certificate issued by the Department of Cooperatives, Government of Nepal, establishing legal status and regulatory compliance.
+                </p>
+
+                {/* METADATA */}
+                <div className="grid grid-cols-2 gap-4 mb-8 p-6 bg-emerald-50/60 rounded-2xl border border-emerald-100">
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-emerald-700">Registration No.</p>
+                    <p className="text-lg font-bold text-emerald-950">SUA-009/2060</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-emerald-700">Established</p>
+                    <p className="text-lg font-bold text-emerald-950">2060 B.S. (2003 A.D.)</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-emerald-700">Authority</p>
+                    <p className="text-sm font-semibold text-emerald-950">Dept. of Cooperatives</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-emerald-700">Status</p>
+                    <p className="text-sm font-bold text-emerald-600">✓ Active</p>
+                  </div>
+                </div>
+
+                {/* TRUST BADGES */}
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    "✓ Govt. Registered",
+                    "✓ Legally Certified",
+                    "✓ Actively Operating",
+                  ].map((badge, i) => (
+                    <span key={i} className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700 border border-emerald-200">
+                      {badge}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* DIVIDER */}
+            <div className="my-8 h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent" />
+
+            {/* ACTION BUTTON */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                📄 All official documents are maintained with the Department of Cooperatives and are available for verification.
+              </p>
+              <button className="inline-flex items-center gap-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                View Official Document
+                <FaArrowRight className="text-sm" />
+              </button>
+            </div>
           </div>
         </div>
       </section>
