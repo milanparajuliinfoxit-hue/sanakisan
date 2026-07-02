@@ -1,4 +1,3 @@
-import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   FaHome,
@@ -7,6 +6,7 @@ import {
   FaCalendarAlt,
   FaImages,
   FaGift,
+  FaFileAlt,
 } from "react-icons/fa";
 import { FaUserGroup } from "react-icons/fa6";
 
@@ -17,8 +17,8 @@ const navLinks = [
   { href: "/events", icon: FaCalendarAlt, label: "Events" },
   { href: "/teams", icon: FaUserGroup, label: "Members" },
   { href: "/gallery", icon: FaImages, label: "Gallery" },
-   { href: "/holiday", icon: FaGift, label: "Holiday" },
-
+  { href: "/holiday", icon: FaGift, label: "Holiday" },
+  { href: "/bada-patra", icon: FaFileAlt, label: "नागरिक बडा पत्र" },
 ];
 
 const Sidebar = () => {

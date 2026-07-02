@@ -11,9 +11,10 @@ import {
   PressRelease,
   SharedLayout,
   Team,
-  Gallery // 
+  Gallery
 } from "./pages";
 import Holiday from "./pages/Holiday";
+import BadaPatra from "./pages/BadaPatra";
 
 const router = createBrowserRouter([
   {
@@ -24,34 +25,14 @@ const router = createBrowserRouter([
     path: "/",
     element: <SharedLayout />,
     children: [
-      {
-        path: "/",
-        element: <Dashboard />,
-      },
-      {
-        path: "/press-release",
-        element: <PressRelease />,
-      },
-      {
-        path: "/events",
-        element: <Events />,
-      },
-      {
-        path: "/notice",
-        element: <Notice />,
-      },
-      {
-        path: "/teams",
-        element: <Team />,
-      },
-      {
-        path: "/gallery", // 
-        element: <Gallery />,
-      },
-      {
-        path: "/holiday",
-        element: <Holiday/>
-      }
+      { path: "/", element: <Dashboard /> },
+      { path: "/press-release", element: <PressRelease /> },
+      { path: "/events", element: <Events /> },
+      { path: "/notice", element: <Notice /> },
+      { path: "/teams", element: <Team /> },
+      { path: "/gallery", element: <Gallery /> },
+      { path: "/holiday", element: <Holiday /> },
+      { path: "/bada-patra", element: <BadaPatra /> },
     ],
   }
 ]);
