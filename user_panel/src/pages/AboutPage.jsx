@@ -1,13 +1,14 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FaLeaf,
   FaAward,
   FaCheckCircle,
   FaFileAlt,
-  FaArrowRight,
 } from "react-icons/fa";
 import PageBanner from "../components/PageBanner";
 import LeadershipSection from "../components/LeadershipSection";
+import { getBadaPatra } from "../api/badaPatraApi";
+import { getImageUrl } from "../api/config";
 
 /* ─────────────────────────────────────────────────────────────────────────
    ANIMATION HOOK: Fade-in-up on Scroll
@@ -98,6 +99,17 @@ export default function AboutPage() {
   const whoWeAreRef = useScrollAnimation();
   const mvRef = useScrollAnimation();
   const registrationRef = useScrollAnimation();
+
+  const [badaPatra, setBadaPatra] = useState(null);
+  const [badaPatraLoading, setBadaPatraLoading] = useState(true);
+  const [badaPatraError, setBadaPatraError] = useState(false);
+
+  useEffect(() => {
+    getBadaPatra()
+      .then(setBadaPatra)
+      .catch(() => setBadaPatraError(true))
+      .finally(() => setBadaPatraLoading(false));
+  }, []);
 
   return (
     <div>
@@ -253,93 +265,64 @@ export default function AboutPage() {
       <LeadershipSection />
 
       {/* ═════════════════════════════════════════════════════════════════════════
-          SECTION 5: OFFICIAL REGISTRATION - NAGARIK BADA PATRA
+          SECTION 5: नागरिक बडा पत्र — Dynamic
           ═════════════════════════════════════════════════════════════════════════ */}
       <section ref={registrationRef} className="px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-emerald-50/40 to-white">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-4xl">
+          {/* Heading */}
           <div className="text-center mb-12">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
               <FaFileAlt className="text-amber-500" />
-              Legal Standing
+              सरकारी प्रमाणपत्र
             </div>
-            <h2 className="mb-3 font-display text-3xl sm:text-4xl font-bold text-emerald-950">
-              Official Registration & Certification
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-emerald-950">
+              नागरिक बडा पत्र
             </h2>
           </div>
 
-          {/* REGISTRATION CARD */}
-          <div className="rounded-3xl border-2 border-emerald-100 bg-white p-8 sm:p-12 shadow-xl hover:shadow-2xl transition-all duration-300">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
-              {/* DOCUMENT VISUAL */}
-              <div className="md:col-span-1 flex justify-center">
-                <div className="relative">
-                  <div className="absolute -top-3 -right-3 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold rotate-12 shadow-lg">
-                    Verified
-                  </div>
-                  <div className="w-32 h-48 bg-gradient-to-b from-slate-100 to-slate-50 rounded-lg border-2 border-slate-300 shadow-lg flex flex-col items-center justify-center p-4">
-                    <FaFileAlt className="text-4xl text-emerald-600 mb-2" />
-                    <p className="text-xs text-center text-slate-600 font-medium">Official<br/>Registration<br/>Document</p>
-                  </div>
+          {/* Card */}
+          <div className="rounded-3xl border border-emerald-100 bg-white shadow-xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden">
+            {badaPatraLoading ? (
+              /* Skeleton */
+              <div className="p-8">
+                <div className="animate-pulse">
+                  <div className="bg-gray-200 rounded-2xl w-full" style={{ aspectRatio: "4/3" }} />
+                </div>
+                <div className="flex justify-center mt-6">
+                  <div className="w-8 h-8 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin" />
                 </div>
               </div>
-
-              {/* CONTENT */}
-              <div className="md:col-span-2">
-                <h3 className="mb-2 font-display text-2xl font-bold text-emerald-950">
-                  नागरिक बडा पत्र
+            ) : badaPatraError || !badaPatra ? (
+              /* Empty / Error state */
+              <div className="py-24 text-center px-6">
+                <div className="mx-auto w-24 h-24 rounded-2xl bg-emerald-50 flex items-center justify-center mb-6">
+                  <FaFileAlt className="text-4xl text-emerald-300" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                  {badaPatraError ? "Unable to load document" : "No Bada Patra Available"}
                 </h3>
-                <p className="text-base text-slate-600 mb-6">
-                  Official Registration Certificate issued by the Department of Cooperatives, Government of Nepal, establishing legal status and regulatory compliance.
+                <p className="text-gray-500 text-sm max-w-sm mx-auto">
+                  {badaPatraError
+                    ? "Please try again later or contact the administrator."
+                    : "The official document has not been uploaded yet. Please check back later."}
                 </p>
-
-                {/* METADATA */}
-                <div className="grid grid-cols-2 gap-4 mb-8 p-6 bg-emerald-50/60 rounded-2xl border border-emerald-100">
-                  <div>
-                    <p className="text-xs font-semibold uppercase text-emerald-700">Registration No.</p>
-                    <p className="text-lg font-bold text-emerald-950">SUA-009/2060</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase text-emerald-700">Established</p>
-                    <p className="text-lg font-bold text-emerald-950">2060 B.S. (2003 A.D.)</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase text-emerald-700">Authority</p>
-                    <p className="text-sm font-semibold text-emerald-950">Dept. of Cooperatives</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase text-emerald-700">Status</p>
-                    <p className="text-sm font-bold text-emerald-600">✓ Active</p>
-                  </div>
-                </div>
-
-                {/* TRUST BADGES */}
-                {/* <div className="flex flex-wrap gap-3">
-                  {[
-                    "✓ Govt. Registered",
-                    "✓ Legally Certified",
-                    "✓ Actively Operating",
-                  ].map((badge, i) => (
-                    <span key={i} className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-semibold text-emerald-700 border border-emerald-200">
-                      {badge}
-                    </span>
-                  ))}
-                </div> */}
               </div>
-            </div>
-
-            {/* DIVIDER */}
-            <div className="my-8 h-px bg-gradient-to-r from-transparent via-emerald-200 to-transparent" />
-
-            {/* ACTION BUTTON */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-              <p className="text-xs sm:text-sm text-slate-600 font-medium">
-                📄 All official documents are maintained with the Department of Cooperatives and are available for verification.
-              </p>
-              <button className="inline-flex items-center gap-2 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 font-semibold transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                View Official Document
-                <FaArrowRight className="text-sm" />
-              </button>
-            </div>
+            ) : (
+              /* Image */
+              <div className="p-6 sm:p-10">
+                <div className="group relative overflow-hidden rounded-2xl border border-emerald-100 shadow-md hover:shadow-xl transition-shadow duration-300 bg-gray-50">
+                  <img
+                    src={getImageUrl(badaPatra.image)}
+                    alt="नागरिक बडा पत्र"
+                    loading="lazy"
+                    className="w-full h-auto object-contain block transition-transform duration-500 group-hover:scale-[1.02]"
+                    style={{ maxHeight: "80vh" }}
+                  />
+                  {/* Subtle overlay on hover */}
+                  <div className="absolute inset-0 bg-emerald-900/0 group-hover:bg-emerald-900/5 transition-colors duration-300 pointer-events-none rounded-2xl" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>

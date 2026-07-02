@@ -23,6 +23,7 @@ const {
 const galleryRoutes = require("./routes/gallery");
 const swaggerDocument = require("../swagger-output.json");
 const holidayRoutes = require("./routes/holidayRoutes");
+const badaPatraRoutes = require("./routes/badaPatraRoutes");
 
 // CORS Options
 const corsOptions = {
@@ -61,6 +62,7 @@ app.use(
 
 // API routes
 app.use("/api", holidayRoutes);
+app.use("/api", badaPatraRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api", teamRoutes);
