@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { X } from "lucide-react";
+import { Button } from "../ui/button";
 
 const CreateHoliday = ({ setOpen, refreshHolidays }) => {
   const [title, setTitle] = useState("");
@@ -25,14 +26,10 @@ const CreateHoliday = ({ setOpen, refreshHolidays }) => {
         setTitle("");
         setHolidayDate("");
         setOpen(false);
-        
-        // Refresh parent list immediately
         if (refreshHolidays) refreshHolidays();
       }
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Failed to create holiday"
-      );
+      toast.error(error.response?.data?.message || "Failed to create holiday");
     } finally {
       setLoading(false);
     }
@@ -45,69 +42,56 @@ const CreateHoliday = ({ setOpen, refreshHolidays }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <h2 className="text-xl font-semibold">Create New Holiday</h2>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl animate-scale-in">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h2 className="text-lg font-semibold text-foreground">Create New Holiday</h2>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition"
+            className="p-1.5 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+        <form onSubmit={handleSubmit} className="p-5 space-y-5">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
               Holiday Title
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               placeholder="e.g. Dashain, Holi, Christmas"
               required
             />
           </div>
 
-          {/* Date */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
               Holiday Date (A.D)
             </label>
             <input
               type="date"
               value={holidayDate}
               onChange={(e) => setHolidayDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               required
             />
           </div>
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="px-5 py-2.5 bg-gray-500 text-white font-medium hover:bg-gray-400 rounded-lg transition"
-            >
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-5 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition disabled:opacity-70"
-            >
+            </Button>
+            <Button type="submit" disabled={loading}>
               {loading ? "Saving..." : "Save Holiday"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
-      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

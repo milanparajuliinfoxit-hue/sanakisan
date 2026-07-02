@@ -2,8 +2,11 @@ import { useRef, useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import PropTypes from "prop-types";
+import { Button } from "../ui/button";
+import { Upload, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const CreateGallery = ({ mode, setMode, onUploadSuccess }) => {
+const CreateGallery = ({ setMode, onUploadSuccess }) => {
   const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
       galleryImages: [],
@@ -19,13 +22,11 @@ const CreateGallery = ({ mode, setMode, onUploadSuccess }) => {
   const [customEvent, setCustomEvent] = useState("");
   const [allEvents, setAllEvents] = useState([]);
 
-  // Load custom events from localStorage
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem("customGalleryEvents")) || [];
     setAllEvents(saved);
   }, []);
 
-  // Handle image input change
   const handleImageChange = (event, fieldOnChange) => {
     const files = Array.from(event.target.files);
     const validFiles = [];
@@ -52,6 +53,14 @@ const CreateGallery = ({ mode, setMode, onUploadSuccess }) => {
     setValue("galleryImages", []);
   };
 
+  const removeSingleImage = (index) => {
+    const newFiles = imageFiles.filter((_, i) => i !== index);
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    setImageFiles(newFiles);
+    setImagePreviews(newPreviews);
+    setValue("galleryImages", newFiles);
+  };
+
   const onSubmit = async (formData) => {
     if (!imageFiles.length) {
       toast.error("Please select at least one image.");
@@ -65,12 +74,13 @@ const CreateGallery = ({ mode, setMode, onUploadSuccess }) => {
       return;
     }
 
-    // Save new event to localStorage if not already saved
     if (isCustomEvent && !allEvents.includes(eventToSubmit)) {
       const updatedEvents = [...allEvents, eventToSubmit];
       localStorage.setItem("customGalleryEvents", JSON.stringify(updatedEvents));
       setAllEvents(updatedEvents);
     }
+
+    const API = import.meta.env.VITE_REACT_APP_API_URL;
 
     setLoading(true);
     try {
@@ -80,7 +90,7 @@ const CreateGallery = ({ mode, setMode, onUploadSuccess }) => {
         data.append("image", file);
         data.append("event", eventToSubmit);
 
-        const res = await fetch("http://localhost:5000/api/gallery/upload", {
+        const res = await fetch(`${API}/api/gallery/upload`, {
           method: "POST",
           body: data,
         });
@@ -105,129 +115,127 @@ const CreateGallery = ({ mode, setMode, onUploadSuccess }) => {
   };
 
   return (
-    <div className="flex flex-col space-y-6 p-4 max-w-lg mx-auto bg-white rounded shadow">
-      <h2 className="text-2xl font-semibold text-center">Upload Gallery Images</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Event Selection */}
-        <div>
-          <label className="block mb-2 font-medium text-gray-700">Select Event</label>
-          <Controller
-            name="event"
-            control={control}
-            rules={{ required: "Event is required" }}
-            render={({ field, fieldState: { error } }) => (
-              <>
-                <select
-                  {...field}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    field.onChange(value);
-                    if (value === "__new__") {
-                      setIsCustomEvent(true);
-                    } else {
-                      setIsCustomEvent(false);
-                      setCustomEvent("");
-                    }
-                  }}
-                  className={`w-full p-2 border rounded ${
-                    error ? "border-red-500" : "border-gray-300"
-                  }`}
-                >
-                  <option value="">-- Select Event --</option>
-                  <option value="__new__">+ Add New Event</option>
-                  {allEvents.map((event, idx) => (
-                    <option key={idx} value={event}>
-                      {event}
-                    </option>
-                  ))}
-                </select>
-                {error && <p className="text-red-500 mt-1 text-sm">{error.message}</p>}
-              </>
-            )}
-          />
-          {isCustomEvent && (
-            <input
-              type="text"
-              placeholder="Enter new event name"
-              value={customEvent}
-              onChange={(e) => setCustomEvent(e.target.value)}
-              className="mt-2 w-full p-2 border rounded border-gray-300"
-            />
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {/* Event Selection */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-foreground">Event <span className="text-destructive">*</span></label>
+        <Controller
+          name="event"
+          control={control}
+          rules={{ required: !isCustomEvent && "Event is required" }}
+          render={({ field, fieldState: { error } }) => (
+            <>
+              <select
+                {...field}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  field.onChange(value);
+                  if (value === "__new__") {
+                    setIsCustomEvent(true);
+                  } else {
+                    setIsCustomEvent(false);
+                    setCustomEvent("");
+                  }
+                }}
+                className={cn(
+                  "flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                  error ? "border-destructive" : "border-input"
+                )}
+              >
+                <option value="">-- Select Event --</option>
+                <option value="__new__">+ Add New Event</option>
+                {allEvents.map((event, idx) => (
+                  <option key={idx} value={event}>
+                    {event}
+                  </option>
+                ))}
+              </select>
+              {error && <p className="text-xs text-destructive">{error.message}</p>}
+            </>
           )}
-        </div>
-
-        {/* Image Upload */}
-        <div>
-          <label className="block mb-2 font-medium text-gray-700">Insert Images</label>
-          <Controller
-            name="galleryImages"
-            control={control}
-            rules={{ required: "At least one image is required" }}
-            render={({ field, fieldState: { error } }) => (
-              <div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => handleImageChange(e, field.onChange)}
-                  className="hidden"
-                  ref={imageRef}
-                />
-                <div
-                  className="w-full p-4 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 flex flex-wrap justify-center min-h-[100px]"
-                  onClick={() => imageRef.current && imageRef.current.click()}
-                >
-                  {imagePreviews.length === 0 ? (
-                    <span className="text-gray-500 text-sm self-center">
-                      Click to upload or drag and drop images
-                    </span>
-                  ) : (
-                    imagePreviews.map((src, idx) => (
-                      <img
-                        key={idx}
-                        src={src}
-                        alt={`Preview ${idx + 1}`}
-                        className="h-24 w-24 object-cover rounded border border-gray-300 m-1"
-                      />
-                    ))
-                  )}
-                </div>
-                {error && <p className="text-red-500 mt-1 text-sm">{error.message}</p>}
-              </div>
-            )}
+        />
+        {isCustomEvent && (
+          <input
+            type="text"
+            placeholder="Enter new event name"
+            value={customEvent}
+            onChange={(e) => setCustomEvent(e.target.value)}
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           />
-        </div>
+        )}
+      </div>
 
-        {/* Buttons */}
-        <div className="flex justify-center space-x-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-black hover:bg-gray-700 disabled:bg-blue-300 text-white font-semibold px-6 py-2 rounded"
-          >
-            {loading ? "Uploading..." : "Save"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              reset();
-              removeImages();
-              setCustomEvent("");
-              setIsCustomEvent(false);
-              setMode && setMode("view");
-            }}
-            className="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
+      {/* Image Upload */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-foreground">Insert Images <span className="text-destructive">*</span></label>
+        <Controller
+          name="galleryImages"
+          control={control}
+          rules={{ required: "At least one image is required" }}
+          render={({ field, fieldState: { error } }) => (
+            <div>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => handleImageChange(e, field.onChange)}
+                className="hidden"
+                ref={imageRef}
+              />
+              <div
+                className={cn(
+                  "border-2 border-dashed rounded-xl cursor-pointer p-4 transition-colors min-h-[120px]",
+                  error ? "border-destructive" : "border-border hover:border-primary/50 hover:bg-accent/50"
+                )}
+                onClick={() => imageRef.current && imageRef.current.click()}
+              >
+                {imagePreviews.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-6">
+                    <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                    <p className="text-sm text-muted-foreground font-medium">Click to upload or drag and drop images</p>
+                    <p className="text-xs text-muted-foreground mt-1">Max 1MB each · JPG, PNG, WebP</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {imagePreviews.map((src, idx) => (
+                      <div key={idx} className="relative group">
+                        <img
+                          src={src}
+                          alt={`Preview ${idx + 1}`}
+                          className="h-20 w-20 object-cover rounded-lg border border-border"
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); removeSingleImage(idx); }}
+                          className="absolute -top-1.5 -right-1.5 p-0.5 bg-destructive text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {error && <p className="text-xs text-destructive mt-1">{error.message}</p>}
+            </div>
+          )}
+        />
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end gap-3 pt-2">
+        <Button type="button" variant="outline" onClick={() => { reset(); removeImages(); setCustomEvent(""); setIsCustomEvent(false); setMode && setMode("view"); }}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Uploading..." : "Save Images"}
+        </Button>
+      </div>
+    </form>
   );
 };
 
 CreateGallery.propTypes = {
-  mode: PropTypes.string,
   setMode: PropTypes.func,
   onUploadSuccess: PropTypes.func,
 };

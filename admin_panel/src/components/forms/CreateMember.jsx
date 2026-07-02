@@ -13,17 +13,12 @@ import {
 } from "../ui/select";
 import { useSaveMemberMutation, useUpdateMemberMutation } from "@/redux/api/memberApi";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-
+import { X, Upload } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const CreateMember = ({ editSelectedItem, mode, setMode }) => {
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-  } = useForm({
+  const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
       name: "",
       position: "",
@@ -32,27 +27,24 @@ const CreateMember = ({ editSelectedItem, mode, setMode }) => {
       email: "",
       contact: "",
       tenure: "",
-      created_by:1
+      created_by: 1
     },
   });
-  const nameRef = useRef(null)
+  const nameRef = useRef(null);
+  const fileInputRef = useRef(null);
   const [saveMember] = useSaveMemberMutation();
   const [updateMember] = useUpdateMemberMutation();
   const [imagePreview, setImagePreview] = useState(null);
   const [showImage, setShowImage] = useState(null);
   const [isImageChanged, setIsImageChanged] = useState(false);
 
-
   const fetchImage = async (feature_image) => {
     try {
-
       const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}api/${feature_image}`, {
         responseType: 'blob',
       });
-
       const imageBlob = response.data;
       const imageUrl = URL.createObjectURL(imageBlob);
-      setShowImage('imageurl', imageUrl);
       setImagePreview(imageBlob);
       setShowImage(imageUrl);
     } catch (error) {
@@ -60,9 +52,7 @@ const CreateMember = ({ editSelectedItem, mode, setMode }) => {
     }
   };
 
-
-
-  useEffect(()=>{
+  useEffect(() => {
     if (editSelectedItem) {
       fetchImage(editSelectedItem.feature_image);
       setValue("name", editSelectedItem.name);
@@ -73,13 +63,12 @@ const CreateMember = ({ editSelectedItem, mode, setMode }) => {
       setValue("tenure", editSelectedItem.tenure);
       setValue('feature_image', editSelectedItem.feature_image);
       nameRef.current?.focus();
-    }else{
-      reset()
-      setImagePreview(null)
+    } else {
+      reset();
+      setImagePreview(null);
+      setShowImage(null);
     }
-
   }, [editSelectedItem, setValue]);
-
 
   const onSubmit = async (data) => {
     let formData = new FormData();
@@ -91,7 +80,6 @@ const CreateMember = ({ editSelectedItem, mode, setMode }) => {
     formData.append('tenure', data.tenure);
     isImageChanged && formData.append('feature_image', imagePreview);
 
-
     if (mode == 'update') {
       formData.append('id', editSelectedItem?.id);
     }
@@ -102,28 +90,15 @@ const CreateMember = ({ editSelectedItem, mode, setMode }) => {
         reset();
         removeImage();
         window.location.reload();
-
       }
     } catch (error) {
-      editSelectedItem ? toast.error("Something went wrong on updating team member...") : toast("Something went wrong on creating team member...", {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: false,
-        draggable: true,
-        progress: undefined,
-        style: {
-          backgroundColor: "#f44336",
-          color: "#ffffff",
-        },
-      });
-      throw new Error(error)
+      toast.error("Something went wrong...");
+      throw new Error(error);
     }
   };
 
   const handleImageChange = (event) => {
-    setIsImageChanged(true)
+    setIsImageChanged(true);
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 1048576) {
@@ -131,7 +106,7 @@ const CreateMember = ({ editSelectedItem, mode, setMode }) => {
         return;
       }
       setImagePreview(file);
-      setShowImage(URL.createObjectURL(file))
+      setShowImage(URL.createObjectURL(file));
       setValue("feature_image", file.name);
     }
   };
@@ -140,133 +115,108 @@ const CreateMember = ({ editSelectedItem, mode, setMode }) => {
     setImagePreview(null);
     setShowImage(null);
     setValue("feature_image", "");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
-    <div className="flex flex-col space-y-4 ">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Name
-            </label>
-            <Controller
-              name="name"
-              control={control}
-              rules={{ required: "Name is required" }}
-              render={({ field, fieldState: { error } }) => (
-                <>
-                  <Input {...field}  ref={nameRef}/>
-                  {error && (
-                    <span className="text-red-500 text-sm">
-                      {error.message}
-                    </span>
-                  )}
-                </>
-              )}
-            />
+    <div className="max-w-4xl">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="rounded-xl border bg-card">
+          <div className="px-5 py-4 border-b border-border">
+            <h3 className="font-semibold text-foreground">Personal Information</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">Enter the details of the team member</p>
           </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Position
-            </label>
-            <Controller
-              name="position"
-              control={control}
-             
-              render={({ field, }) => (
-                <>
-                  <Input {...field} />
-              
-                </>
-              )}
-            />
+          <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Name <span className="text-destructive">*</span></label>
+              <Controller
+                name="name"
+                control={control}
+                rules={{ required: "Name is required" }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <Input {...field} ref={nameRef} placeholder="Enter full name" />
+                    {error && <span className="text-xs text-destructive">{error.message}</span>}
+                  </>
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Position</label>
+              <Controller
+                name="position"
+                control={control}
+                render={({ field }) => (
+                  <Input {...field} placeholder="Enter position" />
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Type <span className="text-destructive">*</span></label>
+              <Controller
+                name="type"
+                control={control}
+                rules={{ required: "Type is required" }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="executive">Executive</SelectItem>
+                        <SelectItem value="pastPresidents">Past Presidents</SelectItem>
+                        <SelectItem value="staff">Staff</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {error && <span className="text-xs text-destructive">{error.message}</span>}
+                  </>
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Email</label>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <Input {...field} type="email" placeholder="Enter email address" />
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Contact</label>
+              <Controller
+                name="contact"
+                control={control}
+                render={({ field }) => (
+                  <Input {...field} placeholder="Enter contact number" />
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Tenure</label>
+              <Controller
+                name="tenure"
+                control={control}
+                render={({ field }) => (
+                  <Input {...field} placeholder="e.g. 2020-2024" />
+                )}
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Type
-            </label>
-            <Controller
-              name="type"
-              control={control}
-              rules={{ required: "Type is required" }}
-              render={({ field, fieldState: { error } }) => (
-                <>
-                <Select
-                  onValueChange={field.onChange}
-                    {...field}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="executive">Executive</SelectItem>
-                    <SelectItem value="pastPresidents">
-                      Past Presidents
-                    </SelectItem>
-                    <SelectItem value="staff">Staff</SelectItem>
-                  </SelectContent>
-                  </Select>
-                  {error && (
-                    <span className="text-red-500 text-sm">
-                      {error.message}
-                    </span>
-                  )}
-                </>
-              )}
+        </div>
 
-            />
+        <div className="rounded-xl border bg-card">
+          <div className="px-5 py-4 border-b border-border">
+            <h3 className="font-semibold text-foreground">Profile Image</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">Upload a profile photo</p>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <Controller
-              name="email"
-              control={control}
-              render={({ field, }) => (
-                <Input {...field}
-                  type="email"
-                />
-              )}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Contact
-            </label>
-            <Controller
-              name="contact"
-              control={control}
-              render={({ field }) => (
-                <>
-                  <Input {...field} />
-                 
-                </>
-              )}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Tenure
-            </label>
-            <Controller
-              name="tenure"
-              control={control}
-              render={({ field }) => <Input {...field} />}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Featured Image
-            </label>
+          <div className="p-5">
             <Controller
               name="feature_image"
               control={control}
-              rules={{ required: "An image is required" }}
+              rules={{ required: mode === 'create' ? "An image is required" : false }}
               render={({ field, fieldState: { error } }) => (
                 <div>
                   <input
@@ -277,51 +227,51 @@ const CreateMember = ({ editSelectedItem, mode, setMode }) => {
                       handleImageChange(e);
                     }}
                     className="hidden"
-                    ref={(input) => input && (field.ref = input)}
+                    ref={fileInputRef}
                   />
                   <div
-                    className={`w-full p-2 border-2 border-dashed rounded-lg cursor-pointer flex justify-center h-44 ${
-                      error ? "border-red-500" : ""
-                    }`}
-                    onClick={() => field.ref.click()}
+                    className={cn(
+                      "relative border-2 border-dashed rounded-xl cursor-pointer flex items-center justify-center h-48 transition-colors",
+                      error ? "border-destructive" : "border-border hover:border-primary/50 hover:bg-accent/50"
+                    )}
+                    onClick={() => fileInputRef.current?.click()}
                   >
                     {showImage ? (
-                      <div className="relative">
+                      <div className="relative w-full h-full p-2">
                         <img
                           src={showImage}
                           alt="Preview"
-                          className="size-40 object-cover rounded-lg"
+                          className="w-full h-full object-contain rounded-lg"
                         />
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); removeImage(); }}
+                          className="absolute top-3 right-3 p-1 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5 text-white" />
+                        </button>
                       </div>
                     ) : (
-                      <span className="text-gray-500">
-                        Click to upload or drag and drop an image
-                      </span>
+                      <div className="text-center">
+                        <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground font-medium">Click to upload image</p>
+                        <p className="text-xs text-muted-foreground mt-1">Max 1MB · JPG, PNG, WebP</p>
+                      </div>
                     )}
                   </div>
-                  {error && (
-                    <p className="text-red-500 text-sm mt-1">{error.message}</p>
-                  )}
+                  {error && <p className="text-xs text-destructive mt-1">{error.message}</p>}
                 </div>
               )}
             />
           </div>
         </div>
 
-        <div className="flex gap-4">
-          <Button type="submit">
-            {mode == 'update' ? "Update" : "Save"}
-          </Button>
-          <Button
-            type="button"
-            onClick={() => {
-              reset();
-              removeImage();
-              setMode('create')
-            }}
-            className="bg-red-700"
-          >
+        <div className="flex items-center gap-3 justify-end">
+          <Button type="button" variant="outline" onClick={() => { reset(); removeImage(); setMode('create'); }}>
             Cancel
+          </Button>
+          <Button type="submit">
+            {mode == 'update' ? "Update Member" : "Save Member"}
           </Button>
         </div>
       </form>
@@ -332,7 +282,7 @@ const CreateMember = ({ editSelectedItem, mode, setMode }) => {
 CreateMember.propTypes = {
   editSelectedItem: PropTypes.object,
   mode: PropTypes.string,
-  setMode: PropTypes.func
+  setMode: PropTypes.func,
 };
 
 export default CreateMember;
