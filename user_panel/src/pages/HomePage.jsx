@@ -254,7 +254,7 @@ export default function HomePage() {
       {/* ───── Message from Chairperson (DYNAMIC) ───── */}
       <ChairpersonMessage />
 
-      <NoticeBoard limit={5} />
+      <NoticeBoard limit={3} />
       <CalendarModule />
       <BlogsSection limit={3} />
 

@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 import {
   FaLeaf,
-  FaUsers,
   FaAward,
   FaCheckCircle,
   FaFileAlt,
   FaArrowRight,
 } from "react-icons/fa";
 import PageBanner from "../components/PageBanner";
+import LeadershipSection from "../components/LeadershipSection";
 
 /* ─────────────────────────────────────────────────────────────────────────
    ANIMATION HOOK: Fade-in-up on Scroll
@@ -92,50 +92,11 @@ function MVCard({ icon, title, color, borderColor, content, delay }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   LEADERSHIP CARD COMPONENT with Enhanced Visuals
-   ───────────────────────────────────────────────────────────────────────── */
-function LeadershipCard({ initials, name, role, delay }) {
-  const ref = useRef(null);
-  const colorIndex = initials.charCodeAt(0) % 4;
-
-  useEffect(() => {
-    if (ref.current) {
-      ref.current.style.animation = `fadeUpStagger 0.6s ease-out ${delay}ms both`;
-    }
-  }, [delay]);
-
-  const colorPairs = [
-    { bg: "from-emerald-600 to-emerald-700", accent: "emerald" },
-    { bg: "from-amber-500 to-amber-600", accent: "amber" },
-    { bg: "from-teal-600 to-teal-700", accent: "teal" },
-    { bg: "from-emerald-700 to-teal-700", accent: "emerald" },
-  ];
-  const { bg } = colorPairs[colorIndex];
-
-  return (
-    <div
-      ref={ref}
-      className="group rounded-2xl border border-emerald-100 bg-white p-6 text-center shadow-sm transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-xl hover:border-emerald-300"
-    >
-      <div className={`mx-auto mb-4 h-20 w-20 rounded-full bg-gradient-to-br ${bg} flex items-center justify-center text-2xl font-bold text-white shadow-md group-hover:scale-110 transition-transform duration-300`}>
-        {initials}
-      </div>
-      <h4 className="text-base font-semibold text-emerald-950 group-hover:text-amber-500 transition-colors">
-        {name}
-      </h4>
-      <p className="mt-1 text-xs font-medium text-emerald-600">{role}</p>
-      <div className="mt-3 h-0.5 w-8 bg-gradient-to-r from-emerald-400 to-amber-400 mx-auto scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
    MAIN COMPONENT
    ───────────────────────────────────────────────────────────────────────── */
 export default function AboutPage() {
   const whoWeAreRef = useScrollAnimation();
   const mvRef = useScrollAnimation();
-  const leadershipRef = useScrollAnimation();
   const registrationRef = useScrollAnimation();
 
   return (
@@ -287,29 +248,9 @@ export default function AboutPage() {
       </section>
 
       {/* ═════════════════════════════════════════════════════════════════════════
-          SECTION 3: LEADERSHIP TEAM
+          SECTION 3: LEADERSHIP TEAM (dynamic)
           ═════════════════════════════════════════════════════════════════════════ */}
-      <section ref={leadershipRef} className="px-4 py-20 sm:px-6 lg:px-8 bg-white">
-        <div className="mx-auto max-w-7xl text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-            <FaUsers className="text-amber-500" />
-            Core Team
-          </div>
-          <h2 className="mb-3 font-display text-3xl sm:text-4xl font-bold text-emerald-950">
-            Our Leadership
-          </h2>
-          <p className="mx-auto mb-12 max-w-2xl text-slate-600 text-lg">
-            Dedicated individuals steering our cooperative toward greater heights
-          </p>
-
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-            <LeadershipCard initials="RB" name="Ram Bahadur Rai" role="Chairperson" delay={0} />
-            <LeadershipCard initials="SD" name="Sita Devi Shrestha" role="Vice-Chairperson" delay={100} />
-            <LeadershipCard initials="RK" name="Ramesh Kumar Thapa" role="Executive Director" delay={200} />
-            <LeadershipCard initials="GK" name="Gita Kumari Tamang" role="Treasurer" delay={300} />
-          </div>
-        </div>
-      </section>
+      <LeadershipSection />
 
       {/* ═════════════════════════════════════════════════════════════════════════
           SECTION 5: OFFICIAL REGISTRATION - NAGARIK BADA PATRA

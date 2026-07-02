@@ -76,6 +76,19 @@ export const fetchEventById = async (id) => {
   return data.data;
 };
 
+// Team Members
+export const fetchTeamMembers = async (type = '', limit = 100, page = 1) => {
+  const params = new URLSearchParams({ limit, page });
+  if (type) params.append('type', type);
+
+  const res = await fetch(`${API_BASE}/getallteammember?${params}`);
+
+  if (!res.ok) throw new Error('Failed to fetch team members');
+
+  const data = await res.json();
+  return data?.data?.data || [];
+};
+
 // Images
 export const getImageUrl = (filename) => {
   if (!filename) return null;

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { FaNewspaper, FaCalendarAlt, FaUser, FaArrowLeft, FaSearch } from 'react-icons/fa';
 import { fetchBlogs, fetchBlogById, getImageUrl } from '../api/config';
-import { formatDate, formatFullDate } from '../utils/dateUtils';
+import {  formatFullDate } from '../utils/dateUtils';
 import PageBanner from '../components/PageBanner';
 import BlogCard from '../components/BlogCard';
 
@@ -15,17 +15,25 @@ export function BlogsPage() {
   const limit = 9;
 
 useEffect(() => {
-  setLoading(true);
+  let cancelled = false;
 
   fetchBlogs(limit, page)
     .then(res => {
-       console.log('fetchBlogs res:', res); 
-      setBlogs(res.data || []);        
+      if (cancelled) return;
+      console.log('fetchBlogs res:', res);
+      setBlogs(res.data || []);
       setTotal(res.totalItems || 0);
       setLoading(false);
     })
-    .catch(() => setLoading(false));
+    .catch(() => { if (!cancelled) setLoading(false); });
+
+  return () => { cancelled = true; };
 }, [page]);
+
+  const handlePageChange = (newPage) => {
+    setLoading(true);
+    setPage(newPage);
+  };
 
   const filtered = blogs.filter(b =>
     b.title?.toLowerCase().includes(search.toLowerCase())
@@ -78,12 +86,12 @@ useEffect(() => {
 
           {total > limit && (
             <div className="flex justify-center gap-2 mt-10">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              <button onClick={() => handlePageChange(Math.max(1, page - 1))} disabled={page === 1}
                 className="rounded-full border border-emerald-200 px-4 py-2 text-sm transition hover:bg-emerald-50 disabled:opacity-40">
                 ← Prev
               </button>
               <span className="px-4 py-2 text-sm text-slate-500">Page {page}</span>
-              <button onClick={() => setPage(p => p + 1)} disabled={page * limit >= total}
+              <button onClick={() => handlePageChange(page + 1)} disabled={page * limit >= total}
                 className="rounded-full border border-emerald-200 px-4 py-2 text-sm transition hover:bg-emerald-50 disabled:opacity-40">
                 Next →
               </button>
