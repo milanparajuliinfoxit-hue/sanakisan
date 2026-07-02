@@ -13,10 +13,11 @@ import { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { useSaveNoticeMutation, useUpdateNoticeMutation } from "@/redux/api/noticeApi";
+import { X, Upload } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const CreateNotice = ({ selectedNotice, mode, setMode }) => {
   const { control, handleSubmit, setValue, reset } = useForm({
@@ -37,15 +38,13 @@ const CreateNotice = ({ selectedNotice, mode, setMode }) => {
   const [isImageChanged, setIsImageChanged] = useState(null);
   const [showImage, setShowImage] = useState(null);
   const titleRef = useRef(null);
-
+  const fileInputRef = useRef(null);
 
   const fetchImage = async (feature_image) => {
     try {
-
       const response = await axios.get(`${import.meta.env.VITE_REACT_APP_API_URL}api/${feature_image}`, {
         responseType: 'blob',
       });
-
       const imageBlob = response.data;
       const imageUrl = URL.createObjectURL(imageBlob);
       setImagePreview(imageBlob);
@@ -54,7 +53,6 @@ const CreateNotice = ({ selectedNotice, mode, setMode }) => {
       console.error("Error fetching the image:", error);
     }
   };
-
 
   useEffect(() => {
     if (selectedNotice && mode == 'update') {
@@ -70,6 +68,7 @@ const CreateNotice = ({ selectedNotice, mode, setMode }) => {
     } else {
       reset();
       setImagePreview(null);
+      setShowImage(null);
     }
   }, [selectedNotice, setValue, reset]);
 
@@ -81,7 +80,6 @@ const CreateNotice = ({ selectedNotice, mode, setMode }) => {
     formData.append('author', data.author);
     formData.append('publishDate', data.publishDate);
     isImageChanged && formData.append('featuredImage', imagePreview);
-
 
     if (mode == 'update') {
       formData.append('id', selectedNotice?.id);
@@ -98,24 +96,10 @@ const CreateNotice = ({ selectedNotice, mode, setMode }) => {
         window.location.reload();
       }
     } catch (error) {
-      toast(`${mode == 'update' ? "Couldn't update notice." : "Couldn't create notice. Something went wrong."}`, {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        style: {
-          backgroundColor: "#f44336",
-          color: "#ffffff",
-        },
-      });
-      throw new Error(error)
+      toast.error(mode == 'update' ? "Couldn't update notice." : "Couldn't create notice.");
+      throw new Error(error);
     }
   };
-
-
 
   const handleImageChange = (event) => {
     setIsImageChanged(true);
@@ -135,86 +119,70 @@ const CreateNotice = ({ selectedNotice, mode, setMode }) => {
     setImagePreview(null);
     setShowImage(null);
     setValue("featuredImage", "");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
-    <div className="flex flex-col space-y-4">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Title
-            </label>
-            <Controller
-              name="title"
-              control={control}
-              rules={{ required: "Title is required" }}
-              render={({ field, fieldState: { error } }) => (
-                <>
-                  <Input {...field} ref={titleRef} />
-                  {error && (
-                    <span className="text-red-500 text-sm">
-                      {error.message}
-                    </span>
-                  )}
-                </>
-              )}
-            />
+    <div className="max-w-4xl">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="rounded-xl border bg-card">
+          <div className="px-5 py-4 border-b border-border">
+            <h3 className="font-semibold text-foreground">Basic Information</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">Enter the main details of the notice</p>
           </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Author
-            </label>
-            <Controller
-              name="author"
-              control={control}
-              rules={{ required: "Author is required" }}
-              render={({ field, fieldState: { error } }) => (
-                <>
-                  <Input {...field} />
-                  {error && (
-                    <span className="text-red-500 text-sm">
-                      {error.message}
-                    </span>
-                  )}
-                </>
-              )}
-            />
-          </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">
-              Publish Status
-            </label>
-            <Controller
-              name="publishStatus"
-              control={control}
-              rules={{ required: "Publish Status is required" }}
-              render={({ field, fieldState: { error } }) => (
-                <>
-                  <Select
-                    onValueChange={field.onChange}
-                    {...field}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="published">Published</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {error && (
-                    <p className="text-red-500 text-sm mt-1">{error.message}</p>
-                  )}
-                </>
-              )}
-            />
-          </div>
-          <div className="flex flex-col space-y-2">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Publish Date
-              </label>
+          <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Title <span className="text-destructive">*</span></label>
+              <Controller
+                name="title"
+                control={control}
+                rules={{ required: "Title is required" }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <Input {...field} ref={titleRef} placeholder="Enter notice title" />
+                    {error && <span className="text-xs text-destructive">{error.message}</span>}
+                  </>
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Author <span className="text-destructive">*</span></label>
+              <Controller
+                name="author"
+                control={control}
+                rules={{ required: "Author is required" }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <Input {...field} placeholder="Enter author name" />
+                    {error && <span className="text-xs text-destructive">{error.message}</span>}
+                  </>
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Publish Status</label>
+              <Controller
+                name="publishStatus"
+                control={control}
+                rules={{ required: "Publish Status is required" }}
+                render={({ field, fieldState: { error } }) => (
+                  <>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="draft">Draft</SelectItem>
+                        <SelectItem value="published">Published</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {error && <span className="text-xs text-destructive mt-1">{error.message}</span>}
+                  </>
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Publish Date <span className="text-destructive">*</span></label>
               <Controller
                 name="publishDate"
                 control={control}
@@ -222,113 +190,101 @@ const CreateNotice = ({ selectedNotice, mode, setMode }) => {
                 render={({ field, fieldState: { error } }) => (
                   <>
                     <Input type="date" {...field} />
-                    {error && (
-                      <span className="text-red-500 text-sm">
-                        {error.message}
-                      </span>
-                    )}
+                    {error && <span className="text-xs text-destructive">{error.message}</span>}
                   </>
                 )}
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Featured Image
-              </label>
-              <Controller
-                name="featuredImage"
-                control={control}
-                // rules={{ required: "An image is required" }}
-                render={({ field, fieldState: { error } }) => (
-                  <div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        field.onChange(e);
-                        handleImageChange(e);
-                      }}
-                      className="hidden"
-                      ref={(input) => input && (field.ref = input)}
-                    />
-                    <div
-                      className={`w-full p-2 border-2 border-dashed rounded-lg cursor-pointer flex justify-center h-44 ${error ? "border-red-500" : ""
-                        }`}
-                      onClick={() => field.ref.click()}
-                    >
-                      {showImage ? (
-                        <div className="relative">
-                          <img
-                            src={showImage}
-                            alt="Preview"
-                            className="size-40 object-cover rounded-lg"
-                          />
-                        </div>
-                      ) : (
-                        <span className="text-gray-500">
-                          Click to upload or drag and drop an image
-                        </span>
-                      )}
-                    </div>
-                    {/* {error && (
-                      <p className="text-red-500 text-sm mt-1">{error.message}</p>
-                    )} */}
-                  </div>
-                )}
-              />
-            </div>
-
           </div>
+        </div>
 
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Content
-            </label>
+        <div className="rounded-xl border bg-card">
+          <div className="px-5 py-4 border-b border-border">
+            <h3 className="font-semibold text-foreground">Featured Image</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">Upload a cover image for the notice</p>
+          </div>
+          <div className="p-5">
             <Controller
-              name="content"
+              name="featuredImage"
               control={control}
-              render={({ field }) => (
-                <div style={{ height: "300px", position: "relative" }}>
-                  <ReactQuill
-                    theme="snow"
-                    {...field}
-                    onChange={(value) => field.onChange(value)}
-                    style={{ height: "200px" }}
+              render={({ field, fieldState: { error } }) => (
+                <div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleImageChange(e);
+                    }}
+                    className="hidden"
+                    ref={fileInputRef}
                   />
-                  {/* {error && (
-                    <span
-                      className="text-red-500 text-sm"
-                      style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                      }}
-                    >
-                      {error.message}
-                    </span>
-                  )} */}
+                  <div
+                    className={cn(
+                      "relative border-2 border-dashed rounded-xl cursor-pointer flex items-center justify-center h-48 transition-colors",
+                      error ? "border-destructive" : "border-border hover:border-primary/50 hover:bg-accent/50"
+                    )}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {showImage ? (
+                      <div className="relative w-full h-full p-2">
+                        <img
+                          src={showImage}
+                          alt="Preview"
+                          className="w-full h-full object-contain rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); removeImage(); }}
+                          className="absolute top-3 right-3 p-1 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5 text-white" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <Upload className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground font-medium">Click to upload image</p>
+                        <p className="text-xs text-muted-foreground mt-1">Max 1MB · JPG, PNG, WebP</p>
+                      </div>
+                    )}
+                  </div>
+                  {error && <p className="text-xs text-destructive mt-1">{error.message}</p>}
                 </div>
               )}
             />
           </div>
         </div>
 
-        <div className="flex  mt-20 gap-4">
-          <Button type="submit">
-            {mode == 'update' ? "Update" : "Save"}
-          </Button>
-          <Button
-            type="button"
-            onClick={() => {
-              reset();
-              removeImage();
-              setMode('create');
-            }}
-            className="bg-red-700"
-          >
-            {" "}
+        <div className="rounded-xl border bg-card">
+          <div className="px-5 py-4 border-b border-border">
+            <h3 className="font-semibold text-foreground">Content</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">Write the main content of the notice</p>
+          </div>
+          <div className="p-5">
+            <Controller
+              name="content"
+              control={control}
+              render={({ field }) => (
+                <div className="min-h-[300px]">
+                  <ReactQuill
+                    theme="snow"
+                    {...field}
+                    onChange={(value) => field.onChange(value)}
+                    className="h-52"
+                  />
+                </div>
+              )}
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 justify-end">
+          <Button type="button" variant="outline" onClick={() => { reset(); removeImage(); setMode('create'); }}>
             Cancel
+          </Button>
+          <Button type="submit">
+            {mode == 'update' ? "Update Notice" : "Save Notice"}
           </Button>
         </div>
       </form>

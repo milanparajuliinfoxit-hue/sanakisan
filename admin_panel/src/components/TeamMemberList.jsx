@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { DeleteIcon, Edit } from "lucide-react";
+import { DeleteIcon, Edit, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import AlertDialog from "./AlertDialog";
 import CustomImage from "./CustomImage";
+import { TableSkeleton } from "./LoadingSkeleton";
 import PropTypes from "prop-types"
 
 const TeamMemberList = ({
@@ -11,14 +12,31 @@ const TeamMemberList = ({
   currentMembers,
   currentPage,
   handleEdit,
-  handleDelete
+  handleDelete,
+  loading
 }) => {
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [memberId, setMemberId] = useState(null);
+
+  if (loading) {
+    return <TableSkeleton rows={5} />;
+  }
+
+  if (!currentMembers?.length) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+          <Users className="w-8 h-8 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground">No team members yet</h3>
+        <p className="text-sm text-muted-foreground mt-1">Add your first team member to get started.</p>
+      </div>
+    );
+  }
+
   return (
     <div>
-      {isDialogOpen &&
+      {isDialogOpen && (
         <AlertDialog
           onSubmit={() => {
             handleDelete(memberId);
@@ -29,167 +47,111 @@ const TeamMemberList = ({
             setIsDialogOpen(false);
             setMemberId(null);
           }}
-          warningMessage='Delete'
+          warningMessage="Delete Team Member"
           isCancel={true}
-          message={`Are you sure want to delete team member?`}
+          message="Are you sure you want to delete this team member? This action cannot be undone."
         />
+      )}
 
-      }
-      
-      <div className="relative">
-        <table className="table-fixed w-full border-collapse">
-          <thead className="sticky top-0 bg-white border-b border-gray-300 z-10">
-            <tr className="text-left">
-              <th style={{ width: "7%" }}>Image</th>
-              <th
-                className="py-2 font-medium text-left text-black border-b border-gray-300"
-                style={{ width: "14%" }}
-              >
-                Name
-              </th>
-              <th
-                className="py-2 font-medium text-left text-black border-b border-gray-300"
-                style={{ width: "12%" }}
-              >
-                Position
-              </th>
-              <th
-                className="py-2 font-medium text-left text-black border-b border-gray-300"
-                style={{ width: "15%" }}
-              >
-                Type
-              </th>
-              <th
-                className="py-2 font-medium text-left text-black border-b border-gray-300"
-                style={{ width: "20%" }}
-              >
-                Email
-              </th>
-              <th
-                className="py-2 font-medium text-left text-black border-b border-gray-300"
-                style={{ width: "15%" }}
-              >
-                Contact
-              </th>
-              <th
-                className="py-2 font-medium text-left text-black border-b border-gray-300"
-                style={{ width: "10%" }}
-              >
-                Tenure
-              </th>
-              <th style={{ width: "6%" }}>Action</th>
-            </tr>
-          </thead>
-        </table>
-        <div className="overflow-y-auto max-h-[500px]">
-          <table className="table-fixed w-full border-collapse">
-            <tbody>
-              {currentMembers?.map((member, index) => {
-                return (
-                  <tr key={index} className="hover:bg-slate-200 text-left">
-                    <td
-                      className=" py-2 border-b border-gray-300"
-                      style={{ width: "7%" }}
-                    >
-                      {/* <img
-                        src={member.feature_image}
-                        className="size-12 object-fit rounded-full"
-                        alt="Member"
-                      /> */}
-                      <CustomImage
-                        src={member.feature_image}
-                        className={`size-12 object-fit rounded-full`}
-                      />
-                    </td>
-                    <td
-                      className=" py-2 border-b border-gray-300"
-                      style={{ width: "14%" }}
-                    >
-                      {member.name}
-                    </td>
-                    <td
-                      className=" py-2 border-b border-gray-300"
-                      style={{ width: "12%" }}
-                    >
-                      {member.position}
-                    </td>
-                    <td
-                      className=" py-2 border-b border-gray-300"
-                      style={{ width: "15%" }}
-                    >
+      <div className="rounded-xl border bg-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b bg-muted/50">
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-[60px]">Image</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Name</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Position</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Type</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Contact</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tenure</th>
+                <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-[80px]">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {currentMembers?.map((member, index) => (
+                <tr key={index} className="hover:bg-muted/50 transition-colors">
+                  <td className="py-3 px-4">
+                    <CustomImage
+                      src={member.feature_image}
+                      className="w-10 h-10 rounded-lg object-cover"
+                    />
+                  </td>
+                  <td className="py-3 px-4 text-sm font-medium text-foreground">{member.name}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground">{member.position}</td>
+                  <td className="py-3 px-4">
+                    <span className="inline-flex px-2 py-0.5 rounded-md text-xs font-medium bg-primary/10 text-primary">
                       {member.type}
-                    </td>
-                    <td
-                      className="flex-wrap py-2 border-b  border-gray-300"
-                      style={{ maxWidth: "20%" }}
-                    >
-                      {member.email}
-                    </td>
-                    <td
-                      className=" py-2 border-b border-gray-300"
-                      style={{ width: "15%" }}
-                    >
-                      {member.contact}
-                    </td>
-                    <td
-                      className=" py-2 border-b border-gray-300"
-                      style={{ width: "10%" }}
-                    >
-                      {member.tenure}
-                    </td>
-                    <td className="space-x-2" style={{ width: "6%" }}>
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground">{member.email}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground">{member.contact}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground">{member.tenure}</td>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center justify-end gap-1">
                       <button
-                        onClick={() => {
-                          handleEdit(member);
-                        }}
+                        onClick={() => handleEdit(member)}
+                        className="p-1.5 rounded-lg hover:bg-accent transition-colors"
                       >
-                        <Edit color="blue" />
+                        <Edit className="w-3.5 h-3.5 text-blue-600" />
                       </button>
                       <button
                         onClick={() => {
                           setMemberId(member.id);
                           setIsDialogOpen(true);
                         }}
+                        className="p-1.5 rounded-lg hover:bg-accent transition-colors"
                       >
-                        <DeleteIcon color="red" />
+                        <DeleteIcon className="w-3.5 h-3.5 text-red-600" />
                       </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                    </div>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
 
-      <div className="flex justify-between items-center mt-4">
-        <Button
-          disabled={currentPage === 1}
-          onClick={() => handlePageChange(currentPage - 1)}
-        >
-          Previous
-        </Button>
-        <span>
-          Page {currentPage} of {totalPages}
-        </span>
-        <Button
-          disabled={currentPage === totalPages}
-          onClick={() => handlePageChange(currentPage + 1)}
-        >
-          Next
-        </Button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-4 border-t border-border">
+          <p className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+              className="gap-1"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" /> Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+              className="gap-1"
+            >
+              Next <ChevronRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 TeamMemberList.propTypes = {
-  handlePageChange: PropTypes.func.isRequired,
-  totalPages: PropTypes.number.isRequired,
-  currentMembers: PropTypes.array.isRequired,
-  currentPage: PropTypes.number.isRequired,
-  handleEdit: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
+  handlePageChange: PropTypes.func,
+  totalPages: PropTypes.number,
+  currentMembers: PropTypes.array,
+  currentPage: PropTypes.number,
+  handleEdit: PropTypes.func,
+  handleDelete: PropTypes.func,
+  loading: PropTypes.bool,
 }
 
 export default TeamMemberList;

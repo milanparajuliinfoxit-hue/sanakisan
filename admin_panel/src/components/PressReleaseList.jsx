@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import PropTypes from "prop-types";
 import CustomImage from "./CustomImage";
-import { DeleteIcon, Edit } from "lucide-react";
+import { DeleteIcon, Edit, Newspaper, ChevronLeft, ChevronRight } from "lucide-react";
 import AlertDialog from "./AlertDialog";
 import { useState } from "react";
+import { CardSkeleton } from "./LoadingSkeleton";
+import { cn } from "@/lib/utils";
 
 const PressReleaseList = ({
   currentPressReleases,
@@ -12,15 +14,31 @@ const PressReleaseList = ({
   totalPages,
   handlePageChange,
   handleEdit,
-  handleDelete
+  handleDelete,
+  loading
 }) => {
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [pressReleaseId, setPressReleaseId] = useState(null);
 
+  if (loading) {
+    return <CardSkeleton count={4} />;
+  }
+
+  if (!currentPressReleases?.length) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+          <Newspaper className="w-8 h-8 text-muted-foreground" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground">No press releases yet</h3>
+        <p className="text-sm text-muted-foreground mt-1">Create your first press release to get started.</p>
+      </div>
+    );
+  }
+
   return (
     <>
-      {isDialogOpen &&
+      {isDialogOpen && (
         <AlertDialog
           onSubmit={() => {
             handleDelete(pressReleaseId);
@@ -31,87 +49,105 @@ const PressReleaseList = ({
             setIsDialogOpen(false);
             setPressReleaseId(null);
           }}
-          warningMessage='Delete'
+          warningMessage="Delete Press Release"
           isCancel={true}
-          message={`Are you sure want to delete press release ?`}
+          message="Are you sure you want to delete this press release? This action cannot be undone."
         />
+      )}
 
-      }
-      <div className="max-h-[65vh] overflow-y-scroll">
-        <div className="grid grid-cols-2 gap-2">
-          {currentPressReleases?.map((pressRelease) => {
-            return (
-              <Card key={pressRelease.id} className="p-4 grid" >
-                <CustomImage
-                  src={pressRelease.featuredImage}
-                  className={`h-40 object-fit `}
-                />
-                <div>
-                  <h3 className="text-xl font-bold">{pressRelease.title}</h3>
-                  <p dangerouslySetInnerHTML={{ __html: pressRelease.content }} className="leading-2 line-clamp-4"></p>
-                  <p>
-                    <strong>Author:</strong> {pressRelease.author}
-                  </p>
-                  <p>
-                    <strong>Status:</strong> {pressRelease.publishStatus}
-                  </p>
-                  <p>
-                    <strong>Publish Date:</strong> {new Date(pressRelease.publishDate).toISOString().split('T')[0]}
-                  </p>
-                  <div className="flex space-x-3 mt-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {currentPressReleases?.map((pressRelease) => (
+          <Card key={pressRelease.id} className="group overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-200">
+            <div className="relative">
+              <CustomImage
+                src={pressRelease.featuredImage}
+                className="h-44 w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <button
+                  onClick={() => handleEdit(pressRelease)}
+                  className="p-1.5 bg-white/90 backdrop-blur rounded-lg hover:bg-white transition-colors shadow-sm"
+                >
+                  <Edit className="w-3.5 h-3.5 text-blue-600" />
+                </button>
+                <button
+                  onClick={() => {
+                    setPressReleaseId(pressRelease.id);
+                    setIsDialogOpen(true);
+                  }}
+                  className="p-1.5 bg-white/90 backdrop-blur rounded-lg hover:bg-white transition-colors shadow-sm"
+                >
+                  <DeleteIcon className="w-3.5 h-3.5 text-red-600" />
+                </button>
+              </div>
+              {pressRelease.publishStatus && (
+                <span className={cn(
+                  "absolute top-2 left-2 px-2 py-0.5 rounded-md text-xs font-medium",
+                  pressRelease.publishStatus === "published"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-amber-100 text-amber-700"
+                )}>
+                  {pressRelease.publishStatus}
+                </span>
+              )}
+            </div>
+            <div className="p-4 space-y-2">
+              <h3 className="font-semibold text-foreground line-clamp-1">{pressRelease.title}</h3>
+              <p dangerouslySetInnerHTML={{ __html: pressRelease.content }} className="text-sm text-muted-foreground line-clamp-2" />
+              <div className="flex items-center gap-3 pt-2 text-xs text-muted-foreground">
+                <span>By {pressRelease.author}</span>
+                {pressRelease.publishDate && (
+                  <>
+                    <span className="text-border">|</span>
+                    <span>{new Date(pressRelease.publishDate).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
 
-                    <button
-                      onClick={() => {
-                        handleEdit(pressRelease);
-                      }}
-                    >
-                      <Edit color="blue" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setPressReleaseId(pressRelease.id);
-                        setIsDialogOpen(true);
-                      }}
-                    >
-                      <DeleteIcon color="red" />
-                    </button>
-                  </div>
-                </div>
-
-              </Card>
-            );
-          })}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-4 border-t border-border">
+          <p className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="gap-1"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" /> Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="gap-1"
+            >
+              Next <ChevronRight className="w-3.5 h-3.5" />
+            </Button>
+          </div>
         </div>
-      </div>
-
-      <div className="flex justify-between mt-4">
-        <Button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          Previous
-        </Button>
-        <span>
-          {currentPage} of {totalPages}
-        </span>
-        <Button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          Next
-        </Button>
-      </div>
+      )}
     </>
   );
 };
 
 PressReleaseList.propTypes = {
-  currentPressReleases: PropTypes.array.isRequired,
-  currentPage: PropTypes.number.isRequired,
-  totalPages: PropTypes.number.isRequired,
-  handlePageChange: PropTypes.func.isRequired,
-  handleEdit: PropTypes.func.isRequired,
-  handleDelete: PropTypes.func.isRequired,
+  currentPressReleases: PropTypes.array,
+  currentPage: PropTypes.number,
+  totalPages: PropTypes.number,
+  handlePageChange: PropTypes.func,
+  handleEdit: PropTypes.func,
+  handleDelete: PropTypes.func,
+  loading: PropTypes.bool,
 };
 
 export default PressReleaseList;

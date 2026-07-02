@@ -2,27 +2,29 @@ import { Outlet } from 'react-router-dom';
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import { useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const SharedLayout = () => {
-
   const { access_token } = useSelector(state => state.auth);
+  const navigate = useNavigate();
 
-  if (!access_token) {
-    window.location.href = '/login';
-  }
+  useEffect(() => {
+    if (!access_token) {
+      navigate('/login', { replace: true });
+    }
+  }, [access_token, navigate]);
+
+  if (!access_token) return null;
 
   return (
     <div className="h-screen flex overflow-hidden">
-      <div className="w-1/6 bg-gray-800 overflow-y-auto">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col">
-        <div className="sticky top-0 z-10  shadow-md">
-          <Navbar />
-        </div>
-        <div className="flex-1 overflow-y-auto m-2 rounded-md text-justify h-full w-full bg-slate-50">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Navbar />
+        <main className="flex-1 overflow-y-auto scrollbar-thin bg-background">
           <Outlet />
-        </div>
+        </main>
       </div>
     </div>
   )
