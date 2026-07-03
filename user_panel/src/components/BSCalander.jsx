@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import {
   BS_MONTHS,
@@ -8,10 +7,9 @@ import {
   adToBs,
   bsToAd,
   nepaliDigits
-}from '../utils/bsCalendarUtils'
+} from '../utils/bsCalendarUtils'
 
-
- export function BSCalendar({ selectedBs, onSelect, eventDates, holidayMap }) {
+export function BSCalendar({ selectedBs, onSelect, eventDates, holidayMap }) {
   const [viewYear, setViewYear] = useState(selectedBs.year);
   const [viewMonth, setViewMonth] = useState(selectedBs.month);
 
@@ -57,7 +55,6 @@ import {
     return adDate.getDay() === 6;
   };
 
-  // Check if a day is a holiday
   const isHoliday = (day) => {
     if (!day) return false;
     const key = `${viewYear}-${viewMonth}-${day}`;
@@ -72,23 +69,23 @@ import {
       : `${firstAd.toLocaleString("en", { month: "short" })}–${lastAd.toLocaleString("en", { month: "short", year: "numeric" })}`;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-primary-100 overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-emerald-100 bg-white shadow-sm">
       {/* Header */}
-      <div className="bg-primary-700 text-white px-4 py-3 flex items-center justify-between">
-        <button onClick={prevMonth} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-primary-600 transition-colors text-xl font-bold">‹</button>
+      <div className="flex items-center justify-between bg-gradient-to-r from-emerald-700 to-emerald-800 px-4 py-3 text-white">
+        <button onClick={prevMonth} className="flex h-8 w-8 items-center justify-center rounded-lg text-xl font-bold transition-colors hover:bg-white/20">‹</button>
         <div className="text-center">
           <div className="font-bold text-base">{BS_MONTHS[viewMonth]} {nepaliDigits(viewYear)}</div>
-          <div className="text-xs text-primary-200 mt-0.5">{BS_MONTHS_EN[viewMonth]} {viewYear} BS · {adSubtitle}</div>
+          <div className="mt-0.5 text-xs text-emerald-200">{BS_MONTHS_EN[viewMonth]} {viewYear} BS · {adSubtitle}</div>
         </div>
-        <button onClick={nextMonth} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-primary-600 transition-colors text-xl font-bold">›</button>
+        <button onClick={nextMonth} className="flex h-8 w-8 items-center justify-center rounded-lg text-xl font-bold transition-colors hover:bg-white/20">›</button>
       </div>
 
-      {/* Day headers - शनि in red */}
-      <div className="grid grid-cols-7 bg-primary-50 border-b border-primary-100">
+      {/* Day headers */}
+      <div className="grid grid-cols-7 border-b border-emerald-100 bg-emerald-50">
         {BS_DAYS.map((d, index) => (
           <div
             key={d}
-            className={`text-center text-xs font-semibold py-2 ${index === 6 ? "text-red-600 font-bold" : "text-primary-500"
+            className={`py-2 text-center text-xs font-semibold ${index === 6 ? "font-bold text-red-600" : "text-emerald-600"
               }`}
           >
             {d}
@@ -97,7 +94,7 @@ import {
       </div>
 
       {/* Date grid */}
-      <div className="grid grid-cols-7 p-2 gap-0.5">
+      <div className="grid grid-cols-7 gap-0.5 p-2">
         {cells.map((day, i) => {
           if (!day) return <div key={i} />;
 
@@ -107,17 +104,17 @@ import {
           const saturday = isSaturday(day);
           const holiday = isHoliday(day);
 
-          let dateClasses = "rounded-lg flex flex-col items-center justify-center py-1.5 transition-all ";
+          let dateClasses = "flex flex-col items-center justify-center py-1.5 rounded-lg transition-all ";
           if (selected) {
-            dateClasses += "bg-primary-700 text-white shadow-md";
+            dateClasses += "bg-emerald-700 text-white shadow-md";
           } else if (today) {
-            dateClasses += "bg-accent/10 text-accent border border-accent/40";
+            dateClasses += "bg-amber-50 text-amber-700 border border-amber-300";
           } else if (holiday) {
             dateClasses += "text-red-600 font-bold hover:bg-red-50";
           } else if (saturday) {
             dateClasses += "text-red-600 hover:bg-red-50";
           } else {
-            dateClasses += "hover:bg-primary-50 text-primary-800";
+            dateClasses += "text-emerald-800 hover:bg-emerald-50";
           }
 
           return (
@@ -127,11 +124,11 @@ import {
               className={dateClasses}
             >
               <span className="text-sm font-semibold leading-none">{nepaliDigits(day)}</span>
-              <span className={`text-[9px] mt-0.5 leading-none ${selected ? "text-primary-200" : holiday || saturday ? "text-red-400" : "text-gray-400"}`}>
+              <span className={`mt-0.5 text-[9px] leading-none ${selected ? "text-emerald-200" : holiday || saturday ? "text-red-400" : "text-gray-400"}`}>
                 {adDay}
               </span>
               {hasEvent(day) && (
-                <span className={`w-1 h-1 rounded-full mt-0.5 ${selected ? "bg-white" : "bg-accent"}`} />
+                <span className={`mt-0.5 h-1 w-1 rounded-full ${selected ? "bg-white" : "bg-amber-500"}`} />
               )}
             </button>
           );
@@ -139,11 +136,11 @@ import {
       </div>
 
       {/* Legend */}
-      <div className="px-4 pb-3 pt-2 flex items-center gap-4 text-xs text-gray-400 border-t border-gray-100">
-        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-accent inline-block" /> Event</span>
-        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-accent/30 border border-accent inline-block" /> Today</span>
-        <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" /> Holiday</span>
-        <span className="flex items-center gap-1.5 ml-auto opacity-70">Small number = AD date</span>
+      <div className="flex items-center gap-4 border-t border-emerald-100 px-4 pb-3 pt-2 text-xs text-gray-400">
+        <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-amber-500" /> Event</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full border border-amber-500 bg-amber-50" /> Today</span>
+        <span className="flex items-center gap-1.5"><span className="inline-block h-2 w-2 rounded-full bg-red-500" /> Holiday</span>
+        <span className="ml-auto opacity-70">Small number = AD date</span>
       </div>
     </div>
   );

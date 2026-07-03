@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { FaImages, FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaImages, FaTimes, FaChevronLeft, FaChevronRight, FaSearch } from 'react-icons/fa';
 import { fetchGallery, getImageUrl } from '../api/config';
-import PageBanner from '../components/PageBanner';
+import PageBreadcrumb from '../components/PageBreadcrumb';
+import EmptyState from '../components/EmptyState';
+import { SkeletonGrid } from '../components/Skeleton';
 
 export default function GalleryPage() {
   const [images, setImages] = useState([]);
@@ -52,16 +54,26 @@ export default function GalleryPage() {
 
   return (
     <div>
-      <PageBanner title="Photo Gallery" subtitle="Moments from our cooperative activities & events" breadcrumb="Home › Gallery" eyebrow="Visual stories" />
+      <PageBreadcrumb
+        title="Photo Gallery"
+        items={[
+          { label: "Home", path: "/" },
+          { label: "Photo Gallery" },
+        ]}
+      />
 
-      <section className="px-4 py-10 sm:px-6 lg:px-8">
+      <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           {/* Filter tabs */}
           {events.length > 0 && (
             <div className="mb-8 flex flex-wrap gap-2">
               <button
                 onClick={() => setFilter('')}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition ${!filter ? 'bg-emerald-800 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+                  !filter
+                    ? 'bg-emerald-800 text-white shadow-md'
+                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:-translate-y-0.5'
+                }`}
               >
                 All Photos
               </button>
@@ -69,7 +81,11 @@ export default function GalleryPage() {
                 <button
                   key={event}
                   onClick={() => setFilter(event)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition ${filter === event ? 'bg-emerald-800 text-white' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'}`}
+                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+                    filter === event
+                      ? 'bg-emerald-800 text-white shadow-md'
+                      : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:-translate-y-0.5'
+                  }`}
                 >
                   {event}
                 </button>
@@ -77,44 +93,45 @@ export default function GalleryPage() {
             </div>
           )}
 
+          {/* Skeleton */}
           {loading && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {[...Array(12)].map((_, i) => (
-                <div key={i} className="aspect-square animate-pulse rounded-3xl bg-emerald-100" />
+                <div key={i} className="skeleton-shimmer aspect-square rounded-[1.6rem]" />
               ))}
             </div>
           )}
 
+          {/* Empty */}
           {!loading && filtered.length === 0 && (
-            <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 py-16 text-center text-slate-500">
-              <FaImages className="mx-auto mb-3 text-5xl opacity-20" />
-              <p>No photos available.</p>
-            </div>
+            <EmptyState icon={FaImages} title="No photos available." />
           )}
 
+          {/* Grid */}
           {!loading && filtered.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filtered.map((img, i) => (
                 <div
                   key={img.id || i}
-                  className="group relative aspect-square cursor-pointer overflow-hidden rounded-3xl border border-emerald-100 bg-emerald-100"
+                  className="group relative aspect-square cursor-pointer overflow-hidden rounded-[1.6rem] border border-emerald-100 bg-emerald-50 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                   onClick={() => openLightbox(i)}
                 >
                   <img
                     src={getGalleryImageUrl(img)}
-                    alt={img.event || 'Gallery'}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                    alt={img.event || 'Gallery image'}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
                     onError={e => {
-                      e.target.parentNode.classList.add('bg-emerald-800');
                       e.target.style.display = 'none';
+                      e.target.parentElement.classList.add('bg-emerald-800');
                     }}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all group-hover:bg-black/30">
-                    <FaImages className="text-3xl text-white opacity-0 transition-opacity group-hover:opacity-100" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/40">
+                    <FaImages className="text-3xl text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   </div>
                   {img.event && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-3 py-2 opacity-0 transition-opacity group-hover:opacity-100">
-                      <p className="truncate text-xs text-white">{img.event}</p>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent px-3 py-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                      <p className="text-xs font-medium text-white truncate">{img.event}</p>
                     </div>
                   )}
                 </div>
@@ -127,25 +144,37 @@ export default function GalleryPage() {
       {/* Lightbox */}
       {lightbox !== null && filtered[lightbox] && (
         <div
-          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
           onClick={closeLightbox}
         >
-          <button className="absolute top-4 right-4 text-white text-2xl hover:text-gray-300" onClick={closeLightbox}>
+          <button
+            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20"
+            onClick={closeLightbox}
+            aria-label="Close lightbox"
+          >
             <FaTimes />
           </button>
-          <button className="absolute left-4 top-1/2 -translate-y-1/2 text-white text-3xl hover:text-gray-300 bg-white/10 rounded-full p-2" onClick={e => { e.stopPropagation(); prevImage(); }}>
+          <button
+            className="absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20"
+            onClick={e => { e.stopPropagation(); prevImage(); }}
+            aria-label="Previous image"
+          >
             <FaChevronLeft />
           </button>
-          <button className="absolute right-4 top-1/2 -translate-y-1/2 text-white text-3xl hover:text-gray-300 bg-white/10 rounded-full p-2" onClick={e => { e.stopPropagation(); nextImage(); }}>
+          <button
+            className="absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition hover:bg-white/20"
+            onClick={e => { e.stopPropagation(); nextImage(); }}
+            aria-label="Next image"
+          >
             <FaChevronRight />
           </button>
           <img
             src={getGalleryImageUrl(filtered[lightbox])}
             alt=""
-            className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg"
+            className="max-h-[85vh] max-w-[90vw] rounded-xl object-contain shadow-2xl"
             onClick={e => e.stopPropagation()}
           />
-          <div className="absolute bottom-4 left-0 right-0 text-center text-white text-sm opacity-60">
+          <div className="absolute bottom-6 left-0 right-0 text-center text-sm text-white/60">
             {lightbox + 1} / {filtered.length}
           </div>
         </div>

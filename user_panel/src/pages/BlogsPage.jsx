@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { FaNewspaper, FaCalendarAlt, FaUser, FaArrowLeft, FaSearch } from 'react-icons/fa';
+import { useParams } from 'react-router-dom';
+import { FaNewspaper, FaCalendarAlt, FaUser, FaSearch } from 'react-icons/fa';
 import { fetchBlogs, fetchBlogById, getImageUrl } from '../api/config';
-import {  formatFullDate } from '../utils/dateUtils';
-import PageBanner from '../components/PageBanner';
+import { formatFullDate } from '../utils/dateUtils';
+import PageBreadcrumb from '../components/PageBreadcrumb';
 import BlogCard from '../components/BlogCard';
+import EmptyState from '../components/EmptyState';
+import { SkeletonGrid } from '../components/Skeleton';
 
 export function BlogsPage() {
   const [blogs, setBlogs] = useState([]);
@@ -14,21 +16,18 @@ export function BlogsPage() {
   const [search, setSearch] = useState('');
   const limit = 9;
 
-useEffect(() => {
-  let cancelled = false;
-
-  fetchBlogs(limit, page)
-    .then(res => {
-      if (cancelled) return;
-      console.log('fetchBlogs res:', res);
-      setBlogs(res.data || []);
-      setTotal(res.totalItems || 0);
-      setLoading(false);
-    })
-    .catch(() => { if (!cancelled) setLoading(false); });
-
-  return () => { cancelled = true; };
-}, [page]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchBlogs(limit, page)
+      .then(res => {
+        if (cancelled) return;
+        setBlogs(res.data || []);
+        setTotal(res.totalItems || 0);
+        setLoading(false);
+      })
+      .catch(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [page]);
 
   const handlePageChange = (newPage) => {
     setLoading(true);
@@ -41,58 +40,57 @@ useEffect(() => {
 
   return (
     <div>
-      <PageBanner title="News & Blogs" subtitle="Latest news, events and cooperative updates" breadcrumb="Home › News & Blogs" eyebrow="Stories & insights" />
+      <PageBreadcrumb
+        title="News & Blogs"
+        items={[
+          { label: "Home", path: "/" },
+          { label: "News & Blogs" },
+        ]}
+      />
 
-      <section className="px-4 py-10 sm:px-6 lg:px-8">
+      <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
+          {/* Search */}
           <div className="relative mb-8 max-w-md">
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Search news & blogs..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full rounded-2xl border border-emerald-100 bg-white py-3 pl-10 pr-4 text-sm text-slate-700 outline-none transition focus:border-emerald-500"
+              className="w-full rounded-2xl border border-gray-200 bg-white py-3.5 pl-11 pr-4 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-3 focus:ring-emerald-500/10"
             />
           </div>
 
-          {loading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-72 animate-pulse overflow-hidden rounded-[1.6rem] bg-emerald-100" />
-              ))}
-            </div>
-          )}
+          {loading && <SkeletonGrid count={6} />}
 
           {!loading && filtered.length === 0 && (
-            <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 py-16 text-center text-slate-500">
-              <FaNewspaper className="mx-auto mb-3 text-5xl opacity-20" />
-              <p>No articles found.</p>
-            </div>
+            <EmptyState icon={FaNewspaper} title="No articles found." />
           )}
 
           {!loading && filtered.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filtered.map((blog, i) => (
-                <BlogCard
-                  key={blog.id || i}
-                  blog={blog}
-                  contentLength={120}
-                  showReadMore={true}
-                />
+                <BlogCard key={blog.id || i} blog={blog} contentLength={120} showReadMore={true} />
               ))}
             </div>
           )}
 
           {total > limit && (
-            <div className="flex justify-center gap-2 mt-10">
-              <button onClick={() => handlePageChange(Math.max(1, page - 1))} disabled={page === 1}
-                className="rounded-full border border-emerald-200 px-4 py-2 text-sm transition hover:bg-emerald-50 disabled:opacity-40">
+            <div className="flex justify-center gap-3 mt-10">
+              <button
+                onClick={() => handlePageChange(Math.max(1, page - 1))}
+                disabled={page === 1}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-emerald-500 hover:text-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
                 ← Prev
               </button>
-              <span className="px-4 py-2 text-sm text-slate-500">Page {page}</span>
-              <button onClick={() => handlePageChange(page + 1)} disabled={page * limit >= total}
-                className="rounded-full border border-emerald-200 px-4 py-2 text-sm transition hover:bg-emerald-50 disabled:opacity-40">
+              <span className="flex items-center px-4 text-sm text-slate-500">Page {page}</span>
+              <button
+                onClick={() => handlePageChange(page + 1)}
+                disabled={page * limit >= total}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-emerald-500 hover:text-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
                 Next →
               </button>
             </div>
@@ -120,21 +118,29 @@ export function BlogSinglePage() {
 
   return (
     <div>
-      <div className="bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_35%),linear-gradient(135deg,#14532d_0%,#166534_48%,#15803d_100%)] px-4 py-8">
-        <div className="mx-auto max-w-4xl">
-          <Link to="/blogs" className="mb-4 inline-flex items-center gap-2 text-sm text-emerald-50/90 transition hover:text-white">
-            <FaArrowLeft /> Back to News & Blogs
-          </Link>
-          <h1 className="font-display text-2xl font-semibold text-white md:text-3xl">
-            {loading ? 'Loading...' : (blog?.title || 'Article')}
-          </h1>
-        </div>
-      </div>
+      <PageBreadcrumb
+        title={loading ? "Loading..." : blog?.title || "Article"}
+        items={[
+          { label: "Home", path: "/" },
+          { label: "News & Blogs", path: "/blogs" },
+          { label: loading ? "Loading..." : blog?.title || "Article" },
+        ]}
+      />
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          {loading && <div className="h-64 animate-pulse rounded-[1.6rem] bg-emerald-100" />}
-          {error && <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 py-12 text-center text-slate-500">{error}</div>}
+          {loading && (
+            <div className="animate-pulse space-y-4">
+              <div className="h-64 rounded-[1.6rem] bg-emerald-100" />
+              <div className="h-4 w-3/4 rounded bg-emerald-100" />
+              <div className="h-4 w-1/2 rounded bg-emerald-100" />
+            </div>
+          )}
+          {error && (
+            <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 py-12 text-center">
+              <p className="text-slate-500">{error}</p>
+            </div>
+          )}
           {!loading && !error && blog && (
             <div className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white shadow-sm">
               {blog.featuredImage && (
