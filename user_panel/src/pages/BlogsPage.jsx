@@ -13,7 +13,7 @@ export function BlogsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const limit = 9;
 
   useEffect(() => {
@@ -34,8 +34,8 @@ export function BlogsPage() {
     setPage(newPage);
   };
 
-  const filtered = blogs.filter(b =>
-    b.title?.toLowerCase().includes(search.toLowerCase())
+  const filtered = blogs.filter((b) =>
+    b.title?.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -103,18 +103,42 @@ export function BlogsPage() {
 
 export function BlogSinglePage() {
   const { id } = useParams();
+
   const [blog, setBlog] = useState(null);
+  const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const limit = 3;
+
+  // Fetch current blog
   useEffect(() => {
+    setLoading(true);
+
     fetchBlogById(id)
-      .then(data => {
+      .then((data) => {
         setBlog(data?.data || data);
         setLoading(false);
       })
-      .catch(() => { setError('Article not found.'); setLoading(false); });
+      .catch(() => {
+        setError("Article not found.");
+        setLoading(false);
+      });
   }, [id]);
+
+  // Fetch blogs for recommendation
+  useEffect(() => {
+    fetchBlogs(limit, 1)
+      .then((res) => {
+        setBlogs(res.data || []);
+      })
+      .catch(console.error);
+  }, []);
+
+  const recommendedBlogs = blogs
+    .filter((item) => String(item.id) !== String(id))
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 4);
 
   return (
     <div>
@@ -148,20 +172,56 @@ export function BlogSinglePage() {
                   <img src={getImageUrl(blog.featuredImage)} alt={blog.title} className="w-full h-full object-cover" />
                 </div>
               )}
-              <div className="p-8">
-                <div className="mb-6 flex flex-wrap gap-4 border-b border-emerald-100 pb-6 text-sm text-slate-500">
-                  <span className="flex items-center gap-1.5"><FaCalendarAlt className="text-emerald-500" />{formatFullDate(blog.publishDate || blog.createdAt)}</span>
-                  {blog.author && <span className="flex items-center gap-1.5"><FaUser className="text-emerald-500" />{blog.author}</span>}
+
+              <div className="text-right">
+                <div className="flex items-center gap-2 justify-end">
+                  <FaCalendarAlt className="text-emerald-600" />
+                  <span>{formatFullDate(blog.createdAt)}</span>
                 </div>
-                <div
-                  className="prose prose-sm max-w-none leading-8 text-slate-700"
-                  dangerouslySetInnerHTML={{ __html: blog.content || '<p>No content available.</p>' }}
-                />
               </div>
             </div>
-          )}
+
+            {blog.featuredImage && (
+              <img
+                src={getImageUrl(blog.featuredImage)}
+                alt={blog.title}
+                className="w-full rounded-xl object-cover max-h-[500px]"
+              />
+            )}
+
+            <div className="mt-2 flex flex-col items-end">
+              <span className="font-semibold italic">Recently updated on</span>
+
+              <div className="flex items-center gap-2">
+                <MdUpdate className="text-emerald-600" />
+                <span className="italic">{formatFullDate(blog.updatedAt)}</span>
+              </div>
+            </div>
+            <div
+              className="prose max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: blog.content || "<p>No content available.</p>",
+              }}
+            />
+          </article>
+        )}
+      </div>
+
+      {/* Right Sidebar */}
+      <aside className="w-96 shrink-0">
+        <h2 className="text-2xl font-semibold mb-6">Related Blogs</h2>
+
+        <div className="space-y-5">
+          {recommendedBlogs.map((item) => (
+            <BlogCard
+              key={item.id}
+              blog={item}
+              contentLength={60}
+              showReadMore={false}
+            />
+          ))}
         </div>
-      </section>
+      </aside>
     </div>
   );
 }
