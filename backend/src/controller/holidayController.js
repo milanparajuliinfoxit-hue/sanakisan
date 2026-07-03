@@ -1,6 +1,41 @@
 const { asyncHandler } = require("../middlewares");
 const Holiday = require("../../models/Holiday");
 
+// UPDATE
+const updateHolidayDate = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, holidayDate } = req.body;
+
+    if (!title || !holidayDate) {
+      return res.json({ status: false, message: "All fields are required!" });
+    }
+
+    const holiday = await Holiday.findByPk(id);
+    if (!holiday) return res.status(404).json({ status: false, message: "Holiday not found" });
+
+    await holiday.update({ title, holiday_date: holidayDate });
+
+    return res.status(200).json({ status: true, message: "Holiday updated successfully.", data: holiday });
+  } catch (err) {
+    return res.status(500).json({ status: false, message: "Server Error updating holiday" });
+  }
+});
+
+// DELETE
+const deleteHolidayDate = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const holiday = await Holiday.findByPk(id);
+    if (!holiday) return res.status(404).json({ status: false, message: "Holiday not found" });
+
+    await holiday.destroy();
+    return res.status(200).json({ status: true, message: "Holiday deleted successfully." });
+  } catch (err) {
+    return res.status(500).json({ status: false, message: "Server Error deleting holiday" });
+  }
+});
+
 // CREATE
 const saveHolidayDate = asyncHandler(async (req, res) => {
   try {
@@ -58,4 +93,6 @@ const getHolidayDates = asyncHandler(async (req, res) => {
 module.exports = {
   saveHolidayDate,
   getHolidayDates,
+  updateHolidayDate,
+  deleteHolidayDate,
 };

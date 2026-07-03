@@ -56,7 +56,7 @@ const Sidebar = () => {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto scrollbar-thin py-3 px-3 space-y-1">
         {navLinks.map(({ href, icon: Icon, label }) => {
-          const isActive = pathname === href;
+          const isActive = pathname === href || (href === "/gallery" && pathname.startsWith("/gallery"));
           return (
             <Link
               key={href}
