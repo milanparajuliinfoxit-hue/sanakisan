@@ -1,16 +1,22 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Megaphone, CalendarDays, FileText, ArrowRight } from 'lucide-react';
 import { fetchNotices, getImageUrl } from '../api/config';
 import { formatDate } from '../utils/dateUtils';
+import SectionHeader from './SectionHeader';
+import { SkeletonGrid } from './Skeleton';
+import EmptyState from './EmptyState';
 
 export default function NoticeBoard({ limit = 5 }) {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [failedImages, setFailedImages] = useState({});
   const sectionRef = useRef(null);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
     fetchNotices(limit)
       .then(data => {
         const items = data?.data || data?.notices || data?.rows || data || [];
@@ -18,12 +24,11 @@ export default function NoticeBoard({ limit = 5 }) {
         setLoading(false);
       })
       .catch(() => {
-        setError('No notice found');
+        setError('Could not load notices');
         setLoading(false);
       });
   }, [limit]);
 
-  // Scroll animation on mount
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -33,173 +38,120 @@ export default function NoticeBoard({ limit = 5 }) {
       },
       { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
     );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    const el = sectionRef.current;
+    if (el) observer.observe(el);
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
-      }
+      if (el) observer.unobserve(el);
     };
   }, []);
+
+  const handleImgError = (id) => {
+    setFailedImages(prev => ({ ...prev, [id]: true }));
+  };
+
+  const isNew = (dateStr) => {
+    if (!dateStr) return false;
+    try {
+      const diff = (new Date() - new Date(dateStr)) / (1000 * 60 * 60 * 24);
+      return diff <= 7;
+    } catch {
+      return false;
+    }
+  };
+
+  const displayed = useMemo(() => notices.slice(0, limit), [notices, limit]);
 
   return (
     <section
       ref={sectionRef}
-      className="relative px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-emerald-50/30"
+      className="relative overflow-hidden px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-emerald-50/30"
     >
-      <style>{`
-        @keyframes fadeUpStagger {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in-section {
-          animation: fadeUpStagger 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        .notice-card {
-          border-left: 4px solid transparent;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .notice-card:hover {
-          border-left-color: #0B3D2E;
-          transform: translateX(8px);
-          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
-        }
-      `}</style>
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-emerald-300/15 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-amber-300/15 blur-3xl" />
+      </div>
 
-      <div className="mx-auto max-w-7xl">
-        {/* Section Header */}
-        <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="flex items-center gap-4">
-            {/* Icon Badge */}
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white shadow-lg">
-              <Megaphone className="h-6 w-6" strokeWidth={1.8} />
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-emerald-600">Latest Updates</p>
-              <h2 className="font-display text-3xl font-bold text-emerald-950">Notice Board</h2>
-            </div>
-          </div>
+      <div className="relative mx-auto max-w-7xl">
+        <SectionHeader
+          icon={Megaphone}
+          iconBg="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white"
+          label="Latest Updates"
+          title="Notice Board"
+          description="Stay informed with our latest announcements, circulars and organizational updates."
+          viewAllLink={!loading && notices.length > 0 ? '/notices' : undefined}
+          viewAllText="View All Notices"
+        />
 
-          {/* "View All Notices" — desktop */}
-          {!loading && notices.length > 0 && (
-            <Link
-              to="/notices"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition-all duration-300 hover:gap-3 hover:text-emerald-900 group"
-            >
-              View All Notices
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          )}
-        </div>
+        {loading && <SkeletonGrid count={Math.min(limit, 4)} />}
 
-        {/* Skeleton Loaders */}
-        {loading && (
-          <div className="space-y-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="notice-card flex items-start gap-4 rounded-xl border border-emerald-100 bg-white p-4 animate-pulse">
-                <div className="h-14 w-14 flex-shrink-0 rounded-lg bg-emerald-200/50" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-5 w-2/3 rounded bg-emerald-200/50" />
-                  <div className="h-3 w-1/3 rounded bg-emerald-100/50" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Error State */}
         {error && !loading && (
-          <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 py-12 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
-              <Megaphone className="h-6 w-6 text-emerald-600" strokeWidth={1.5} />
-            </div>
-            <p className="text-sm font-medium text-emerald-700">{error}</p>
-          </div>
+          <EmptyState icon={Megaphone} title={error} description="Please check back later." />
         )}
 
-        {/* Empty State */}
         {!loading && !error && notices.length === 0 && (
-          <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 py-12 text-center">
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
-              <Megaphone className="h-6 w-6 text-emerald-600" strokeWidth={1.5} />
-            </div>
-            <p className="text-sm font-medium text-emerald-700">No notice found</p>
-          </div>
+          <EmptyState icon={Megaphone} title="No Notices Available" description="There are no notices at this time. Please check back later." />
         )}
 
-        {/* Notice List - Vertical Cards */}
-        {!loading && !error && notices.length > 0 && (
-          <div className="space-y-4">
-            {notices.map((notice, i) => (
-              <Link
-                key={notice.id || i}
-                to={`/notices/${notice.id}`}
-                className="notice-card group flex items-start gap-4 rounded-xl bg-white p-5 shadow-sm hover:shadow-lg"
-                style={{ animation: `fadeUpStagger 0.6s ease-out ${100 + i * 100}ms both` }}
-              >
-                {/* Thumbnail / Icon */}
-                <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-emerald-700 to-emerald-900">
-                  {notice.featuredImage ? (
-                    <img
-                      src={getImageUrl(notice.featuredImage)}
-                      alt={notice.title}
-                      className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                  ) : null}
-                  <div className={`absolute inset-0 items-center justify-center ${notice.featuredImage ? 'hidden' : 'flex'}`}>
-                    <FileText className="h-5 w-5 text-white" strokeWidth={1.8} />
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="font-display font-semibold text-emerald-950 group-hover:text-emerald-700 transition-colors line-clamp-2">
-                      {notice.title}
-                    </h3>
-                    {i === 0 && (
-                      <span className="flex-shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-3 py-1 text-xs font-bold text-white whitespace-nowrap">
+        {!loading && !error && displayed.length > 0 && (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {displayed.map((notice, i) => {
+              const dateStr = notice.publishDate || notice.createdAt;
+              return (
+                <Link
+                  key={notice.id || i}
+                  to={`/notices/${notice.id}`}
+                  className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
+                  style={{ animation: `fadeUpStagger 0.6s ease-out ${100 + i * 100}ms both` }}
+                  aria-label={`Read notice: ${notice.title}`}
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-emerald-200 to-emerald-100">
+                    {!failedImages[notice.id] && notice.featuredImage ? (
+                      <img
+                        src={getImageUrl(notice.featuredImage)}
+                        alt={notice.title}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                        onError={() => handleImgError(notice.id)}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-700 to-emerald-900">
+                        <FileText className="h-8 w-8 text-white/40" strokeWidth={1.5} />
+                      </div>
+                    )}
+                    <div className="absolute bottom-2 left-2">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-white/90 px-2 py-1 text-[10px] font-medium text-slate-600 shadow-xs backdrop-blur-sm">
+                        <CalendarDays className="h-3 w-3 text-emerald-600" strokeWidth={2} />
+                        {formatDate(dateStr)}
+                      </span>
+                    </div>
+                    {isNew(dateStr) && (
+                      <span className="badge-pop absolute right-2 top-2 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-md">
                         NEW
                       </span>
                     )}
                   </div>
-                  
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <CalendarDays className="h-3.5 w-3.5 text-emerald-600" strokeWidth={2} />
-                      {formatDate(notice.publishDate || notice.createdAt)}
-                    </span>
-                    {notice.author && <span>• {notice.author}</span>}
-                  </div>
-                </div>
 
-                {/* Arrow Icon */}
-                <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-emerald-400 transition-all duration-300 group-hover:text-emerald-600 group-hover:translate-x-1" />
-              </Link>
-            ))}
+                  <div className="flex flex-1 flex-col p-3">
+                    <h3 className="mb-1 font-sans text-sm font-bold leading-snug text-emerald-950 transition-colors group-hover:text-emerald-700 line-clamp-2">
+                      {notice.title}
+                    </h3>
+                    <div className="mt-auto flex items-center justify-between pt-2">
+                      <span className="invisible text-[11px] text-slate-400">—</span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 transition-all duration-300 group-hover:gap-1.5">
+                        Read
+                        <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
 
-        {/* Mobile "View All" Button */}
-        {!loading && notices.length > 0 && (
+        {!loading && displayed.length > 0 && (
           <div className="mt-8 text-center md:hidden">
-            <Link
-              to="/notices"
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
-            >
+            <Link to="/notices" className="btn-primary">
               View All Notices
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>

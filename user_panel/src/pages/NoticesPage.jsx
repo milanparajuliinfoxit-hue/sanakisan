@@ -1,201 +1,255 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
-  FaBell, FaCalendarAlt, FaUser, FaArrowLeft,
-  FaSearch, FaTimes, FaChevronLeft, FaChevronRight,
+  FaSearch, FaCalendarAlt, FaFilePdf, FaFileWord, FaFileExcel,
+  FaFileImage, FaFileAlt, FaDownload, FaArrowLeft,
+  FaChevronLeft, FaChevronRight, FaExternalLinkAlt,
 } from "react-icons/fa";
-import { MdSearchOff } from "react-icons/md";
+import { MdSearchOff, MdNotifications } from "react-icons/md";
+import { HiOutlineDocumentText } from "react-icons/hi";
 import { fetchNotices, fetchNoticeById, getImageUrl } from "../api/config";
 import { formatDate, formatFullDate } from "../utils/dateUtils";
-import PageBanner from "../components/PageBanner";
+import PageBreadcrumb from "../components/PageBreadcrumb";
+import ScrollReveal from "../components/ScrollReveal";
+import EmptyState from "../components/EmptyState";
+import ErrorState from "../components/ErrorState";
+import { SkeletonGrid, SkeletonImage, SkeletonLine } from "../components/Skeleton";
 
-const LIMIT = 9;
+const LIMIT = 12;
 
 function isNew(dateStr) {
   if (!dateStr) return false;
   return (Date.now() - new Date(dateStr).getTime()) < 7 * 24 * 60 * 60 * 1000;
 }
 
-/* ─── Skeleton Card ─── */
-function SkeletonCard() {
+function getFileIcon(filename = "") {
+  const ext = filename.split(".").pop()?.toLowerCase();
+  if (["pdf"].includes(ext)) return { icon: FaFilePdf, color: "text-red-500 bg-red-50" };
+  if (["doc", "docx"].includes(ext)) return { icon: FaFileWord, color: "text-blue-600 bg-blue-50" };
+  if (["xls", "xlsx"].includes(ext)) return { icon: FaFileExcel, color: "text-green-600 bg-green-50" };
+  if (["jpg", "jpeg", "png", "gif", "webp"].includes(ext)) return { icon: FaFileImage, color: "text-purple-500 bg-purple-50" };
+  return { icon: FaFileAlt, color: "text-slate-500 bg-slate-100" };
+}
+
+function getCategoryColor(cat = "") {
+  const c = cat.toLowerCase();
+  if (c.includes("urgent") || c.includes("emergency")) return "bg-red-100 text-red-700";
+  if (c.includes("tender") || c.includes("bid")) return "bg-blue-100 text-blue-700";
+  if (c.includes("result") || c.includes("exam")) return "bg-purple-100 text-purple-700";
+  if (c.includes("meeting") || c.includes("notice")) return "bg-amber-100 text-amber-700";
+  return "bg-emerald-100 text-emerald-700";
+}
+
+/* ──────────── Skeleton Card ──────────── */
+function SkeletonNoticeCard() {
   return (
-    <div className="notice-skeleton rounded-2xl overflow-hidden bg-white shadow-sm">
-      <div className="skeleton-img" />
-      <div className="p-5 space-y-3">
-        <div className="skeleton-line w-3/4" />
-        <div className="skeleton-line w-1/2" />
-        <div className="skeleton-line w-1/3" />
+    <div className="overflow-hidden rounded-xl border border-emerald-100 bg-white shadow-sm">
+      <div className="skeleton-shimmer h-44 w-full" />
+      <div className="space-y-2.5 p-5">
+        <div className="skeleton-shimmer h-3 w-16 rounded-full" />
+        <div className="skeleton-shimmer h-5 w-full rounded-full" />
+        <div className="skeleton-shimmer h-5 w-3/4 rounded-full" />
+        <div className="skeleton-shimmer h-3 w-1/3 rounded-full" />
       </div>
     </div>
   );
 }
 
-/* ─── Notice Card ─── */
-function NoticeCard({ notice, index, onOpen }) {
+/* ──────────── Notice Card ──────────── */
+function NoticeCard({ notice, index }) {
   const cardRef = useRef(null);
+  const dateStr = notice.publishDate || notice.createdAt;
+  const imgUrl = notice.featuredImage ? getImageUrl(notice.featuredImage) : null;
+  const plainContent = notice.content ? notice.content.replace(/<[^>]*>/g, "") : notice.excerpt || "";
+  const summary = plainContent.length > 120 ? plainContent.slice(0, 120) + "..." : plainContent;
+  const hasAttachments = notice.attachments || notice.files || notice.documents;
+  const category = notice.category || notice.notice_category;
 
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) el.classList.add("visible"); },
-      { threshold: 0.1 }
+      ([entry]) => { if (entry.isIntersecting) { el.classList.add("visible"); observer.unobserve(el); } },
+      { threshold: 0.08 }
     );
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
+  return (
+    <Link
+      ref={cardRef}
+      to={`/notices/${notice.id}`}
+      className="fade-in-up group block overflow-hidden rounded-xl border border-emerald-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-emerald-200"
+      style={{ transitionDelay: `${index * 60}ms` }}
+    >
+      <div className="relative aspect-[16/10] overflow-hidden bg-emerald-100">
+        {imgUrl ? (
+          <img
+            src={imgUrl}
+            alt={notice.title}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => {
+              e.target.style.display = "none";
+              e.target.nextSibling.style.display = "flex";
+            }}
+          />
+        ) : null}
+        <div className={`absolute inset-0 items-center justify-center bg-gradient-to-br from-emerald-800 to-emerald-600 ${imgUrl ? "hidden" : "flex"}`}>
+          <HiOutlineDocumentText className="text-4xl text-white/40" />
+        </div>
+        {isNew(dateStr) && (
+          <span className="absolute left-3 top-3 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-lg">
+            NEW
+          </span>
+        )}
+        {category && (
+          <span className={`absolute right-3 top-3 rounded-full px-2.5 py-0.5 text-[10px] font-semibold capitalize shadow-sm ${getCategoryColor(category)}`}>
+            {category}
+          </span>
+        )}
+      </div>
+      <div className="p-5">
+        <div className="mb-2 flex items-center gap-3 text-xs text-slate-500">
+          <span className="flex items-center gap-1.5">
+            <FaCalendarAlt className="text-emerald-500" />
+            {formatDate(dateStr)}
+          </span>
+          {hasAttachments && (
+            <span className="flex items-center gap-1 text-slate-400">
+              <FaFileAlt className="text-[10px]" />
+              Attached
+            </span>
+          )}
+        </div>
+        <h3 className="mb-2 font-display text-base font-bold leading-snug text-emerald-950 line-clamp-2 transition-colors group-hover:text-emerald-700">
+          {notice.title}
+        </h3>
+        {summary && (
+          <p className="text-sm leading-6 text-slate-500 line-clamp-2">{summary}</p>
+        )}
+        <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-emerald-600 transition-all group-hover:gap-2.5">
+          Read More
+          <FaChevronRight className="text-[9px] transition-transform duration-300 group-hover:translate-x-0.5" />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/* ──────────── Featured Notice ──────────── */
+function FeaturedNotice({ notice }) {
   const dateStr = notice.publishDate || notice.createdAt;
   const imgUrl = notice.featuredImage ? getImageUrl(notice.featuredImage) : null;
+  const plainContent = notice.content ? notice.content.replace(/<[^>]*>/g, "") : notice.excerpt || "";
+  const summary = plainContent.length > 200 ? plainContent.slice(0, 200) + "..." : plainContent;
+  const category = notice.category || notice.notice_category;
 
   return (
-    <article
-      ref={cardRef}
-      className="notice-card"
-      style={{ transitionDelay: `${index * 80}ms` }}
-      onClick={() => onOpen(notice)}
-      onKeyDown={(e) => e.key === "Enter" && onOpen(notice)}
-      tabIndex={0}
-      role="button"
-      aria-label={`Open notice: ${notice.title}`}
+    <Link
+      to={`/notices/${notice.id}`}
+      className="group relative block overflow-hidden rounded-xl border border-emerald-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-emerald-300"
     >
-      {/* Image */}
-      <div className="notice-card__img-wrap">
+      <div className="grid sm:grid-cols-[1.1fr_0.9fr]">
         {imgUrl ? (
-          <img src={imgUrl} alt={notice.title} loading="lazy" className="notice-card__img" />
+          <div className="relative aspect-[4/3] overflow-hidden bg-emerald-100 sm:aspect-auto sm:min-h-[280px]">
+            <img
+              src={imgUrl}
+              alt={notice.title}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              onError={(e) => {
+                e.target.style.display = "none";
+                e.target.parentElement.classList.add("flex", "items-center", "justify-center");
+                const icon = document.createElement("div");
+                icon.className = "text-5xl text-emerald-300";
+                icon.innerHTML = '<svg stroke="currentColor" fill="none" viewBox="0 0 24 24" stroke-width="1"><path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>';
+                e.target.parentElement.appendChild(icon.firstChild);
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+          </div>
         ) : (
-          <div className="notice-card__img-placeholder">
-            <FaBell />
+          <div className="flex aspect-[4/3] min-h-[280px] items-center justify-center bg-gradient-to-br from-emerald-800 to-emerald-600 sm:aspect-auto">
+            <HiOutlineDocumentText className="text-6xl text-white/30" />
           </div>
         )}
-        {isNew(dateStr) && <span className="notice-card__badge">NEW</span>}
-      </div>
-
-      {/* Content */}
-      <div className="notice-card__body">
-        <h3 className="notice-card__title">{notice.title}</h3>
-        <div className="notice-card__meta">
-          <span><FaCalendarAlt className="meta-icon" />{formatDate(dateStr)}</span>
-          {notice.author && <span><FaUser className="meta-icon" />{notice.author}</span>}
-        </div>
-        {notice.excerpt && (
-          <p className="notice-card__excerpt">{notice.excerpt}</p>
-        )}
-      </div>
-    </article>
-  );
-}
-
-/* ─── Modal ─── */
-function NoticeModal({ notice, onClose }) {
-  const imgUrl = notice?.featuredImage ? getImageUrl(notice.featuredImage) : null;
-  const dateStr = notice?.publishDate || notice?.createdAt;
-
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="modal-backdrop"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
-      role="dialog" aria-modal="true"
-    >
-      <div className="modal-box">
-        {/* Header */}
-        <div className="modal-header">
-          <span className="modal-header-title">{notice?.title}</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Link
-              to={`/notices/${notice?.id}`}
-              onClick={onClose}
-              className="modal-view-btn"
-              aria-label="View full page"
-            >
-              View Full Page
-            </Link>
-            <button className="modal-close" onClick={onClose} aria-label="Close">
-              <FaTimes />
-            </button>
-          </div>
-        </div>
-
-        {/* Body */}
-        <div className="modal-scroll-body">
-          {imgUrl && (
-            <div className="modal-img-wrap">
-              <img src={imgUrl} alt={notice.title} className="modal-img" />
-            </div>
-          )}
-          <div className="p-6">
-            <h2 className="font-bold text-lg text-emerald-950 mb-3">{notice.title}</h2>
-            <div className="flex flex-wrap gap-4 text-sm text-slate-500 mb-4">
-              <span className="flex items-center gap-1.5">
-                <FaCalendarAlt className="text-emerald-500" />{formatFullDate(dateStr)}
+        <div className="flex flex-col justify-center p-6 sm:p-8">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+              Featured
+            </span>
+            {category && (
+              <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold capitalize ${getCategoryColor(category)}`}>
+                {category}
               </span>
-              {notice.author && (
-                <span className="flex items-center gap-1.5">
-                  <FaUser className="text-emerald-500" />{notice.author}
-                </span>
-              )}
-            </div>
+            )}
           </div>
+          <h2 className="mb-3 font-display text-xl font-bold leading-snug text-emerald-950 transition-colors group-hover:text-emerald-700 sm:text-2xl">
+            {notice.title}
+          </h2>
+          <div className="mb-3 flex items-center gap-2 text-xs text-slate-500">
+            <FaCalendarAlt className="text-emerald-500" />
+            {formatFullDate(dateStr)}
+          </div>
+          {summary && (
+            <p className="mb-4 text-sm leading-7 text-slate-600 line-clamp-3">{summary}</p>
+          )}
+          <span className="inline-flex w-fit items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-700 transition-all group-hover:bg-emerald-100 group-hover:gap-3">
+            View Full Notice
+            <FaChevronRight className="text-[10px]" />
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
-/* ─── Pagination ─── */
+/* ──────────── Pagination ──────────── */
 function Pagination({ page, totalPages, onChange }) {
   if (totalPages <= 1) return null;
 
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pages = useMemo(() => {
+    const range = [];
+    const start = Math.max(1, page - 2);
+    const end = Math.min(totalPages, page + 2);
+    for (let i = start; i <= end; i++) range.push(i);
+    return range;
+  }, [page, totalPages]);
 
   return (
-    <nav className="pagination" aria-label="Pagination">
-      {/* Mobile */}
-      <div className="pagination-mobile">
+    <nav className="mt-12 flex justify-center" aria-label="Pagination">
+      <div className="flex items-center gap-2">
         <button
-          className="page-btn"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm text-slate-600 transition hover:border-emerald-500 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-35"
           onClick={() => onChange(page - 1)}
           disabled={page === 1}
           aria-label="Previous page"
         >
-          <FaChevronLeft />
+          <FaChevronLeft className="text-xs" />
         </button>
-        <span className="page-label">Page {page} of {totalPages}</span>
-        <button
-          className="page-btn"
-          onClick={() => onChange(page + 1)}
-          disabled={page === totalPages}
-          aria-label="Next page"
-        >
-          <FaChevronRight />
-        </button>
-      </div>
 
-      {/* Desktop */}
-      <div className="pagination-desktop">
-        <button
-          className="page-btn"
-          onClick={() => onChange(page - 1)}
-          disabled={page === 1}
-          aria-label="Previous page"
-        >
-          <FaChevronLeft /> Prev
-        </button>
+        {pages[0] > 1 && (
+          <>
+            <button
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-600 transition hover:border-emerald-500 hover:text-emerald-700"
+              onClick={() => onChange(1)}
+              aria-label="Page 1"
+            >
+              1
+            </button>
+            {pages[0] > 2 && <span className="flex h-10 w-6 items-center justify-center text-xs text-slate-400">...</span>}
+          </>
+        )}
 
         {pages.map((p) => (
           <button
             key={p}
-            className={`page-num ${p === page ? "active" : ""}`}
+            className={`flex h-10 w-10 items-center justify-center rounded-xl border text-sm font-semibold transition ${
+              p === page
+                ? "border-emerald-800 bg-emerald-800 text-white shadow-sm"
+                : "border-slate-200 bg-white text-slate-600 hover:border-emerald-500 hover:text-emerald-700"
+            }`}
             onClick={() => onChange(p)}
             aria-label={`Page ${p}`}
             aria-current={p === page ? "page" : undefined}
@@ -204,469 +258,660 @@ function Pagination({ page, totalPages, onChange }) {
           </button>
         ))}
 
+        {pages[pages.length - 1] < totalPages && (
+          <>
+            {pages[pages.length - 1] < totalPages - 1 && <span className="flex h-10 w-6 items-center justify-center text-xs text-slate-400">...</span>}
+            <button
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-600 transition hover:border-emerald-500 hover:text-emerald-700"
+              onClick={() => onChange(totalPages)}
+              aria-label={`Page ${totalPages}`}
+            >
+              {totalPages}
+            </button>
+          </>
+        )}
+
         <button
-          className="page-btn"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-sm text-slate-600 transition hover:border-emerald-500 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-35"
           onClick={() => onChange(page + 1)}
           disabled={page === totalPages}
           aria-label="Next page"
         >
-          Next <FaChevronRight />
+          <FaChevronRight className="text-xs" />
         </button>
       </div>
     </nav>
   );
 }
 
-/* ─── Main NoticesPage ─── */
+/* ════════════════════════════════════════════
+   MAIN PAGE
+   ════════════════════════════════════════════ */
 export function NoticesPage() {
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
-  const [activeModal, setActiveModal] = useState(null); // stores full notice object
   const gridRef = useRef(null);
+  const searchRef = useRef(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetchNotices(LIMIT, page)
+  const fetchData = useCallback((pageNum) => {
+    setLoading(true);
+    setError(null);
+    fetchNotices(LIMIT, pageNum)
       .then((data) => {
-        if (cancelled) return;
         const items = data?.data || data?.notices || data?.rows || data || [];
         const count = data?.total || data?.count || items.length;
         setNotices(Array.isArray(items) ? items : []);
         setTotal(count);
         setLoading(false);
       })
-      .catch(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [page]);
+      .catch(() => {
+        setError("Failed to load notices.");
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetchData(page);
+  }, [page, fetchData]);
+
+  const handleRetry = useCallback(() => fetchData(page), [page, fetchData]);
 
   const handlePageChange = useCallback((p) => {
     setPage(p);
+    setSearch("");
     gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
-  const filtered = notices.filter((n) =>
-    n.title?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = useMemo(() => {
+    if (!search) return notices;
+    const q = search.toLowerCase();
+    return notices.filter(
+      (n) => n.title?.toLowerCase().includes(q) || n.content?.toLowerCase().includes(q) || n.excerpt?.toLowerCase().includes(q)
+    );
+  }, [notices, search]);
+
+  const featured = !search && page === 1 && !loading && filtered.length > 0 ? filtered[0] : null;
+  const displayNotices = featured ? filtered.slice(1) : filtered;
 
   const totalPages = Math.ceil(total / LIMIT);
 
   return (
     <>
-      <style>{`
-        :root {
-          --green-900: #14532d;
-          --green-700: #15803d;
-          --green-600: #16a34a;
-          --green-100: #dcfce7;
-          --green-50:  #f0fdf4;
-          --gold:      #f59e0b;
-          --text-dark: #052e16;
-          --text-muted:#64748b;
-          --radius-card: 16px;
-          --shadow-card: 0 4px 20px rgba(0,0,0,0.06);
-          --shadow-hover: 0 16px 40px rgba(0,0,0,0.13);
-          --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
-        }
+      <PageBreadcrumb
+        title="Notice Board"
+        items={[
+          { label: "Home", path: "/" },
+          { label: "Notice Board" },
+        ]}
+      />
 
-        /* ── Card ── */
-        .notice-card {
-          background: #fff;
-          border-radius: var(--radius-card);
-          box-shadow: var(--shadow-card);
-          overflow: hidden;
-          cursor: pointer;
-          outline: none;
-          opacity: 0;
-          transform: translateY(24px);
-          transition: opacity 0.5s ease, transform 0.5s ease,
-                      box-shadow var(--transition);
-        }
-        .notice-card.visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        .notice-card:hover {
-          transform: translateY(-6px);
-          box-shadow: var(--shadow-hover);
-        }
-        .notice-card:focus-visible {
-          outline: 2px solid var(--green-600);
-          outline-offset: 2px;
-        }
-        .notice-card__img-wrap {
-          position: relative;
-          aspect-ratio: 16/9;
-          overflow: hidden;
-          background: var(--green-100);
-        }
-        .notice-card__img {
-          width: 100%; height: 100%;
-          object-fit: cover;
-          transition: transform var(--transition);
-        }
-        .notice-card:hover .notice-card__img { transform: scale(1.05); }
-        .notice-card__img-placeholder {
-          width: 100%; height: 100%;
-          display: flex; align-items: center; justify-content: center;
-          background: linear-gradient(135deg, var(--green-900), var(--green-700));
-          color: rgba(255,255,255,0.4);
-          font-size: 2.5rem;
-        }
-        .notice-card__badge {
-          position: absolute; top: 12px; right: 12px;
-          background: linear-gradient(135deg, #f59e0b, #d97706);
-          color: #fff;
-          font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
-          padding: 3px 10px; border-radius: 999px;
-          box-shadow: 0 2px 8px rgba(245,158,11,0.4);
-        }
-        .notice-card__body { padding: 20px; }
-        .notice-card__title {
-          font-size: 1.05rem; font-weight: 700;
-          color: var(--text-dark); line-height: 1.4;
-          display: -webkit-box; -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical; overflow: hidden;
-          margin-bottom: 10px;
-          transition: color var(--transition);
-        }
-        .notice-card:hover .notice-card__title { color: var(--green-700); }
-        .notice-card__meta {
-          display: flex; flex-wrap: wrap; gap: 12px;
-          font-size: 0.75rem; color: var(--text-muted);
-        }
-        .notice-card__meta span { display: flex; align-items: center; gap: 5px; }
-        .notice-card__excerpt {
-          margin-top: 10px; font-size: 0.8rem; color: var(--text-muted);
-          display: -webkit-box; -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical; overflow: hidden;
-          line-height: 1.6;
-        }
-        .meta-icon { color: var(--green-600); flex-shrink: 0; }
+      <section className="px-4 py-10 sm:px-6 lg:px-8" ref={gridRef}>
+        <div className="mx-auto max-w-7xl">
+          {/* Search */}
+          <div className="relative mb-8 w-full sm:w-80" ref={searchRef}>
+            <FaSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search notices..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-500/10"
+              aria-label="Search notices by title or keyword"
+            />
+          </div>
 
-        /* ── Skeleton ── */
-        .notice-skeleton { animation: shimmer 1.5s infinite; }
-        .skeleton-img {
-          aspect-ratio: 16/9;
-          background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
-          background-size: 200% 100%;
-          animation: shimmer-bg 1.5s infinite;
-        }
-        .skeleton-line {
-          height: 14px; border-radius: 6px;
-          background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
-          background-size: 200% 100%;
-          animation: shimmer-bg 1.5s infinite;
-        }
-        @keyframes shimmer-bg {
-          0%   { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
+          {/* Loading */}
+          {loading && (
+            <div className="space-y-10">
+              <SkeletonNoticeCard />
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {[...Array(6)].map((_, i) => <SkeletonNoticeCard key={i} />)}
+              </div>
+            </div>
+          )}
 
-        /* ── Modal ── */
-        .modal-backdrop {
-          position: fixed; inset: 0; z-index: 1000;
-          background: rgba(0,0,0,0.6);
-          backdrop-filter: blur(4px);
-          display: flex; align-items: center; justify-content: center;
-          padding: 20px;
-          animation: fadeIn 0.2s ease;
-        }
-        .modal-box {
-          background: #fff;
-          border-radius: 20px;
-          width: 100%; max-width: 760px;
-          height: 92vh;
-          display: flex;
-          flex-direction: column;
-          animation: scaleIn 0.25s ease;
-          box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-          overflow: hidden;
-        }
-        .modal-header {
-          flex-shrink: 0;
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 16px 20px;
-          border-bottom: 1px solid #e5e7eb;
-          gap: 12px;
-        }
-        .modal-header-title {
-          font-size: 1rem; font-weight: 700;
-          color: #052e16;
-          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-          flex: 1;
-        }
-        .modal-view-btn {
-          font-size: 0.75rem; font-weight: 600;
-          color: var(--green-700);
-          border: 1px solid var(--green-100);
-          background: var(--green-50);
-          padding: 5px 12px; border-radius: 8px;
-          white-space: nowrap;
-          transition: background 0.2s;
-          text-decoration: none;
-        }
-        .modal-view-btn:hover { background: var(--green-100); }
-        .modal-close {
-          flex-shrink: 0;
-          width: 34px; height: 34px; border-radius: 50%;
-          background: #f1f5f9; border: none; cursor: pointer;
-          display: flex; align-items: center; justify-content: center;
-          color: #374151; font-size: 0.85rem;
-          transition: background 0.2s;
-        }
-        .modal-close:hover { background: #e2e8f0; }
-        .modal-scroll-body {
-          flex: 1; min-height: 0;
-          overflow-y: auto;
-          background: #f8fafc;
-        }
-        .modal-img-wrap {
-          width: 100%;
-          background: #000;
-          display: flex;
-          align-items: flex-start;
-          justify-content: center;
-          overflow-y: auto;
-        }
-        .modal-img {
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-        @media (max-width: 640px) {
-          .modal-backdrop { padding: 0; }
-          .modal-box { border-radius: 0; height: 100dvh; }
-        }
-
-        /* ── Pagination ── */
-        .pagination { margin-top: 40px; display: flex; justify-content: center; }
-        .pagination-mobile {
-          display: flex; align-items: center; gap: 16px;
-        }
-        .pagination-desktop { display: none; align-items: center; gap: 6px; }
-        @media (min-width: 640px) {
-          .pagination-mobile { display: none; }
-          .pagination-desktop { display: flex; }
-        }
-        .page-label { font-size: 0.875rem; color: var(--text-muted); }
-        .page-btn {
-          display: inline-flex; align-items: center; gap: 6px;
-          padding: 8px 16px; border-radius: 10px;
-          border: 1px solid #e2e8f0; background: #fff;
-          font-size: 0.85rem; font-weight: 600; color: #374151;
-          cursor: pointer; transition: all var(--transition);
-        }
-        .page-btn:hover:not(:disabled) {
-          background: var(--green-50); border-color: var(--green-600);
-          color: var(--green-700);
-        }
-        .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-        .page-num {
-          width: 40px; height: 40px; border-radius: 10px;
-          border: 1px solid #e2e8f0; background: #fff;
-          font-size: 0.875rem; font-weight: 600; color: #374151;
-          cursor: pointer; transition: all var(--transition);
-          display: flex; align-items: center; justify-content: center;
-        }
-        .page-num:hover:not(.active) {
-          background: var(--green-50); border-color: var(--green-600);
-          color: var(--green-700);
-        }
-        .page-num.active {
-          background: var(--green-900); border-color: var(--green-900);
-          color: #fff;
-        }
-
-        /* ── Search ── */
-        .search-wrap {
-          position: relative; margin-bottom: 28px;
-        }
-        .search-icon {
-          position: absolute; left: 14px; top: 50%;
-          transform: translateY(-50%);
-          color: #94a3b8; pointer-events: none;
-        }
-        .search-input {
-          width: 100%; padding: 13px 16px 13px 42px;
-          border-radius: 12px; border: 1.5px solid #e2e8f0;
-          background: #fff; font-size: 0.9rem; color: #1e293b;
-          outline: none; transition: border-color var(--transition),
-          box-shadow var(--transition);
-        }
-        .search-input:focus {
-          border-color: var(--green-600);
-          box-shadow: 0 0 0 3px rgba(22,163,74,0.12);
-        }
-
-        /* ── Animations ── */
-        @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-      `}</style>
-
-      <div>
-        <PageBanner
-          title="Notice Board"
-          subtitle="Latest announcements and official notices"
-          breadcrumb="Home › Notice Board"
-          eyebrow="Official updates"
-        />
-
-        <section className="px-4 py-12 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-
-            {/* Search */}
-            <div className="search-wrap">
-              <FaSearch className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search notices..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="search-input"
-                aria-label="Search notices"
+          {/* Error */}
+          {!loading && error && (
+            <div className="py-16">
+              <ErrorState
+                title={error}
+                description="Please check your connection and try again."
+                onRetry={handleRetry}
               />
             </div>
+          )}
 
-            {/* Skeleton */}
-            {loading && (
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" ref={gridRef}>
-                {[...Array(LIMIT)].map((_, i) => <SkeletonCard key={i} />)}
-              </div>
-            )}
-
-            {/* Empty */}
-            {!loading && filtered.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-24 text-slate-400">
-                <MdSearchOff className="mb-4 text-6xl opacity-30" />
-                <p className="text-base font-medium">No notices found.</p>
-                {search && (
+          {/* Empty */}
+          {!loading && !error && filtered.length === 0 && (
+            <div className="py-16">
+              {search ? (
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 py-20 text-center">
+                  <MdSearchOff className="mb-4 text-6xl text-emerald-300" />
+                  <p className="text-base font-medium text-emerald-700">No matching notices</p>
+                  <p className="mt-1 text-sm text-slate-500">Try a different search term</p>
                   <button
                     onClick={() => setSearch("")}
-                    className="mt-3 text-sm text-emerald-600 hover:underline"
+                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
                   >
-                    Clear search
+                    Clear Search
                   </button>
-                )}
-              </div>
-            )}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={HiOutlineDocumentText}
+                  title="No notices published yet"
+                  description="Check back soon for official announcements."
+                />
+              )}
+            </div>
+          )}
 
-            {/* Grid */}
-            {!loading && filtered.length > 0 && (
-              <div
-                ref={gridRef}
-                className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-              >
-                {filtered.map((notice, i) => (
-                  <NoticeCard
-                    key={notice.id || i}
-                    notice={notice}
-                    index={i}
-                    onOpen={(n) => setActiveModal(n)}
-                  />
-                ))}
-              </div>
-            )}
+          {/* Content */}
+          {!loading && !error && filtered.length > 0 && (
+            <div className="space-y-10">
+              {/* Featured */}
+              {featured && <FeaturedNotice notice={featured} />}
 
-            {/* Pagination */}
-            {!search && (
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                onChange={handlePageChange}
-              />
-            )}
-          </div>
-        </section>
-      </div>
+              {/* Grid */}
+              {displayNotices.length > 0 && (
+                <div>
+                  {featured && (
+                    <h3 className="mb-6 font-display text-lg font-bold text-emerald-950">
+                      All Notices <span className="text-sm font-normal text-slate-400">({total})</span>
+                    </h3>
+                  )}
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    {displayNotices.map((notice, i) => (
+                      <NoticeCard key={notice.id || i} notice={notice} index={i} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
-      {activeModal && (
-        <NoticeModal notice={activeModal} onClose={() => setActiveModal(null)} />
-      )}
+          {/* Pagination */}
+          {!loading && !error && !search && totalPages > 1 && (
+            <Pagination page={page} totalPages={totalPages} onChange={handlePageChange} />
+          )}
+        </div>
+      </section>
     </>
   );
 }
 
-/* ─── Single Notice Page (unchanged route) ─── */
+function fileSizeLabel(size) {
+  if (!size) return null;
+  const n = parseInt(size, 10);
+  if (isNaN(n)) return null;
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/* ════════════════════════════════════════════
+   SINGLE NOTICE PAGE
+   ════════════════════════════════════════════ */
 export function NoticeSinglePage() {
   const { id } = useParams();
   const [notice, setNotice] = useState(null);
+  const [latest, setLatest] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    fetchNoticeById(id)
-      .then((data) => {
+    setLoading(true);
+    setError(null);
+
+    Promise.all([
+      fetchNoticeById(id),
+      fetchNotices(5, 1).catch(() => []),
+    ])
+      .then(([noticeData, latestData]) => {
         if (cancelled) return;
-        setNotice(data?.data || data);
+        const n = noticeData?.data || noticeData;
+        if (!n) { setError("Notice not found."); setLoading(false); return; }
+        setNotice(n);
+        const items = latestData?.data || latestData?.notices || latestData?.rows || latestData || [];
+        setLatest(Array.isArray(items) ? items.filter((item) => item.id !== n.id) : []);
         setLoading(false);
       })
       .catch(() => {
-        if (!cancelled) { setError("Notice not found."); setLoading(false); }
+        if (!cancelled) { setError("Failed to load notice."); setLoading(false); }
       });
+
     return () => { cancelled = true; };
   }, [id]);
 
+  const attachments = useMemo(() => {
+    if (!notice) return [];
+    const raw = notice.attachments || notice.files || notice.documents || [];
+    if (typeof raw === "string") {
+      try { return JSON.parse(raw); } catch { return []; }
+    }
+    return Array.isArray(raw) ? raw : [];
+  }, [notice]);
+
+  const handleRetry = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    Promise.all([
+      fetchNoticeById(id),
+      fetchNotices(5, 1).catch(() => []),
+    ])
+      .then(([noticeData, latestData]) => {
+        const n = noticeData?.data || noticeData;
+        if (!n) { setError("Notice not found."); setLoading(false); return; }
+        setNotice(n);
+        const items = latestData?.data || latestData?.notices || latestData?.rows || latestData || [];
+        setLatest(Array.isArray(items) ? items.filter((item) => item.id !== n.id) : []);
+        setLoading(false);
+      })
+      .catch(() => { setError("Failed to load notice."); setLoading(false); });
+  }, [id]);
+
+  // ─── Loading ───
+  if (loading) {
+    return (
+      <div>
+        <PageBreadcrumb
+          title="Loading..."
+          items={[
+            { label: "Home", path: "/" },
+            { label: "Notice Board", path: "/notices" },
+            { label: "Loading..." },
+          ]}
+        />
+        {/* Hero skeleton */}
+        <section className="px-4 pt-6 pb-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="skeleton-shimmer mb-6 h-5 w-28 rounded-full" />
+            <div className="skeleton-shimmer mb-3 h-5 w-20 rounded-full" />
+            <div className="skeleton-shimmer h-10 w-3/4 rounded-lg" />
+            <div className="skeleton-shimmer mt-3 h-10 w-1/2 rounded-lg" />
+            <div className="skeleton-shimmer mt-3 h-4 w-1/3 rounded-lg" />
+          </div>
+        </section>
+        <section className="px-4 pb-10 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  {[...Array(6)].map((_, i) => <div key={i} className="skeleton-shimmer h-5 w-full rounded-lg" />)}
+                </div>
+                <div className="skeleton-shimmer h-72 w-full rounded-xl" />
+              </div>
+              <aside className="space-y-6">
+                <div className="skeleton-shimmer h-52 w-full rounded-xl" />
+                <div className="skeleton-shimmer h-40 w-full rounded-xl" />
+              </aside>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // ─── Error ───
+  if (error) {
+    return (
+      <div>
+        <PageBreadcrumb
+          title="Notice"
+          items={[
+            { label: "Home", path: "/" },
+            { label: "Notice Board", path: "/notices" },
+            { label: "Notice" },
+          ]}
+        />
+        <section className="px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl">
+            <ErrorState title={error} onRetry={handleRetry} />
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  const dateStr = notice.publishDate || notice.createdAt;
+  const imgUrl = notice.featuredImage ? getImageUrl(notice.featuredImage) : null;
+  const category = notice.category || notice.notice_category;
+
+  const quickLinks = [
+    { label: "About Our Cooperative", href: "/about" },
+    { label: "Financial Services", href: "/financial" },
+    { label: "Photo Gallery", href: "/gallery" },
+    { label: "Contact Us", href: "/contact" },
+  ];
+
+  const relatedNotices = latest.slice(0, 3);
+
   return (
-    <div>
-      <div className="bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_35%),linear-gradient(135deg,#14532d_0%,#166534_48%,#15803d_100%)] px-4 py-8">
-        <div className="mx-auto max-w-4xl">
+    <>
+      <PageBreadcrumb
+        title={notice.title}
+        items={[
+          { label: "Home", path: "/" },
+          { label: "Notice Board", path: "/notices" },
+          { label: notice.title },
+        ]}
+      />
+
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50/80 via-white to-white px-4 pt-8 pb-6 sm:px-6 lg:px-8">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -right-32 -top-32 h-72 w-72 rounded-full bg-emerald-200/20 blur-3xl" />
+          <div className="absolute -bottom-32 -left-32 h-64 w-64 rounded-full bg-amber-200/20 blur-3xl" />
+        </div>
+        <div className="relative mx-auto max-w-7xl">
           <Link
             to="/notices"
-            className="mb-4 inline-flex items-center gap-2 text-sm text-emerald-50/90 transition hover:text-white"
+            className="mb-6 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 transition-all hover:gap-2 hover:text-emerald-800"
           >
-            <FaArrowLeft /> Back to Notice Board
+            <FaArrowLeft className="text-[10px]" />
+            Back to Notices
           </Link>
-          <h1 className="font-display text-2xl font-semibold text-white md:text-3xl">
-            {loading ? "Loading..." : notice?.title || "Notice"}
-          </h1>
-        </div>
-      </div>
 
-      <section className="py-10 px-4">
-        <div className="max-w-4xl mx-auto">
-          {loading && <div className="h-64 animate-pulse rounded-[1.6rem] bg-emerald-100" />}
-          {error && <div className="text-center py-12 text-gray-400">{error}</div>}
-          {!loading && !error && notice && (
-            <div className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white shadow-sm">
-              {notice.featuredImage && (
-                <div className="h-64 overflow-hidden">
-                  <img
-                    src={getImageUrl(notice.featuredImage)}
-                    alt={notice.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-              <div className="p-8">
-                <div className="mb-6 flex flex-wrap gap-4 border-b border-emerald-100 pb-6 text-sm text-slate-500">
-                  <span className="flex items-center gap-1.5">
-                    <FaCalendarAlt className="text-emerald-500" />
-                    {formatFullDate(notice.publishDate || notice.createdAt)}
-                  </span>
-                  {notice.author && (
-                    <span className="flex items-center gap-1.5">
-                      <FaUser className="text-emerald-500" />
-                      {notice.author}
-                    </span>
-                  )}
-                </div>
-                {notice.content ? (
-                  <div
-                    className="prose prose-sm max-w-none leading-8 text-slate-700"
-                    dangerouslySetInnerHTML={{ __html: notice.content }}
-                  />
-                ) : (
-                  <p className="text-gray-500 italic">No additional content for this notice.</p>
-                )}
-              </div>
-            </div>
-          )}
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            {category && (
+              <span className={`rounded-full px-3 py-1 text-[11px] font-semibold capitalize ${getCategoryColor(category)}`}>
+                {category}
+              </span>
+            )}
+            {isNew(dateStr) && (
+              <span className="badge-pop rounded-full bg-gradient-to-r from-amber-400 to-amber-500 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+                NEW
+              </span>
+            )}
+          </div>
+
+          <h1 className="mb-4 font-display text-2xl font-bold leading-tight text-emerald-950 sm:text-3xl lg:text-4xl max-w-4xl">
+            {notice.title}
+          </h1>
+
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm text-slate-400">
+            <span className="inline-flex items-center gap-1.5">
+              <FaCalendarAlt className="text-emerald-500" />
+              {formatFullDate(dateStr)}
+            </span>
+            {notice.author && (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="text-emerald-200" aria-hidden="true">•</span>
+                {notice.author}
+              </span>
+            )}
+          </div>
         </div>
       </section>
-    </div>
+
+      {/* Content */}
+      <ScrollReveal>
+        <section className="px-4 py-8 sm:px-6 lg:px-8 pb-16">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
+              {/* ─── Article ─── */}
+              <article>
+                {/* Content */}
+                <div className="prose prose-lg max-w-none text-slate-700 prose-headings:font-display prose-headings:font-bold prose-headings:text-emerald-950 prose-p:leading-8 prose-p:my-5 prose-a:text-emerald-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-emerald-900 prose-img:rounded-xl prose-img:shadow-md prose-img:my-8 prose-li:my-1.5 prose-hr:border-emerald-100">
+                  {notice.content ? (
+                    <div dangerouslySetInnerHTML={{ __html: notice.content }} />
+                  ) : (
+                    <p className="text-sm italic text-slate-400">No additional content for this notice.</p>
+                  )}
+                </div>
+
+                {/* Official Notice Image (after content) */}
+                <div className="mt-12 pt-8 border-t border-emerald-100">
+                  <h3 className="mb-4 font-display text-lg font-bold text-emerald-950">
+                    Official Notice
+                  </h3>
+                  {imgUrl ? (
+                    <button
+                      type="button"
+                      onClick={() => setLightboxOpen(true)}
+                      className="block w-full text-left focus-visible:outline-2 focus-visible:outline-emerald-500 focus-visible:outline-offset-4 rounded-xl"
+                      aria-label="View full notice image"
+                    >
+                      <div className="overflow-hidden rounded-xl shadow-md transition-shadow duration-300 hover:shadow-xl">
+                        <img
+                          src={imgUrl}
+                          alt={notice.title}
+                          className="w-full object-contain bg-emerald-50"
+                          onError={(e) => { e.target.style.display = "none"; e.target.parentElement.classList.add("hidden"); }}
+                        />
+                      </div>
+                      <span className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 transition-all hover:gap-2 hover:text-emerald-800">
+                        <FaExternalLinkAlt className="text-[9px]" />
+                        Click to view full image
+                      </span>
+                    </button>
+                  ) : (
+                    <div className="flex h-48 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-700 to-emerald-900 sm:h-64">
+                      <HiOutlineDocumentText className="text-5xl text-white/20" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Attachments */}
+                {attachments.length > 0 && (
+                  <div className="mt-12 pt-8 border-t border-emerald-100">
+                    <h3 className="mb-4 font-display text-lg font-bold text-emerald-950">
+                      Attachments <span className="text-sm font-normal text-slate-400">({attachments.length})</span>
+                    </h3>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {attachments.map((file, idx) => {
+                        const fileName = file.name || file.filename || file.file || file.path || `file_${idx}`;
+                        const fileUrl = file.url || file.path || file.file || fileName;
+                        const fullUrl = fileUrl.startsWith("http") ? fileUrl : getImageUrl(fileUrl);
+                        const { icon: FileIcon, color } = getFileIcon(fileName);
+                        const size = fileSizeLabel(file.size || file.fileSize);
+
+                        return (
+                          <a
+                            key={idx}
+                            href={fullUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md"
+                          >
+                            <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg ${color}`}>
+                              <FileIcon className="text-lg" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium text-slate-700 transition-colors group-hover:text-emerald-700">
+                                {fileName}
+                              </p>
+                              <div className="flex items-center gap-2 text-xs text-slate-400">
+                                <span className="capitalize">{fileName.split(".").pop()?.toUpperCase() || "FILE"}</span>
+                                {size && <span>• {size}</span>}
+                              </div>
+                            </div>
+                            <FaDownload className="flex-shrink-0 text-sm text-slate-400 transition-colors group-hover:text-emerald-600" />
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Related Notices */}
+                {relatedNotices.length > 0 && (
+                  <div className="mt-12 pt-8 border-t border-emerald-100">
+                    <h3 className="mb-6 font-display text-lg font-bold text-emerald-950">
+                      Related Notices
+                    </h3>
+                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      {relatedNotices.map((item) => {
+                        const d = item.publishDate || item.createdAt;
+                        const thumbUrl = item.featuredImage ? getImageUrl(item.featuredImage) : null;
+                        return (
+                          <Link
+                            key={item.id}
+                            to={`/notices/${item.id}`}
+                            className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                          >
+                            <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-emerald-200 to-emerald-100">
+                              {thumbUrl ? (
+                                <img
+                                  src={thumbUrl}
+                                  alt={item.title}
+                                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                  loading="lazy"
+                                  onError={(e) => { e.target.style.display = "none"; e.target.nextSibling.style.display = "flex"; }}
+                                />
+                              ) : null}
+                              <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br from-emerald-700 to-emerald-900 ${thumbUrl ? 'hidden' : ''}`}>
+                                <HiOutlineDocumentText className="text-3xl text-white/30" />
+                              </div>
+                            </div>
+                            <div className="flex flex-1 flex-col p-3.5">
+                              <h4 className="text-sm font-bold leading-snug text-emerald-950 line-clamp-2 transition-colors group-hover:text-emerald-700">
+                                {item.title}
+                              </h4>
+                              <div className="mt-auto pt-2 flex items-center justify-between text-[11px] text-slate-400">
+                                <span className="inline-flex items-center gap-1">
+                                  <FaCalendarAlt className="text-emerald-500" />
+                                  {formatDate(d)}
+                                </span>
+                                <span className="font-semibold text-emerald-600">
+                                  Read <FaChevronRight className="inline text-[9px] ml-0.5 transition-transform group-hover:translate-x-0.5" />
+                                </span>
+                              </div>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </article>
+
+              {/* ─── Sidebar ─── */}
+              <aside className="space-y-6">
+                {latest.length > 0 && (
+                  <div className="sticky top-24 space-y-6">
+                    {/* Latest Notices */}
+                    <div className="rounded-xl border border-emerald-100 bg-white p-5 shadow-sm">
+                      <h3 className="mb-4 flex items-center gap-2 font-display text-base font-bold text-emerald-950">
+                        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-100 text-[11px] text-emerald-700">
+                          <MdNotifications />
+                        </span>
+                        Latest Notices
+                      </h3>
+                      <div className="space-y-2">
+                        {latest.slice(0, 5).map((item) => {
+                          const d = item.publishDate || item.createdAt;
+                          const thumbUrl = item.featuredImage ? getImageUrl(item.featuredImage) : null;
+                          return (
+                            <Link
+                              key={item.id}
+                              to={`/notices/${item.id}`}
+                              className="group flex items-start gap-3 rounded-lg p-2 transition hover:bg-emerald-50"
+                            >
+                              <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-emerald-700 to-emerald-900 shadow-sm">
+                                {thumbUrl ? (
+                                  <img
+                                    src={thumbUrl}
+                                    alt={item.title}
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                    onError={(e) => {
+                                      e.target.style.display = "none";
+                                      e.target.nextSibling.style.display = "flex";
+                                    }}
+                                  />
+                                ) : null}
+                                <div className={`absolute inset-0 flex items-center justify-center ${thumbUrl ? 'hidden' : ''}`}>
+                                  <HiOutlineDocumentText className="text-white/40 text-xs" />
+                                </div>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="line-clamp-2 text-sm font-medium text-slate-700 transition-colors group-hover:text-emerald-700">
+                                  {item.title}
+                                </p>
+                                {d && (
+                                  <p className="mt-0.5 text-[11px] text-slate-400">
+                                    {formatDate(d)}
+                                  </p>
+                                )}
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                      <Link
+                        to="/notices"
+                        className="mt-3 flex items-center justify-center gap-1.5 rounded-lg border border-emerald-100 py-2.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                      >
+                        View All Notices
+                        <FaChevronRight className="text-[9px]" />
+                      </Link>
+                    </div>
+
+                    {/* Quick Links */}
+                    <div className="rounded-xl border border-emerald-100 bg-white p-5 shadow-sm">
+                      <h3 className="mb-3 font-display text-base font-bold text-emerald-950">
+                        Quick Links
+                      </h3>
+                      <div className="space-y-2">
+                        {quickLinks.map((link) => (
+                          <Link
+                            key={link.href}
+                            to={link.href}
+                            className="flex items-center gap-3 rounded-xl border border-emerald-100/60 bg-emerald-50/40 px-4 py-3 text-sm font-medium text-slate-700 transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-emerald-50 hover:shadow-sm hover:text-emerald-700"
+                          >
+                            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-xs text-emerald-600 text-xs font-bold">
+                              <FaExternalLinkAlt className="text-[10px]" />
+                            </span>
+                            <span className="flex-1">{link.label}</span>
+                            <FaChevronRight className="text-[10px] text-slate-400 transition-transform group-hover:translate-x-0.5" />
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </aside>
+            </div>
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* Lightbox */}
+      {lightboxOpen && imgUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Notice image full view"
+        >
+          <div
+            className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+            onClick={() => setLightboxOpen(false)}
+          />
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(false)}
+            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/80 transition hover:bg-white/20 hover:text-white"
+            aria-label="Close image viewer"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <div className="relative max-h-[90vh] max-w-[90vw] overflow-auto rounded-xl">
+            <img
+              src={imgUrl}
+              alt={notice.title}
+              className="h-auto w-full max-w-full object-contain"
+            />
+          </div>
+        </div>
+      )}
+    </>
   );
 }

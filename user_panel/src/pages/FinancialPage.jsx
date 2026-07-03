@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import PageBanner from '../components/PageBanner';
+import { FaChevronDown, FaChevronUp, FaCheckCircle } from 'react-icons/fa';
+import PageBreadcrumb from '../components/PageBreadcrumb';
+import ScrollReveal from '../components/ScrollReveal';
 
 const deposits = [
   {
@@ -77,15 +78,19 @@ const loans = [
 const Accordion = ({ title, children }) => {
   const [open, setOpen] = useState(false);
   return (
-    <div className="mb-3 overflow-hidden rounded-[1.2rem] border border-emerald-100">
+    <div className="mb-3 overflow-hidden rounded-[1.2rem] border border-emerald-100 transition-all duration-200 hover:border-emerald-200">
       <button
         className="flex w-full items-center justify-between bg-white px-5 py-4 text-left transition hover:bg-emerald-50"
         onClick={() => setOpen(!open)}
       >
-        <span className="font-semibold text-primary-900 text-sm">{title}</span>
-        {open ? <FaChevronUp className="text-primary-500 flex-shrink-0" /> : <FaChevronDown className="text-primary-500 flex-shrink-0" />}
+        <span className="font-semibold text-emerald-900 text-sm">{title}</span>
+        {open ? <FaChevronUp className="text-emerald-500 flex-shrink-0" /> : <FaChevronDown className="text-emerald-500 flex-shrink-0" />}
       </button>
-      {open && <div className="bg-emerald-50/70 px-5 pb-5 text-sm leading-8 text-slate-600">{children}</div>}
+      {open && (
+        <div className="border-t border-emerald-100 bg-emerald-50/70 px-5 pb-5 pt-4 text-sm leading-8 text-slate-600">
+          {children}
+        </div>
+      )}
     </div>
   );
 };
@@ -93,7 +98,6 @@ const Accordion = ({ title, children }) => {
 export default function FinancialPage() {
   const [activeTab, setActiveTab] = useState('deposit');
 
-  // Sync active tab from URL hash (scrolling is handled globally by useAnchorNavigation)
   useEffect(() => {
     const syncFromHash = () => {
       const hash = window.location.hash.slice(1);
@@ -101,10 +105,8 @@ export default function FinancialPage() {
         setActiveTab(hash);
       }
     };
-
     window.addEventListener('hashchange', syncFromHash);
     syncFromHash();
-
     return () => window.removeEventListener('hashchange', syncFromHash);
   }, []);
 
@@ -115,214 +117,223 @@ export default function FinancialPage() {
 
   return (
     <div>
-      <PageBanner
+      <PageBreadcrumb
         title="Financial Services"
-        subtitle="Deposits, Loans & More"
-        breadcrumb="Home › Financial"
-        eyebrow="Member-centered finance"
+        items={[
+          { label: "Home", path: "/" },
+          { label: "Financial Services" },
+        ]}
       />
 
       {/* Overview */}
-      <section id="overview" className="bg-white px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2">
-              <h2 className="mb-3 font-display text-2xl font-semibold text-emerald-950">Financial Services Overview</h2>
-              <p className="mb-3 text-base leading-8 text-slate-600">
-                SFACL offers a comprehensive range of financial products designed for the specific needs of cooperative members in Jalthal. From daily savings to long-term fixed deposits, and from agricultural loans to home financing — we provide affordable, member-centric financial solutions.
-              </p>
-              <p className="text-base leading-8 text-slate-600">
-                All services are available exclusively to registered members of the cooperative. Membership is open to all residents of the Jalthal area. Interest rates are reviewed periodically by the Board of Directors in line with Nepal Rastra Bank guidelines.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { value: 'NPR 15Cr+', label: 'Total Deposits' },
-                { value: 'NPR 12Cr+', label: 'Loan Portfolio' },
-                { value: '98.5%', label: 'Recovery Rate' },
-                { value: '2,500+', label: 'Loan Members' },
-              ].map((stat, i) => (
-                <div key={i} className="rounded-2xl bg-emerald-800 p-4 text-center text-white">
-                  <div className="text-xl font-display font-semibold text-amber-300">{stat.value}</div>
-                  <div className="mt-1 text-xs uppercase tracking-[0.2em] text-emerald-100">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="mb-6 flex border-b border-emerald-100">
-            {[
-              { id: 'deposit', label: '💰 Deposit Schemes' },
-              { id: 'loan', label: '🏦 Loan Products' },
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={`-mb-0.5 border-b-2 px-5 py-3 text-sm font-semibold transition ${
-                  activeTab === tab.id
-                    ? 'border-emerald-700 text-emerald-700'
-                    : 'border-transparent text-slate-500 hover:text-emerald-700'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Deposit Services */}
-      {activeTab === 'deposit' && (
-        <section id="deposit" className="bg-white px-4 pb-12 sm:px-6 lg:px-8">
+      <ScrollReveal>
+        <section id="overview" className="bg-white px-4 py-12 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {deposits.map((dep, i) => (
-                <div key={i} className="card-hover rounded-[1.6rem] border border-emerald-100 bg-emerald-50/60 p-5 shadow-sm hover:bg-white">
-                  <div className="mb-3 flex items-start justify-between">
-                    <h3 className="flex-1 font-display text-sm font-semibold leading-tight text-emerald-950">{dep.type}</h3>
-                    <span className="ml-2 flex-shrink-0 rounded-full bg-emerald-800 px-2.5 py-1 text-xs font-semibold text-white">{dep.rate}</span>
+            <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <h2 className="mb-3 font-display text-2xl font-bold text-emerald-950">Financial Services Overview</h2>
+                <p className="mb-3 text-base leading-8 text-slate-600">
+                  SFACL offers a comprehensive range of financial products designed for the specific needs of cooperative members in Jalthal. From daily savings to long-term fixed deposits, and from agricultural loans to home financing — we provide affordable, member-centric financial solutions.
+                </p>
+                <p className="text-base leading-8 text-slate-600">
+                  All services are available exclusively to registered members of the cooperative. Membership is open to all residents of the Jalthal area. Interest rates are reviewed periodically by the Board of Directors in line with Nepal Rastra Bank guidelines.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { value: 'NPR 15Cr+', label: 'Total Deposits' },
+                  { value: 'NPR 12Cr+', label: 'Loan Portfolio' },
+                  { value: '98.5%', label: 'Recovery Rate' },
+                  { value: '2,500+', label: 'Loan Members' },
+                ].map((stat, i) => (
+                  <div key={i} className="rounded-2xl bg-gradient-to-br from-emerald-800 to-emerald-700 p-4 text-center text-white shadow-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+                    <div className="text-xl font-display font-semibold text-amber-300">{stat.value}</div>
+                    <div className="mt-1 text-xs uppercase tracking-[0.2em] text-emerald-100">{stat.label}</div>
                   </div>
-                  <p className="mb-3 text-xs leading-7 text-slate-600">{dep.description}</p>
-                  <ul className="space-y-1.5">
-                    {dep.features.map((f, fi) => (
-                      <li key={fi} className="flex gap-1.5 text-xs text-slate-600">
-                        <span className="flex-shrink-0 font-bold text-emerald-600">✓</span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tabs */}
+            <div className="mb-8 flex border-b border-emerald-100">
+              {[
+                { id: 'deposit', label: '💰 Deposit Schemes' },
+                { id: 'loan', label: '🏦 Loan Products' },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`-mb-0.5 border-b-2 px-6 py-3.5 text-sm font-semibold transition ${
+                    activeTab === tab.id
+                      ? 'border-emerald-700 text-emerald-700'
+                      : 'border-transparent text-slate-500 hover:text-emerald-700'
+                  }`}
+                >
+                  {tab.label}
+                </button>
               ))}
             </div>
           </div>
         </section>
+      </ScrollReveal>
+
+      {/* Deposit Services */}
+      {activeTab === 'deposit' && (
+        <ScrollReveal>
+          <section id="deposit" className="bg-white px-4 pb-16 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {deposits.map((dep, i) => (
+                  <div key={i} className="card-hover rounded-[1.6rem] border border-emerald-100 bg-emerald-50/60 p-6 shadow-sm hover:bg-white hover:border-emerald-200">
+                    <div className="mb-3 flex items-start justify-between gap-3">
+                      <h3 className="flex-1 font-display text-sm font-semibold leading-tight text-emerald-950">{dep.type}</h3>
+                      <span className="flex-shrink-0 rounded-full bg-emerald-800 px-3 py-1 text-xs font-semibold text-white whitespace-nowrap">{dep.rate}</span>
+                    </div>
+                    <p className="mb-4 text-xs leading-7 text-slate-600">{dep.description}</p>
+                    <ul className="space-y-2">
+                      {dep.features.map((f, fi) => (
+                        <li key={fi} className="flex gap-2 text-xs text-slate-600">
+                          <FaCheckCircle className="mt-0.5 flex-shrink-0 text-emerald-500" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </ScrollReveal>
       )}
 
       {/* Loan Services */}
       {activeTab === 'loan' && (
-        <section id="loan" className="bg-white px-4 pb-12 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {loans.map((loan, i) => (
-                <div key={i} className="card-hover rounded-[1.6rem] border border-emerald-100 bg-emerald-50/60 p-5 shadow-sm hover:bg-white">
-                  <div className="mb-3 flex items-start justify-between">
-                    <h3 className="flex-1 font-display text-sm font-semibold leading-tight text-emerald-950">{loan.type}</h3>
-                    <span className="ml-2 flex-shrink-0 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-semibold text-white">{loan.rate}</span>
+        <ScrollReveal>
+          <section id="loan" className="bg-white px-4 pb-16 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {loans.map((loan, i) => (
+                  <div key={i} className="card-hover rounded-[1.6rem] border border-emerald-100 bg-emerald-50/60 p-6 shadow-sm hover:bg-white hover:border-emerald-200">
+                    <div className="mb-3 flex items-start justify-between gap-3">
+                      <h3 className="flex-1 font-display text-sm font-semibold leading-tight text-emerald-950">{loan.type}</h3>
+                      <span className="flex-shrink-0 rounded-full bg-amber-500 px-3 py-1 text-xs font-semibold text-white whitespace-nowrap">{loan.rate}</span>
+                    </div>
+                    <p className="mb-4 text-xs leading-7 text-slate-600">{loan.description}</p>
+                    <ul className="space-y-2">
+                      {loan.features.map((f, fi) => (
+                        <li key={fi} className="flex gap-2 text-xs text-slate-600">
+                          <FaCheckCircle className="mt-0.5 flex-shrink-0 text-amber-500" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <p className="mb-3 text-xs leading-7 text-slate-600">{loan.description}</p>
-                  <ul className="space-y-1.5">
-                    {loan.features.map((f, fi) => (
-                      <li key={fi} className="flex gap-1.5 text-xs text-slate-600">
-                        <span className="flex-shrink-0 font-bold text-amber-500">✓</span>
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
       )}
 
       <div className="section-divider" />
 
       {/* Required Documents */}
-      <section id="documents" className="bg-emerald-50/70 px-4 py-14 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-10 text-center">
-            <h2 className="mb-2 font-display text-2xl font-semibold text-emerald-950">Required Documents</h2>
-            <p className="text-sm text-slate-500">Documents needed for membership, account opening, and loan processing</p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="rounded-[1.6rem] border border-emerald-100 bg-white p-6 shadow-sm">
-              <h3 className="mb-5 flex items-center gap-2 border-b border-emerald-100 pb-3 font-display text-lg font-semibold text-emerald-950">
-                <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-emerald-800 text-sm text-white">📋</span>
-                New Membership & Account Opening
-              </h3>
-              <ul className="space-y-2">
-                {[
-                  'Citizenship certificate (नागरिकता प्रमाण पत्र) — photocopy',
-                  '2 recent passport-sized photographs',
-                  'Residential proof (electricity bill / land ownership certificate)',
-                  'PAN number (if available)',
-                  'Initial share purchase amount (minimum NPR 500)',
-                  'Membership application form (available at office)',
-                  'Nominee details and their citizenship copy',
-                  'Mobile number registered with your name',
-                ].map((doc, i) => (
-                  <li key={i} className="flex gap-2 text-sm text-gray-600">
-                    <span className="text-primary-500 font-bold flex-shrink-0 mt-0.5">•</span>
-                    {doc}
-                  </li>
-                ))}
-              </ul>
+      <ScrollReveal>
+        <section id="documents" className="bg-emerald-50/70 px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-12 text-center">
+              <h2 className="mb-2 font-display text-3xl font-bold text-emerald-950">Required Documents</h2>
+              <p className="text-sm text-slate-500">Documents needed for membership, account opening, and loan processing</p>
             </div>
 
-            <div className="rounded-[1.6rem] border border-emerald-100 bg-white p-6 shadow-sm">
-              <h3 className="mb-5 flex items-center gap-2 border-b border-emerald-100 pb-3 font-display text-lg font-semibold text-emerald-950">
-                <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-amber-500 text-sm text-white">📄</span>
-                Loan Application Processing
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <div className="mb-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Basic Documents (All Loans)</div>
-                  <ul className="space-y-1.5">
-                    {[
-                      'Membership certificate and share passbook',
-                      'Citizenship certificate — applicant + guarantor',
-                      'Loan application form (available at office)',
-                      'Savings account statement (minimum 3 months)',
-                      '2 recent passport-sized photos',
-                    ].map((doc, i) => (
-                      <li key={i} className="flex gap-2 text-xs text-gray-600">
-                        <span className="text-accent font-bold flex-shrink-0">•</span>{doc}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <div className="mb-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">For Property Collateral Loans</div>
-                  <ul className="space-y-1.5">
-                    {[
-                      'Land ownership certificate (लालपुर्जा)',
-                      'Land revenue receipt (मालपोत तिरेको रसिद)',
-                      'Land sketch map (नापी नक्शा)',
-                      'Market valuation report if required',
-                    ].map((doc, i) => (
-                      <li key={i} className="flex gap-2 text-xs text-gray-600">
-                        <span className="text-accent font-bold flex-shrink-0">•</span>{doc}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <div className="mb-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Business Loan Additional</div>
-                  <ul className="space-y-1.5">
-                    {[
-                      'Business registration certificate',
-                      'Project proposal / business plan',
-                      'Tax clearance certificate (if applicable)',
-                    ].map((doc, i) => (
-                      <li key={i} className="flex gap-2 text-xs text-gray-600">
-                        <span className="text-accent font-bold flex-shrink-0">•</span>{doc}
-                      </li>
-                    ))}
-                  </ul>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="rounded-[1.6rem] border border-emerald-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+                <h3 className="mb-5 flex items-center gap-2 border-b border-emerald-100 pb-3 font-display text-lg font-semibold text-emerald-950">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-emerald-800 text-sm text-white">📋</span>
+                  New Membership & Account Opening
+                </h3>
+                <ul className="space-y-2.5">
+                  {[
+                    'Citizenship certificate (नागरिकता प्रमाण पत्र) — photocopy',
+                    '2 recent passport-sized photographs',
+                    'Residential proof (electricity bill / land ownership certificate)',
+                    'PAN number (if available)',
+                    'Initial share purchase amount (minimum NPR 500)',
+                    'Membership application form (available at office)',
+                    'Nominee details and their citizenship copy',
+                    'Mobile number registered with your name',
+                  ].map((doc, i) => (
+                    <li key={i} className="flex gap-2 text-sm text-slate-600">
+                      <span className="mt-0.5 flex-shrink-0 font-bold text-emerald-500">•</span>
+                      {doc}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="rounded-[1.6rem] border border-emerald-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md">
+                <h3 className="mb-5 flex items-center gap-2 border-b border-emerald-100 pb-3 font-display text-lg font-semibold text-emerald-950">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-2xl bg-amber-500 text-sm text-white">📄</span>
+                  Loan Application Processing
+                </h3>
+                <div className="space-y-5">
+                  <div>
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Basic Documents (All Loans)</div>
+                    <ul className="space-y-1.5">
+                      {[
+                        'Membership certificate and share passbook',
+                        'Citizenship certificate — applicant + guarantor',
+                        'Loan application form (available at office)',
+                        'Savings account statement (minimum 3 months)',
+                        '2 recent passport-sized photos',
+                      ].map((doc, i) => (
+                        <li key={i} className="flex gap-2 text-xs text-slate-600">
+                          <span className="mt-0.5 flex-shrink-0 font-bold text-amber-500">•</span>{doc}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">For Property Collateral Loans</div>
+                    <ul className="space-y-1.5">
+                      {[
+                        'Land ownership certificate (लालपुर्जा)',
+                        'Land revenue receipt (मालपोत तिरेको रसिद)',
+                        'Land sketch map (नापी नक्शा)',
+                        'Market valuation report if required',
+                      ].map((doc, i) => (
+                        <li key={i} className="flex gap-2 text-xs text-slate-600">
+                          <span className="mt-0.5 flex-shrink-0 font-bold text-amber-500">•</span>{doc}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Business Loan Additional</div>
+                    <ul className="space-y-1.5">
+                      {[
+                        'Business registration certificate',
+                        'Project proposal / business plan',
+                        'Tax clearance certificate (if applicable)',
+                      ].map((doc, i) => (
+                        <li key={i} className="flex gap-2 text-xs text-slate-600">
+                          <span className="mt-0.5 flex-shrink-0 font-bold text-amber-500">•</span>{doc}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4">
-            <p className="text-sm text-emerald-800">
-              <strong>Note:</strong> Document requirements may vary based on loan type and amount. Please visit our office or call us for specific requirements for your loan application. All documents should be submitted in original along with photocopies.
-            </p>
+            <div className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-5">
+              <p className="text-sm text-emerald-800">
+                <strong>Note:</strong> Document requirements may vary based on loan type and amount. Please visit our office or call us for specific requirements for your loan application. All documents should be submitted in original along with photocopies.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScrollReveal>
     </div>
   );
 }
