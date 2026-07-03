@@ -142,18 +142,20 @@ export function BlogSinglePage() {
 
   // Fetch current blog
   useEffect(() => {
-    setLoading(true);
+  setLoading(true);
 
-    fetchBlogById(id)
-      .then((data) => {
-        setBlog(data?.data || data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Article not found.");
-        setLoading(false);
-      });
-  }, [id]);
+  fetchBlogById(id)
+    .then((data) => {
+      console.log("Received:", data);
+      setBlog(data);
+      setLoading(false);
+    })
+    .catch((err) => {
+      console.error(err);
+      setError("Article not found.");
+      setLoading(false);
+    });
+}, [id]);
 
   // Fetch blogs for recommendation
   useEffect(() => {
@@ -263,3 +265,4 @@ export function BlogSinglePage() {
     </div>
   );
 }
+
