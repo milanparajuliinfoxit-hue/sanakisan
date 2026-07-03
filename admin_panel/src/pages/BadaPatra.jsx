@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { FileText, Upload, Eye, Trash2, RefreshCw, X, ZoomIn, ZoomOut } from "lucide-react";
+import { FileText, Upload, Eye, Trash2, RefreshCw, X, ZoomIn, ZoomOut, Download } from "lucide-react";
 import AlertDialog from "../components/AlertDialog";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const API = import.meta.env.VITE_REACT_APP_API_URL;
 
@@ -24,7 +26,6 @@ const authHeaders = () => ({
 const imageUrl = (filename) =>
   filename ? `${API}/${filename}` : null;
 
-// ─── Upload / Edit Form ────────────────────────────────────────────────────
 function BadaPatraForm({ existing, onSuccess, onCancel }) {
   const inputRef = useRef(null);
   const [file, setFile] = useState(null);
@@ -80,16 +81,19 @@ function BadaPatraForm({ existing, onSuccess, onCancel }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8 max-w-lg mx-auto">
-      <h2 className="text-xl font-bold text-gray-800 mb-6">
-        {existing ? "Replace Bada Patra Image" : "Upload Bada Patra"}
-      </h2>
-      <form onSubmit={onSubmit} className="space-y-6">
-        {/* Drop Zone */}
+    <div className="rounded-xl border bg-card max-w-lg">
+      <div className="px-5 py-4 border-b border-border">
+        <h2 className="text-lg font-semibold text-foreground">
+          {existing ? "Replace Bada Patra Image" : "Upload Bada Patra"}
+        </h2>
+        <p className="text-sm text-muted-foreground mt-0.5">Upload an official document image</p>
+      </div>
+      <form onSubmit={onSubmit} className="p-5 space-y-5">
         <div
-          className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
-            dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-blue-400 bg-gray-50"
-          }`}
+          className={cn(
+            "border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors",
+            dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 bg-muted/30"
+          )}
           onClick={() => inputRef.current?.click()}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
@@ -110,9 +114,9 @@ function BadaPatraForm({ existing, onSuccess, onCancel }) {
             />
           ) : (
             <div className="py-8">
-              <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-              <p className="text-sm text-gray-600 font-medium">Click or drag & drop to upload</p>
-              <p className="text-xs text-gray-400 mt-1">JPG, JPEG, PNG, WEBP · Max 2MB</p>
+              <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-sm text-foreground font-medium">Click or drag & drop to upload</p>
+              <p className="text-xs text-muted-foreground mt-1">JPG, JPEG, PNG, WEBP · Max 2MB</p>
             </div>
           )}
         </div>
@@ -121,27 +125,19 @@ function BadaPatraForm({ existing, onSuccess, onCancel }) {
           <button
             type="button"
             onClick={() => { setFile(null); setPreview(existing ? imageUrl(existing.image) : null); }}
-            className="text-xs text-red-500 hover:underline"
+            className="text-xs text-destructive hover:underline"
           >
             Remove selected image
           </button>
         )}
 
         <div className="flex gap-3 justify-end">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-5 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 font-medium transition"
-          >
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-medium transition"
-          >
+          </Button>
+          <Button type="submit" disabled={loading}>
             {loading ? "Saving..." : existing ? "Update" : "Save"}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -161,29 +157,40 @@ BadaPatraForm.defaultProps = {
   existing: null,
 };
 
-// ─── View Modal ────────────────────────────────────────────────────────────
 function ViewModal({ record, onClose }) {
   const [zoom, setZoom] = useState(1);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h3 className="text-lg font-bold text-gray-800">नागरिक बडा पत्र — Preview</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden animate-scale-in">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h3 className="text-base font-semibold text-foreground">नागरिक बडा पत्र — Preview</h3>
           <div className="flex items-center gap-2">
-            <button onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))} className="p-2 rounded-lg hover:bg-gray-100">
+            <button onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))} className="p-1.5 rounded-lg hover:bg-accent transition-colors" title="Zoom out">
               <ZoomOut className="w-4 h-4" />
             </button>
-            <span className="text-sm text-gray-500 w-12 text-center">{Math.round(zoom * 100)}%</span>
-            <button onClick={() => setZoom((z) => Math.min(3, z + 0.25))} className="p-2 rounded-lg hover:bg-gray-100">
+            <span className="text-xs text-muted-foreground w-10 text-center">{Math.round(zoom * 100)}%</span>
+            <button onClick={() => setZoom((z) => Math.min(3, z + 0.25))} className="p-1.5 rounded-lg hover:bg-accent transition-colors" title="Zoom in">
               <ZoomIn className="w-4 h-4" />
             </button>
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 ml-2">
-              <X className="w-5 h-5" />
+            <button
+              onClick={() => {
+                const link = document.createElement("a");
+                link.href = imageUrl(record.image);
+                link.download = "bada-patra";
+                link.click();
+              }}
+              className="p-1.5 rounded-lg hover:bg-accent transition-colors ml-1"
+              title="Download"
+            >
+              <Download className="w-4 h-4" />
+            </button>
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-accent transition-colors ml-1" title="Close">
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
-        <div className="overflow-auto max-h-[75vh] flex items-center justify-center bg-gray-50 p-6">
+        <div className="overflow-auto max-h-[75vh] flex items-center justify-center bg-muted/30 p-6">
           <img
             src={imageUrl(record.image)}
             alt="Bada Patra"
@@ -203,11 +210,10 @@ ViewModal.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-// ─── Main Page ─────────────────────────────────────────────────────────────
 export default function BadaPatra() {
   const [record, setRecord] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState("list"); // list | form
+  const [mode, setMode] = useState("list");
   const [viewOpen, setViewOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
@@ -244,7 +250,7 @@ export default function BadaPatra() {
 
   if (mode === "form") {
     return (
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-6 animate-fade-in">
         <BadaPatraForm
           existing={record}
           onSuccess={handleSuccess}
@@ -255,111 +261,91 @@ export default function BadaPatra() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="p-6 space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">नागरिक बडा पत्र</h1>
-          <p className="text-gray-500 mt-1">Manage the official Bada Patra document image</p>
+          <h1 className="text-2xl font-bold text-foreground">नागरिक बडा पत्र</h1>
+          <p className="text-muted-foreground mt-1">Manage the official Bada Patra document image</p>
         </div>
         {!record && !loading && (
-          <button
-            onClick={() => setMode("form")}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-medium transition shadow-md"
-          >
-            <Upload className="w-4 h-4" />
-            Upload Bada Patra
-          </button>
+          <Button onClick={() => setMode("form")} className="gap-2">
+            <Upload className="w-4 h-4" /> Upload Bada Patra
+          </Button>
         )}
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b flex items-center gap-2">
-          <FileText className="w-5 h-5 text-blue-600" />
-          <h2 className="text-xl font-semibold text-gray-800">Current Bada Patra</h2>
+      <div className="rounded-xl border bg-card overflow-hidden">
+        <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
+          <FileText className="w-4 h-4 text-primary" />
+          <h2 className="text-base font-semibold text-foreground">Current Bada Patra</h2>
         </div>
 
         {loading ? (
           <div className="py-20 text-center">
-            <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-500">Loading...</p>
+            <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-sm text-muted-foreground">Loading...</p>
           </div>
         ) : !record ? (
-          <div className="py-20 text-center">
-            <div className="mx-auto w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-              <FileText className="w-10 h-10 text-gray-400" />
+          <div className="py-16 text-center">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+              <FileText className="w-8 h-8 text-muted-foreground" />
             </div>
-            <h3 className="text-xl font-medium text-gray-700">No Bada Patra uploaded yet</h3>
-            <p className="text-gray-500 mt-1 mb-6">Upload the official document image to display it on the website.</p>
-            <button
-              onClick={() => setMode("form")}
-              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition"
-            >
-              <Upload className="w-4 h-4" />
-              Upload Now
-            </button>
+            <h3 className="text-lg font-semibold text-foreground">No Bada Patra uploaded yet</h3>
+            <p className="text-sm text-muted-foreground mt-1 mb-6">Upload the official document image to display it on the website.</p>
+            <Button onClick={() => setMode("form")} className="gap-2">
+              <Upload className="w-4 h-4" /> Upload Now
+            </Button>
           </div>
         ) : (
-          <div className="p-6">
+          <div className="p-5">
             <div className="flex flex-col sm:flex-row gap-6 items-start">
               {/* Thumbnail */}
               <div
-                className="w-full sm:w-48 h-48 rounded-xl overflow-hidden border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition flex-shrink-0"
+                className="w-full sm:w-48 h-48 rounded-xl overflow-hidden border border-border shadow-sm cursor-pointer group flex-shrink-0"
                 onClick={() => setViewOpen(true)}
               >
                 <img
                   src={imageUrl(record.image)}
                   alt="Bada Patra"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                 />
               </div>
 
               {/* Meta */}
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Document Details</h3>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-semibold text-foreground mb-4">Document Details</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-6">
-                  <div>
-                    <p className="text-xs font-semibold uppercase text-gray-500 mb-1">Uploaded</p>
-                    <p className="text-gray-800 font-medium">
-                      {new Date(record.createdAt).toLocaleDateString("en-NP", {
+                  <div className="p-3 rounded-lg bg-muted/50">
+                    <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Uploaded</p>
+                    <p className="text-foreground font-medium">
+                      {record.createdAt ? new Date(record.createdAt).toLocaleDateString("en-NP", {
                         year: "numeric", month: "long", day: "numeric",
-                      })}
+                      }) : "N/A"}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs font-semibold uppercase text-gray-500 mb-1">Last Updated</p>
-                    <p className="text-gray-800 font-medium">
-                      {new Date(record.updatedAt).toLocaleDateString("en-NP", {
+                  <div className="p-3 rounded-lg bg-muted/50">
+                    <p className="text-xs font-semibold uppercase text-muted-foreground mb-1">Last Updated</p>
+                    <p className="text-foreground font-medium">
+                      {record.updatedAt ? new Date(record.updatedAt).toLocaleDateString("en-NP", {
                         year: "numeric", month: "long", day: "numeric",
-                      })}
+                      }) : "N/A"}
                     </p>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => setViewOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm transition"
-                  >
-                    <Eye className="w-4 h-4" />
-                    View
-                  </button>
-                  <button
-                    onClick={() => setMode("form")}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm transition"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    Replace
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-medium text-sm transition"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                  </button>
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setViewOpen(true)} className="gap-1.5">
+                    <Eye className="w-3.5 h-3.5" /> View
+                  </Button>
+                  <Button size="sm" onClick={() => setMode("form")} className="gap-1.5">
+                    <RefreshCw className="w-3.5 h-3.5" /> Replace
+                  </Button>
+                  <Button variant="destructive" size="sm" onClick={() => setDeleteConfirm(true)} className="gap-1.5">
+                    <Trash2 className="w-3.5 h-3.5" /> Delete
+                  </Button>
                 </div>
               </div>
             </div>
