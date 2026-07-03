@@ -7,6 +7,7 @@ import PageBreadcrumb from '../components/PageBreadcrumb';
 import BlogCard from '../components/BlogCard';
 import EmptyState from '../components/EmptyState';
 import { SkeletonGrid } from '../components/Skeleton';
+import { MdUpdate } from "react-icons/md";
 
 export function BlogsPage() {
   const [blogs, setBlogs] = useState([]);
@@ -109,26 +110,25 @@ export function BlogSinglePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const limit = 3;
+  const limit = 4;
 
   // Fetch current blog
   useEffect(() => {
-  setLoading(true);
+    setLoading(true);
 
-  fetchBlogById(id)
-    .then((data) => {
-      console.log("Received:", data);
-      setBlog(data);
-      setLoading(false);
-    })
-    .catch((err) => {
-      console.error(err);
-      setError("Article not found.");
-      setLoading(false);
-    });
-}, [id]);
+    fetchBlogById(id)
+      .then((data) => {
+        setBlog(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Article not found.");
+        setLoading(false);
+      });
+  }, [id]);
 
-  // Fetch blogs for recommendation
+  // Fetch related blogs
   useEffect(() => {
     fetchBlogs(limit, 1)
       .then((res) => {
@@ -139,8 +139,7 @@ export function BlogSinglePage() {
 
   const recommendedBlogs = blogs
     .filter((item) => String(item.id) !== String(id))
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 4);
+    .slice(0, 3);
 
   return (
     <div>
@@ -154,76 +153,85 @@ export function BlogSinglePage() {
       />
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
-          {loading && (
-            <div className="animate-pulse space-y-4">
-              <div className="h-64 rounded-[1.6rem] bg-emerald-100" />
-              <div className="h-4 w-3/4 rounded bg-emerald-100" />
-              <div className="h-4 w-1/2 rounded bg-emerald-100" />
-            </div>
-          )}
-          {error && (
-            <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 py-12 text-center">
-              <p className="text-slate-500">{error}</p>
-            </div>
-          )}
-          {!loading && !error && blog && (
-            <div className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white shadow-sm">
-              {blog.featuredImage && (
-                <div className="h-64 overflow-hidden">
-                  <img src={getImageUrl(blog.featuredImage)} alt={blog.title} className="w-full h-full object-cover" />
-                </div>
-              )}
-
-              <div className="text-right">
-                <div className="flex items-center gap-2 justify-end">
-                  <FaCalendarAlt className="text-emerald-600" />
-                  <span>{formatFullDate(blog.createdAt)}</span>
-                </div>
+        <div className="mx-auto flex max-w-7xl flex-col gap-10 lg:flex-row">
+          {/* Main Content */}
+          <article className="flex-1">
+            {loading && (
+              <div className="animate-pulse space-y-4">
+                <div className="h-64 rounded-2xl bg-emerald-100" />
+                <div className="h-4 w-3/4 rounded bg-emerald-100" />
+                <div className="h-4 w-1/2 rounded bg-emerald-100" />
               </div>
-            </div>
-
-            {blog.featuredImage && (
-              <img
-                src={getImageUrl(blog.featuredImage)}
-                alt={blog.title}
-                className="w-full rounded-xl object-cover max-h-[500px]"
-              />
             )}
 
-            <div className="mt-2 flex flex-col items-end">
-              <span className="font-semibold italic">Recently updated on</span>
-
-              <div className="flex items-center gap-2">
-                <MdUpdate className="text-emerald-600" />
-                <span className="italic">{formatFullDate(blog.updatedAt)}</span>
+            {error && (
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 py-12 text-center">
+                <p className="text-slate-500">{error}</p>
               </div>
-            </div>
-            <div
-              className="prose max-w-none"
-              dangerouslySetInnerHTML={{
-                __html: blog.content || "<p>No content available.</p>",
-              }}
-            />
+            )}
+
+            {!loading && !error && blog && (
+              <>
+                {blog.featuredImage && (
+                  <img
+                    src={getImageUrl(blog.featuredImage)}
+                    alt={blog.title}
+                    className="mb-6 max-h-[500px] w-full rounded-2xl object-cover"
+                  />
+                )}
+
+                <h1 className="mb-4 text-4xl font-bold text-slate-800">
+                  {blog.title}
+                </h1>
+
+                <div className="mb-8 flex flex-wrap items-center gap-6 text-sm text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <FaCalendarAlt className="text-emerald-600" />
+                    <span>{formatFullDate(blog.createdAt)}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <MdUpdate className="text-emerald-600" />
+                    <span>{formatFullDate(blog.updatedAt)}</span>
+                  </div>
+
+                  {blog.author && (
+                    <div className="flex items-center gap-2">
+                      <FaUser className="text-emerald-600" />
+                      <span>{blog.author}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  className="prose prose-lg max-w-none"
+                  dangerouslySetInnerHTML={{
+                    __html: blog.content || "<p>No content available.</p>",
+                  }}
+                />
+              </>
+            )}
           </article>
-        )}
-      </div>
 
-      {/* Right Sidebar */}
-      <aside className="w-96 shrink-0">
-        <h2 className="text-2xl font-semibold mb-6">Related Blogs</h2>
+          {/* Sidebar */}
+          <aside className="w-full lg:w-80 xl:w-96">
+            <h2 className="mb-6 text-2xl font-semibold">
+              Related Blogs
+            </h2>
 
-        <div className="space-y-5">
-          {recommendedBlogs.map((item) => (
-            <BlogCard
-              key={item.id}
-              blog={item}
-              contentLength={60}
-              showReadMore={false}
-            />
-          ))}
+            <div className="space-y-5">
+              {recommendedBlogs.map((item) => (
+                <BlogCard
+                  key={item.id}
+                  blog={item}
+                  contentLength={60}
+                  showReadMore={false}
+                />
+              ))}
+            </div>
+          </aside>
         </div>
-      </aside>
+      </section>
     </div>
   );
 }
