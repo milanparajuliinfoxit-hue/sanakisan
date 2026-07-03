@@ -13,6 +13,7 @@ import {
 } from '../utils/bsCalendarUtils';
 
 import { BSCalendar } from '../components/BSCalander';
+import SectionHeader from "../components/SectionHeader";
 
 export default function CalendarModule() {
   const API = import.meta.env.VITE_API_URL;
@@ -117,51 +118,16 @@ export default function CalendarModule() {
       ref={sectionRef}
       className="relative px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-emerald-50/30"
     >
-      <style>{`
-        @keyframes fadeUpStagger {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-section {
-          animation: fadeUpStagger 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-        .event-card {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .event-card:hover {
-          background-color: #F0F9F6;
-          transform: translateY(-2px);
-        }
-        .event-card:hover .event-arrow {
-          transform: translateX(4px);
-        }
-      `}</style>
-
       <div className="mx-auto max-w-7xl">
-        {/* Section header */}
-        <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white shadow-lg">
-              <CalendarRange className="h-6 w-6" strokeWidth={1.8} />
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-emerald-600">Community Calendar</p>
-              <h2 className="font-display text-3xl font-bold text-emerald-950">Event Calendar</h2>
-            </div>
-          </div>
+        <SectionHeader
+          icon={CalendarRange}
+          iconBg="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white"
+          label="Community Calendar"
+          title="Event Calendar"
+          viewAllLink={!loading && events.length > 0 ? "/events" : undefined}
+          viewAllText="View All Events"
+        />
 
-          {!loading && events.length > 0 && (
-            <Link
-              to="/events"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition-all duration-300 hover:gap-3 hover:text-emerald-900 group"
-            >
-              View All Events
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          )}
-        </div>
-
-        {/* 2-Column Layout */}
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2">
           {/* BS Calendar */}
           <div>
@@ -193,14 +159,13 @@ export default function CalendarModule() {
               )}
             </div>
 
-            {/* Skeleton Loaders */}
+            {/* Skeleton */}
             {loading && (
               <div className="space-y-3">
                 {[...Array(3)].map((_, i) => (
                   <div
                     key={i}
-                    className="event-card flex items-start gap-4 rounded-xl border border-emerald-100 bg-white p-4 animate-pulse"
-                    style={{ animationDelay: `${i * 150}ms` }}
+                    className="flex animate-pulse items-start gap-4 rounded-xl border border-emerald-100 bg-white p-4"
                   >
                     <div className="h-12 w-12 flex-shrink-0 rounded-lg bg-slate-200" />
                     <div className="flex-1 space-y-2">
@@ -218,7 +183,7 @@ export default function CalendarModule() {
                 {selectedHolidayTitles.map((title, idx) => (
                   <div
                     key={`holiday-${idx}`}
-                    className="event-card flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/80 p-4"
+                    className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/80 p-4 transition-all duration-300 hover:shadow-md"
                     style={{ animation: `fadeUpStagger 0.6s ease-out ${100 + idx * 100}ms both` }}
                   >
                     <div className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-amber-200">
@@ -241,7 +206,7 @@ export default function CalendarModule() {
                     <Link
                       key={event.id || i}
                       to={`/events/${event.id}`}
-                      className="event-card flex items-start gap-3 rounded-xl border border-emerald-200 bg-white p-4"
+                      className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-white p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                       style={{ animation: `fadeUpStagger 0.6s ease-out ${200 + i * 100}ms both` }}
                     >
                       {evBs && (
@@ -269,14 +234,14 @@ export default function CalendarModule() {
                           )}
                         </div>
                       </div>
-                      <ArrowRight className="event-arrow mt-1 h-4 w-4 flex-shrink-0 text-emerald-400 transition-transform" />
+                      <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-emerald-400 transition-transform group-hover:translate-x-1" />
                     </Link>
                   );
                 })}
 
-                {/* Empty State */}
+                {/* Empty state */}
                 {displayEvents.length === 0 && selectedHolidayTitles.length === 0 && (
-                  <div className="rounded-xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 py-8 text-center">
+                  <div className="rounded-xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 py-10 text-center">
                     <CalendarDays className="mx-auto h-8 w-8 text-emerald-300 mb-2" />
                     <p className="text-sm text-emerald-700 font-medium">No events scheduled</p>
                   </div>
@@ -284,12 +249,12 @@ export default function CalendarModule() {
               </div>
             )}
 
-            {/* Mobile View All */}
+            {/* Mobile "View All" */}
             {!loading && events.length > 0 && (
               <div className="mt-6 text-center lg:hidden">
                 <Link
                   to="/events"
-                  className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                  className="btn-primary"
                 >
                   View All Events
                   <ArrowRight className="h-3.5 w-3.5" />

@@ -5,13 +5,10 @@ import './index.css'
 import { Provider } from 'react-redux'
 import { store, persist } from './redux/store.js'
 import { PersistGate } from 'redux-persist/integration/react'
-import { ToastContainer } from 'react-toastify'
-
 createRoot(document.getElementById('root')).render(
   <StrictMode>
    <Provider store={store}>
-      <PersistGate loading={null} persistor={persist}> 
-        <ToastContainer/>      
+      <PersistGate loading={null} persistor={persist}>
         <App />
       </PersistGate>
     </Provider>
