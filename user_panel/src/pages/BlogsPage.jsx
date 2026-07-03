@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { FaNewspaper, FaCalendarAlt, FaUser, FaSearch } from 'react-icons/fa';
+import { FaNewspaper, FaCalendarAlt, FaSearch } from 'react-icons/fa';
+import { MdUpdate } from 'react-icons/md';
 import { fetchBlogs, fetchBlogById, getImageUrl } from '../api/config';
 import { formatFullDate } from '../utils/dateUtils';
 import PageBreadcrumb from '../components/PageBreadcrumb';
@@ -105,40 +106,41 @@ export function BlogSinglePage() {
   const { id } = useParams();
 
   const [blog, setBlog] = useState(null);
-  const [blogs, setBlogs] = useState([]);
+  const [recommendedBlogs, setRecommendedBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const limit = 3;
-
-  // Fetch current blog
   useEffect(() => {
-    setLoading(true);
-
+    let cancelled = false;
+    setBlog(null);
+    setError(null);
     fetchBlogById(id)
       .then((data) => {
+        if (cancelled) return;
         setBlog(data?.data || data);
         setLoading(false);
       })
       .catch(() => {
+        if (cancelled) return;
         setError("Article not found.");
         setLoading(false);
       });
+    return () => { cancelled = true; };
   }, [id]);
 
-  // Fetch blogs for recommendation
   useEffect(() => {
-    fetchBlogs(limit, 1)
+    fetchBlogs(3, 1)
       .then((res) => {
-        setBlogs(res.data || []);
+        const others = (res.data || []).filter((item) => String(item.id) !== String(id));
+        // stable shuffle computed once when data arrives, not on every render
+        for (let i = others.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [others[i], others[j]] = [others[j], others[i]];
+        }
+        setRecommendedBlogs(others.slice(0, 4));
       })
       .catch(console.error);
-  }, []);
-
-  const recommendedBlogs = blogs
-    .filter((item) => String(item.id) !== String(id))
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 4);
+  }, [id]);
 
   return (
     <div>
@@ -152,76 +154,76 @@ export function BlogSinglePage() {
       />
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
-          {loading && (
-            <div className="animate-pulse space-y-4">
-              <div className="h-64 rounded-[1.6rem] bg-emerald-100" />
-              <div className="h-4 w-3/4 rounded bg-emerald-100" />
-              <div className="h-4 w-1/2 rounded bg-emerald-100" />
-            </div>
-          )}
-          {error && (
-            <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 py-12 text-center">
-              <p className="text-slate-500">{error}</p>
-            </div>
-          )}
-          {!loading && !error && blog && (
-            <div className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white shadow-sm">
-              {blog.featuredImage && (
-                <div className="h-64 overflow-hidden">
-                  <img src={getImageUrl(blog.featuredImage)} alt={blog.title} className="w-full h-full object-cover" />
-                </div>
-              )}
-
-              <div className="text-right">
-                <div className="flex items-center gap-2 justify-end">
-                  <FaCalendarAlt className="text-emerald-600" />
-                  <span>{formatFullDate(blog.createdAt)}</span>
-                </div>
+        <div className="mx-auto max-w-7xl flex gap-8 items-start">
+          {/* Main Content */}
+          <div className="flex-1 min-w-0">
+            {loading && (
+              <div className="animate-pulse space-y-4">
+                <div className="h-64 rounded-[1.6rem] bg-emerald-100" />
+                <div className="h-4 w-3/4 rounded bg-emerald-100" />
+                <div className="h-4 w-1/2 rounded bg-emerald-100" />
               </div>
-            </div>
-
-            {blog.featuredImage && (
-              <img
-                src={getImageUrl(blog.featuredImage)}
-                alt={blog.title}
-                className="w-full rounded-xl object-cover max-h-[500px]"
-              />
             )}
 
-            <div className="mt-2 flex flex-col items-end">
-              <span className="font-semibold italic">Recently updated on</span>
-
-              <div className="flex items-center gap-2">
-                <MdUpdate className="text-emerald-600" />
-                <span className="italic">{formatFullDate(blog.updatedAt)}</span>
+            {error && (
+              <div className="rounded-[2rem] border border-emerald-100 bg-emerald-50/70 py-12 text-center">
+                <p className="text-slate-500">{error}</p>
               </div>
+            )}
+
+            {!loading && !error && blog && (
+              <article className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white shadow-sm">
+                {blog.featuredImage && (
+                  <div className="h-64 overflow-hidden">
+                    <img
+                      src={getImageUrl(blog.featuredImage)}
+                      alt={blog.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+
+                <div className="p-6 sm:p-8">
+                  <h1 className="text-2xl font-bold text-emerald-950 mb-4">{blog.title}</h1>
+
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-6">
+                    <div className="flex items-center gap-1.5">
+                      <FaCalendarAlt className="text-emerald-600" />
+                      <span>{formatFullDate(blog.createdAt)}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <MdUpdate className="text-emerald-600" />
+                      <span className="italic">Updated {formatFullDate(blog.updatedAt)}</span>
+                    </div>
+                  </div>
+
+                  <div
+                    className="prose max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: blog.content || "<p>No content available.</p>",
+                    }}
+                  />
+                </div>
+              </article>
+            )}
+          </div>
+
+          {/* Right Sidebar */}
+          <aside className="w-80 shrink-0 hidden lg:block">
+            <h2 className="text-xl font-semibold mb-6">Related Blogs</h2>
+            <div className="space-y-5">
+              {recommendedBlogs.map((item) => (
+                <BlogCard
+                  key={item.id}
+                  blog={item}
+                  contentLength={60}
+                  showReadMore={false}
+                />
+              ))}
             </div>
-            <div
-              className="prose max-w-none"
-              dangerouslySetInnerHTML={{
-                __html: blog.content || "<p>No content available.</p>",
-              }}
-            />
-          </article>
-        )}
-      </div>
-
-      {/* Right Sidebar */}
-      <aside className="w-96 shrink-0">
-        <h2 className="text-2xl font-semibold mb-6">Related Blogs</h2>
-
-        <div className="space-y-5">
-          {recommendedBlogs.map((item) => (
-            <BlogCard
-              key={item.id}
-              blog={item}
-              contentLength={60}
-              showReadMore={false}
-            />
-          ))}
+          </aside>
         </div>
-      </aside>
+      </section>
     </div>
   );
 }
