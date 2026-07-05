@@ -202,6 +202,7 @@ export function BlogSinglePage() {
                         <span className="italic">
                            {formatFullDate(blog.createdAt)}
                         </span>
+                        
                       </div>
                   </div>
                     </div>
