@@ -57,7 +57,9 @@ export default function Header() {
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [mobileOpen]);
 
   const closeMenu = () => {
@@ -71,11 +73,17 @@ export default function Header() {
       <div className="relative z-50 bg-emerald-950 text-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-xs sm:px-6 lg:px-8">
           <div className="flex items-center gap-5">
-            <a href="tel:+977-1-4000000" className="flex items-center gap-1.5 text-emerald-200/80 transition hover:text-amber-300">
+            <a
+              href="tel:+977-1-4000000"
+              className="flex items-center gap-1.5 text-emerald-200/80 transition hover:text-amber-300"
+            >
               <FaPhone className="text-[10px] text-amber-400" />
               <span className="hidden sm:inline">+977-1-4000000</span>
             </a>
-            <a href="mailto:info@sfacljalthal.com.np" className="hidden items-center gap-1.5 text-emerald-200/80 transition hover:text-amber-300 md:flex">
+            <a
+              href="mailto:info@sfacljalthal.com.np"
+              className="hidden items-center gap-1.5 text-emerald-200/80 transition hover:text-amber-300 md:flex"
+            >
               <FaEnvelope className="text-[10px] text-amber-400" />
               <span>info@sfacljalthal.com.np</span>
             </a>
@@ -86,13 +94,17 @@ export default function Header() {
               { href: "https://www.youtube.com", Icon: FaYoutube },
               { href: "https://www.twitter.com", Icon: FaTwitter },
             ].map(({ href, Icon }) => (
-              <a key={href} href={href} target="_blank" rel="noreferrer" className="rounded-full p-1.5 text-emerald-300/70 transition hover:bg-white/10 hover:text-amber-300" aria-label="Social link">
+              <a
+                key={href}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full p-1.5 text-emerald-300/70 transition hover:bg-white/10 hover:text-amber-300"
+                aria-label="Social link"
+              >
                 <Icon className="text-xs" />
               </a>
             ))}
-            <Link to="/login" className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 px-3 py-1.5 text-[11px] font-bold text-white shadow-sm transition hover:shadow-md hover:brightness-110">
-              <FaUser className="text-[10px]" /> Login
-            </Link>
           </div>
         </div>
       </div>
@@ -109,13 +121,19 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group flex-shrink-0">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-amber-200 bg-gradient-to-br from-white to-amber-50 shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:shadow-md">
-              <img src="/assets/jalthal.png" alt="Jalthal Logo" className="h-8 w-8 object-contain" />
+              <img
+                src="/assets/jalthal.png"
+                alt="Jalthal Logo"
+                className="h-8 w-8 object-contain"
+              />
             </div>
             <div className="min-w-0">
               <div className="font-display text-sm font-bold leading-tight text-emerald-900 sm:text-base">
                 साना किसान कृषि सहकारी संस्था लि.
               </div>
-              <div className="text-xs text-emerald-600">Sana Kisan Agro Cooperative Ltd.</div>
+              <div className="text-xs text-emerald-600">
+                Sana Kisan Agro Cooperative Ltd.
+              </div>
             </div>
           </Link>
 
@@ -133,7 +151,9 @@ export default function Header() {
                   }`}
                 >
                   {item.label}
-                  {item.sub ? <FaChevronDown className="text-[9px] opacity-50 transition group-hover:rotate-180" /> : null}
+                  {item.sub ? (
+                    <FaChevronDown className="text-[9px] opacity-50 transition group-hover:rotate-180" />
+                  ) : null}
                 </Link>
                 {item.sub && (
                   <div className="invisible absolute left-0 top-full z-50 min-w-48 origin-top-right scale-95 rounded-xl border border-slate-100 bg-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:scale-100 group-hover:opacity-100">
@@ -184,7 +204,9 @@ export default function Header() {
                     to={item.path}
                     onClick={closeMenu}
                     className={`flex-1 px-6 py-3.5 text-sm font-medium transition ${
-                      location.pathname === item.path ? "bg-emerald-50 text-emerald-700 font-semibold" : "text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
+                      location.pathname === item.path
+                        ? "bg-emerald-50 text-emerald-700 font-semibold"
+                        : "text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
                     }`}
                   >
                     {item.label}
@@ -192,10 +214,16 @@ export default function Header() {
                   {item.sub && (
                     <button
                       className="px-4 py-3.5 text-slate-500 transition hover:text-emerald-700"
-                      onClick={() => setOpenDropdown(openDropdown === item.path ? null : item.path)}
+                      onClick={() =>
+                        setOpenDropdown(
+                          openDropdown === item.path ? null : item.path,
+                        )
+                      }
                       aria-label={`Toggle ${item.label}`}
                     >
-                      <FaChevronDown className={`text-xs transition ${openDropdown === item.path ? "rotate-180" : ""}`} />
+                      <FaChevronDown
+                        className={`text-xs transition ${openDropdown === item.path ? "rotate-180" : ""}`}
+                      />
                     </button>
                   )}
                 </div>

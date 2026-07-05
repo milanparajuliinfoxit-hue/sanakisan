@@ -1,54 +1,91 @@
-import { useState } from 'react';
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaFacebook, FaYoutube, FaTwitter, FaPaperPlane, FaCheckCircle } from 'react-icons/fa';
-import PageBreadcrumb from '../components/PageBreadcrumb';
+import { useState } from "react";
+import {
+  FaPhone,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaClock,
+  FaFacebook,
+  FaYoutube,
+  FaTwitter,
+  FaPaperPlane,
+  FaCheckCircle,
+} from "react-icons/fa";
+import PageBreadcrumb from "../components/PageBreadcrumb";
 
 export default function ContactPage() {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
   const [submitted, setSubmitted] = useState(false);
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = e => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 5000);
-    setForm({ name: '', email: '', phone: '', message: '' });
+    setForm({ name: "", email: "", phone: "", message: "" });
   };
 
   const contactInfo = [
     {
       Icon: FaMapMarkerAlt,
-      title: 'Office Address',
+      title: "Office Address",
       content: (
         <>
-          Jalthal, Sunsari District<br />
-          Province No. 1, Nepal<br />
+          Jalthal, Sunsari District
+          <br />
+          Province No. 1, Nepal
+          <br />
           Postal Code: 56700
         </>
       ),
     },
     {
       Icon: FaPhone,
-      title: 'Phone Numbers',
+      title: "Phone Numbers",
       content: (
         <>
-          <a href="tel:+977-025-500000" className="block transition hover:text-emerald-700">+977-025-500000 (Main)</a>
-          <a href="tel:+977-9800000000" className="block transition hover:text-emerald-700">+977-9800000000 (Mobile)</a>
+          <a
+            href="tel:+977-025-500000"
+            className="block transition hover:text-emerald-700"
+          >
+            +977-025-500000 (Main)
+          </a>
+          <a
+            href="tel:+977-9814070377"
+            className="block transition hover:text-emerald-700"
+          >
+            +977-9814070377 (Mobile)
+          </a>
         </>
       ),
     },
     {
       Icon: FaEnvelope,
-      title: 'Email Address',
-      content: <a href="mailto:info@sfacljalthal.com.np" className="transition hover:text-emerald-700">info@sfacljalthal.com.np</a>,
+      title: "Email Address",
+      content: (
+        <a
+          href="mailto:info@sfacljalthal.com.np"
+          className="transition hover:text-emerald-700"
+        >
+          info@sfacljalthal.com.np
+        </a>
+      ),
     },
     {
       Icon: FaClock,
-      title: 'Office Hours',
+      title: "Office Hours",
       content: (
         <>
-          Sunday – Friday: 9:00 AM – 5:00 PM<br />
-          Saturday: Closed<br />
+          Sunday – Friday: 9:00 AM – 5:00 PM
+          <br />
+          Saturday: Closed
+          <br />
           Public Holidays: Closed
         </>
       ),
@@ -59,17 +96,16 @@ export default function ContactPage() {
     <div>
       <PageBreadcrumb
         title="Contact Us"
-        items={[
-          { label: "Home", path: "/" },
-          { label: "Contact Us" },
-        ]}
+        items={[{ label: "Home", path: "/" }, { label: "Contact Us" }]}
       />
 
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 lg:grid-cols-2">
           {/* Contact Info */}
           <div>
-            <h2 className="mb-8 font-display text-3xl font-bold text-emerald-950">Get In Touch</h2>
+            <h2 className="mb-8 font-display text-3xl font-bold text-emerald-950">
+              Get In Touch
+            </h2>
 
             <div className="space-y-6 mb-8">
               {contactInfo.map(({ Icon, title, content }, i) => (
@@ -78,8 +114,12 @@ export default function ContactPage() {
                     <Icon className="text-sm" />
                   </div>
                   <div className="pt-1">
-                    <div className="mb-0.5 text-sm font-semibold text-emerald-950">{title}</div>
-                    <div className="text-sm leading-7 text-slate-600">{content}</div>
+                    <div className="mb-0.5 text-sm font-semibold text-emerald-950">
+                      {title}
+                    </div>
+                    <div className="text-sm leading-7 text-slate-600">
+                      {content}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -87,15 +127,37 @@ export default function ContactPage() {
 
             {/* Social */}
             <div className="mb-8">
-              <div className="mb-4 text-sm font-semibold text-emerald-950">Follow Us</div>
+              <div className="mb-4 text-sm font-semibold text-emerald-950">
+                Follow Us
+              </div>
               <div className="flex gap-3">
                 {[
-                  { Icon: FaFacebook, label: 'Facebook', color: 'hover:bg-blue-600', href: 'https://www.facebook.com' },
-                  { Icon: FaYoutube, label: 'YouTube', color: 'hover:bg-red-600', href: 'https://www.youtube.com' },
-                  { Icon: FaTwitter, label: 'Twitter', color: 'hover:bg-sky-500', href: 'https://www.twitter.com' },
+                  {
+                    Icon: FaFacebook,
+                    label: "Facebook",
+                    color: "hover:bg-blue-600",
+                    href: "https://www.facebook.com",
+                  },
+                  {
+                    Icon: FaYoutube,
+                    label: "YouTube",
+                    color: "hover:bg-red-600",
+                    href: "https://www.youtube.com",
+                  },
+                  {
+                    Icon: FaTwitter,
+                    label: "Twitter",
+                    color: "hover:bg-sky-500",
+                    href: "https://www.twitter.com",
+                  },
                 ].map(({ Icon, label, color, href }) => (
-                  <a key={label} href={href} target="_blank" rel="noreferrer"
-                    className={`flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${color} hover:text-white`}>
+                  <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`flex h-10 w-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${color} hover:text-white`}
+                  >
                     <Icon />
                   </a>
                 ))}
@@ -121,8 +183,12 @@ export default function ContactPage() {
           {/* Contact Form */}
           <div>
             <div className="rounded-[2rem] border border-emerald-100 bg-white p-8 shadow-sm">
-              <h2 className="mb-2 font-display text-2xl font-bold text-emerald-950">Send a Message</h2>
-              <p className="mb-6 text-sm text-slate-500">We typically respond within 1–2 business days.</p>
+              <h2 className="mb-2 font-display text-2xl font-bold text-emerald-950">
+                Send a Message
+              </h2>
+              <p className="mb-6 text-sm text-slate-500">
+                We typically respond within 1–2 business days.
+              </p>
 
               {submitted && (
                 <div className="mb-6 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
@@ -148,7 +214,9 @@ export default function ContactPage() {
                     />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Phone Number</label>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                      Phone Number
+                    </label>
                     <input
                       type="tel"
                       name="phone"

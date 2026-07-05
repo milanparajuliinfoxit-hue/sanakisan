@@ -5,13 +5,10 @@ import NoticeBoard from "../components/NoticeBoard";
 import ChairpersonMessage from "../components/ChairpersonMessage";
 import BlogsSection from "../components/BlogsSection";
 import CalendarModule from "../pages/CalendarModule";
+
 import ScrollReveal, { useScrollReveal } from "../components/ScrollReveal";
 import { useCountUp } from "../hooks/useCountUp";
-import {
-  FaLeaf,
-  FaArrowRight,
-  FaCheckCircle,
-} from "react-icons/fa";
+import { FaLeaf, FaArrowRight, FaCheckCircle } from "react-icons/fa";
 import {
   Users,
   CalendarDays,
@@ -116,8 +113,12 @@ export default function HomePage() {
         <section className="bg-white px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="mb-10 text-center">
-              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600">Quick access</p>
-              <h2 className="font-display text-3xl font-bold text-emerald-950 sm:text-4xl">Explore the cooperative</h2>
+              <p className="mb-2 text-sm font-semibold uppercase tracking-[0.24em] text-emerald-600">
+                Quick access
+              </p>
+              <h2 className="font-display text-3xl font-bold text-emerald-950 sm:text-4xl">
+                Explore the cooperative
+              </h2>
               <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gradient-to-r from-emerald-400 to-amber-400" />
             </div>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
@@ -134,7 +135,9 @@ export default function HomePage() {
                   <h3 className="relative font-display text-lg font-bold text-emerald-950 transition-colors group-hover:text-emerald-700">
                     {link.label}
                   </h3>
-                  <p className="relative mt-2 text-sm leading-6 text-slate-500">{link.desc}</p>
+                  <p className="relative mt-2 text-sm leading-6 text-slate-500">
+                    {link.desc}
+                  </p>
                   <div className="relative mt-4 flex items-center gap-1.5 text-xs font-semibold text-emerald-600 transition-all group-hover:gap-2.5">
                     Explore <FaArrowRight className="text-[10px]" />
                   </div>
@@ -159,13 +162,20 @@ export default function HomePage() {
                 <span>About Our Cooperative</span>
               </div>
               <h2 className="mb-5 font-display text-3xl font-bold leading-tight text-emerald-950 sm:text-4xl lg:text-5xl">
-                Serving Jalthal community with trust, resilience, and shared prosperity.
+                Serving Jalthal community with trust, resilience, and shared
+                prosperity.
               </h2>
               <p className="mb-4 text-base leading-8 text-slate-600">
-                साना किसान कृषि सहकारी संस्था लिमिटेड (Sana Kisan Agro Cooperative Ltd.) is a member-owned cooperative institution established to serve the agricultural and financial needs of the Jalthal community in Jhapa District, Province No. 1 of Nepal.
+                साना किसान कृषि सहकारी संस्था लिमिटेड (Sana Kisan Agro
+                Cooperative Ltd.) is a member-owned cooperative institution
+                established to serve the agricultural and financial needs of the
+                Jalthal community in Jhapa District, Province No. 1 of Nepal.
               </p>
               <p className="mb-6 text-base leading-8 text-slate-600">
-                With a focus on empowering farmers, promoting dairy industry, and providing accessible financial services, we have been a trusted partner for rural prosperity and cooperative development.
+                With a focus on empowering farmers, promoting dairy industry,
+                and providing accessible financial services, we have been a
+                trusted partner for rural prosperity and cooperative
+                development.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link to="/about" className="btn-primary">
@@ -178,20 +188,43 @@ export default function HomePage() {
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
               {[
-                { icon: Sprout, title: "Mission", desc: "Empowering members through cooperative values and sustainable agricultural practices." },
-                { icon: TrendingUp, title: "Vision", desc: "A prosperous cooperative community built on trust, transparency, and mutual benefit." },
-                { icon: Handshake, title: "Values", desc: "Integrity, solidarity, equity, and democratic member control guide all our actions." },
-                { icon: ShieldCheck, title: "Objectives", desc: "Financial inclusion, rural development, and sustainable growth for all members." },
+                {
+                  icon: Sprout,
+                  title: "Mission",
+                  desc: "Empowering members through cooperative values and sustainable agricultural practices.",
+                },
+                {
+                  icon: TrendingUp,
+                  title: "Vision",
+                  desc: "A prosperous cooperative community built on trust, transparency, and mutual benefit.",
+                },
+                {
+                  icon: Handshake,
+                  title: "Values",
+                  desc: "Integrity, solidarity, equity, and democratic member control guide all our actions.",
+                },
+                {
+                  icon: ShieldCheck,
+                  title: "Objectives",
+                  desc: "Financial inclusion, rural development, and sustainable growth for all members.",
+                },
               ].map((item, i) => (
                 <div
                   key={i}
                   className="group rounded-2xl border border-emerald-100 bg-white/90 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:border-emerald-200"
                 >
                   <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-100 to-emerald-50 shadow-sm transition-transform group-hover:scale-110">
-                    <item.icon className="h-6 w-6 text-emerald-700" strokeWidth={1.5} />
+                    <item.icon
+                      className="h-6 w-6 text-emerald-700"
+                      strokeWidth={1.5}
+                    />
                   </div>
-                  <h3 className="font-display text-lg font-bold text-emerald-950">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-slate-600">{item.desc}</p>
+                  <h3 className="font-display text-lg font-bold text-emerald-950">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">
+                    {item.desc}
+                  </p>
                 </div>
               ))}
             </div>
@@ -220,8 +253,15 @@ export default function HomePage() {
             <div className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20" />
           </div>
           <div className="absolute inset-x-0 bottom-0 h-24">
-            <svg viewBox="0 0 1440 120" className="h-full w-full" preserveAspectRatio="none">
-              <path d="M0,96 C180,40 360,40 540,76 C720,112 900,120 1080,88 C1260,56 1380,24 1440,10 L1440,120 L0,120 Z" fill="#0a2e22" />
+            <svg
+              viewBox="0 0 1440 120"
+              className="h-full w-full"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M0,96 C180,40 360,40 540,76 C720,112 900,120 1080,88 C1260,56 1380,24 1440,10 L1440,120 L0,120 Z"
+                fill="#0a2e22"
+              />
             </svg>
           </div>
           <div className="relative z-10 mx-auto max-w-4xl text-center">
@@ -233,14 +273,16 @@ export default function HomePage() {
               Become a Member Today
             </h2>
             <p className="mx-auto mb-10 max-w-2xl text-lg leading-8 text-emerald-50/90 sm:text-xl">
-              Join thousands of members benefiting from cooperative savings, loans, and agricultural support in Jalthal.
+              Join thousands of members benefiting from cooperative savings,
+              loans, and agricultural support in Jalthal.
             </p>
             <div className="mb-8 flex flex-wrap justify-center gap-4">
               <Link
                 to="/contact"
                 className="group inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 px-8 py-4 text-sm font-bold text-white shadow-[0_8px_24px_rgba(245,166,35,0.35)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(245,166,35,0.45)]"
               >
-                Contact Us Now <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+                Contact Us Now{" "}
+                <FaArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
               <Link
                 to="/financial"
@@ -255,7 +297,10 @@ export default function HomePage() {
                 "✓ Govt. Registered",
                 "✓ Secure & Trusted",
               ].map((item) => (
-                <span key={item} className="rounded-full border border-white/15 bg-white/10 px-4 py-2 backdrop-blur-sm hover:bg-white/20 transition">
+                <span
+                  key={item}
+                  className="rounded-full border border-white/15 bg-white/10 px-4 py-2 backdrop-blur-sm hover:bg-white/20 transition"
+                >
                   {item}
                 </span>
               ))}

@@ -17,29 +17,43 @@ import {
 import PropTypes from "prop-types";
 import { cn } from "@/lib/utils";
 
-function StatCard({ title, value, icon: Icon, trend, trendUp, color, subtitle }) {
+function StatCard({
+  title,
+  value,
+  icon: Icon,
+  trend,
+  trendUp,
+  color,
+  subtitle,
+}) {
   return (
     <div className="group relative rounded-xl border bg-card p-5 hover:shadow-lg hover:border-primary/20 transition-all duration-200">
       <div className="flex items-start justify-between mb-3">
-        <div className={cn(
-          "w-10 h-10 rounded-lg flex items-center justify-center",
-          color === "blue" && "bg-blue-100 text-blue-600",
-          color === "green" && "bg-green-100 text-green-600",
-          color === "amber" && "bg-amber-100 text-amber-600",
-          color === "purple" && "bg-purple-100 text-purple-600",
-          color === "red" && "bg-red-100 text-red-600",
-          color === "indigo" && "bg-indigo-100 text-indigo-600",
-        )}>
+        <div
+          className={cn(
+            "w-10 h-10 rounded-lg flex items-center justify-center",
+            color === "blue" && "bg-blue-100 text-blue-600",
+            color === "green" && "bg-green-100 text-green-600",
+            color === "amber" && "bg-amber-100 text-amber-600",
+            color === "purple" && "bg-purple-100 text-purple-600",
+            color === "red" && "bg-red-100 text-red-600",
+            color === "indigo" && "bg-indigo-100 text-indigo-600",
+          )}
+        >
           <Icon className="w-5 h-5" />
         </div>
         {trend !== undefined && (
-          <span className={cn(
-            "inline-flex items-center gap-0.5 text-xs font-medium px-2 py-0.5 rounded-full",
-            trendUp
-              ? "bg-green-50 text-green-700"
-              : "bg-red-50 text-red-700"
-          )}>
-            {trendUp ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+          <span
+            className={cn(
+              "inline-flex items-center gap-0.5 text-xs font-medium px-2 py-0.5 rounded-full",
+              trendUp ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700",
+            )}
+          >
+            {trendUp ? (
+              <ArrowUpRight className="w-3 h-3" />
+            ) : (
+              <ArrowDownRight className="w-3 h-3" />
+            )}
             {trend}%
           </span>
         )}
@@ -88,23 +102,50 @@ export default function Dashboard() {
   const [getNoticePagination] = useGetNoticePaginationMutation();
   const [getEventPagination] = useGetEventPaginationMutation();
   const [getMemberPagination] = useGetMemberPaginationMutation();
+
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchStats = async () => {
     try {
       const [pressRes, noticeRes, eventRes, memberRes] = await Promise.all([
-        getPress(new URLSearchParams({ page: 1, limit: 1, publish_status: '', status: 1 })),
-        getNoticePagination(new URLSearchParams({ page: 1, limit: 1, publish_status: '' })),
-        getEventPagination(new URLSearchParams({ page: 1, limit: 1, publish_status: '' })),
+        getPress(
+          new URLSearchParams({
+            page: 1,
+            limit: 1,
+            publish_status: "",
+            status: 1,
+          }),
+        ),
+        getNoticePagination(
+          new URLSearchParams({ page: 1, limit: 1, publish_status: "" }),
+        ),
+        getEventPagination(
+          new URLSearchParams({ page: 1, limit: 1, publish_status: "" }),
+        ),
         getMemberPagination(),
       ]);
-
+      console.log("Press:", pressRes);
+      console.log("Notice:", noticeRes);
+      console.log("Event:", eventRes);
+      console.log("Member:", memberRes);
       setStats({
-        pressReleases: pressRes?.data?.data?.total || pressRes?.data?.data?.data?.length || 0,
-        notices: noticeRes?.data?.data?.total || noticeRes?.data?.data?.data?.length || 0,
-        events: eventRes?.data?.data?.total || eventRes?.data?.data?.data?.length || 0,
-        members: memberRes?.data?.data?.total || memberRes?.data?.data?.data?.length || 0,
+        pressReleases:
+          pressRes?.data?.data?.totalItems ||
+          pressRes?.data?.data?.data?.length ||
+          0,
+        notices:
+          noticeRes?.data?.data?.totalItems ||
+          noticeRes?.data?.data?.data?.length ||
+          0,
+        events:
+          eventRes?.data?.data?.totalItems ||
+          eventRes?.data?.data?.data?.length ||
+          0,
+        members:
+          memberRes?.data?.data?.totalItems ||
+          memberRes?.data?.data?.data?.length ||
+          0,
       });
     } catch (err) {
       console.error("Error fetching dashboard stats:", err);
@@ -129,7 +170,14 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Clock className="w-4 h-4" />
-          <span>{new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</span>
+          <span>
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </span>
         </div>
       </div>
 
@@ -138,7 +186,10 @@ export default function Dashboard() {
         {loading ? (
           <>
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="rounded-xl border bg-card p-5 animate-pulse">
+              <div
+                key={i}
+                className="rounded-xl border bg-card p-5 animate-pulse"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="w-10 h-10 rounded-lg bg-muted" />
                   <div className="w-14 h-5 rounded-full bg-muted" />
@@ -203,24 +254,49 @@ export default function Dashboard() {
           <div className="p-5">
             <div className="space-y-4">
               {[
-                { icon: Newspaper, text: "Press releases are managed here", time: "Content module", color: "blue" },
-                { icon: Bell, text: "Notices are published from the Notice section", time: "Content module", color: "amber" },
-                { icon: CalendarDays, text: "Events can be created and managed", time: "Content module", color: "green" },
-                { icon: Users, text: "Team members are listed in Members section", time: "Management", color: "purple" },
+                {
+                  icon: Newspaper,
+                  text: "Press releases are managed here",
+                  time: "Content module",
+                  color: "blue",
+                },
+                {
+                  icon: Bell,
+                  text: "Notices are published from the Notice section",
+                  time: "Content module",
+                  color: "amber",
+                },
+                {
+                  icon: CalendarDays,
+                  text: "Events can be created and managed",
+                  time: "Content module",
+                  color: "green",
+                },
+                {
+                  icon: Users,
+                  text: "Team members are listed in Members section",
+                  time: "Management",
+                  color: "purple",
+                },
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start gap-3">
-                  <div className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5",
-                    item.color === "blue" && "bg-blue-100 text-blue-600",
-                    item.color === "amber" && "bg-amber-100 text-amber-600",
-                    item.color === "green" && "bg-green-100 text-green-600",
-                    item.color === "purple" && "bg-purple-100 text-purple-600",
-                  )}>
+                  <div
+                    className={cn(
+                      "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5",
+                      item.color === "blue" && "bg-blue-100 text-blue-600",
+                      item.color === "amber" && "bg-amber-100 text-amber-600",
+                      item.color === "green" && "bg-green-100 text-green-600",
+                      item.color === "purple" &&
+                        "bg-purple-100 text-purple-600",
+                    )}
+                  >
                     <item.icon className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-foreground">{item.text}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{item.time}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {item.time}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -237,10 +313,22 @@ export default function Dashboard() {
             </h2>
           </div>
           <div className="p-5 space-y-2">
-            <QuickAction icon={Newspaper} label="New Press Release" />
-            <QuickAction icon={Bell} label="New Notice" />
-            <QuickAction icon={CalendarDays} label="New Event" />
-            <QuickAction icon={Users} label="Add Team Member" />
+            <a href="/press-release">
+              <QuickAction icon={Newspaper} label="New Press Release" />
+            </a>
+            <a href="/notice">
+              <QuickAction icon={Bell} label="New Notice" />
+            </a>
+            <a href="/events">
+              <QuickAction
+                icon={CalendarDays}
+                label="New Event"
+                href="/events/new"
+              />
+            </a>
+            <a href="/teams">
+              <QuickAction icon={Users} label="Add Team Member" />
+            </a>
           </div>
         </div>
       </div>
@@ -251,29 +339,61 @@ export default function Dashboard() {
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
             <TrendingUp className="w-4 h-4" />
           </div>
-          <h2 className="text-base font-semibold text-foreground">System Overview</h2>
+          <h2 className="text-base font-semibold text-foreground">
+            System Overview
+          </h2>
         </div>
         <div className="p-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { label: "Total Content Items", value: (stats?.pressReleases || 0) + (stats?.notices || 0) + (stats?.events || 0), icon: Activity, color: "indigo" },
-              { label: "Team Size", value: stats?.members || 0, icon: Users, color: "purple" },
-              { label: "Content Modules", value: 4, icon: Newspaper, color: "blue" },
-              { label: "System Status", value: "Active", icon: TrendingUp, color: "green" },
+              {
+                label: "Total Content Items",
+                value:
+                  (stats?.pressReleases || 0) +
+                  (stats?.notices || 0) +
+                  (stats?.events || 0),
+                icon: Activity,
+                color: "indigo",
+              },
+              {
+                label: "Team Size",
+                value: stats?.members || 0,
+                icon: Users,
+                color: "purple",
+              },
+              {
+                label: "Content Modules",
+                value: 4,
+                icon: Newspaper,
+                color: "blue",
+              },
+              {
+                label: "System Status",
+                value: "Active",
+                icon: TrendingUp,
+                color: "green",
+              },
             ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-                <div className={cn(
-                  "w-9 h-9 rounded-lg flex items-center justify-center",
-                  item.color === "indigo" && "bg-indigo-100 text-indigo-600",
-                  item.color === "purple" && "bg-purple-100 text-purple-600",
-                  item.color === "blue" && "bg-blue-100 text-blue-600",
-                  item.color === "green" && "bg-green-100 text-green-600",
-                )}>
+              <div
+                key={idx}
+                className="flex items-center gap-3 p-3 rounded-lg bg-muted/50"
+              >
+                <div
+                  className={cn(
+                    "w-9 h-9 rounded-lg flex items-center justify-center",
+                    item.color === "indigo" && "bg-indigo-100 text-indigo-600",
+                    item.color === "purple" && "bg-purple-100 text-purple-600",
+                    item.color === "blue" && "bg-blue-100 text-blue-600",
+                    item.color === "green" && "bg-green-100 text-green-600",
+                  )}
+                >
                   <item.icon className="w-4.5 h-4.5" />
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">{item.label}</p>
-                  <p className="text-sm font-semibold text-foreground">{item.value}</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {item.value}
+                  </p>
                 </div>
               </div>
             ))}
