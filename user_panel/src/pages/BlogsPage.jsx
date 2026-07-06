@@ -193,7 +193,7 @@ export function BlogSinglePage() {
                   {blog.title}
                 </h1>
                 <div className="flex justify-end p-3">
-                         {/**Updated on */}
+                       
                     <div className="flex gap-2 p-4 items-center">
                       <FaCalendarAlt size={20} className="text-green-500"/>
                       <div className="flex flex-col ">
@@ -214,7 +214,7 @@ export function BlogSinglePage() {
                       <img
                         src={getImageUrl(blog.featuredImage)}
                         alt={blog.title}
-                        className="mb-6 max-h-[500px] w-full rounded-2xl object-cover"
+                        className="mb-6 max-h-auto w-full rounded-2xl object-cover"
                       />
                     </div>
                   )}
@@ -229,10 +229,10 @@ export function BlogSinglePage() {
                           </div>
 
                           <div className="flex flex-col leading-tight">
-                            <span className="text-xs text-slate-400">
+                            <span className="text-sm text-slate-400">
                               Author
                             </span>
-                            <span className="font-medium text-slate-600">
+                            <span className="font-bold text-slate-600">
                               {blog.author}
                             </span>
                           </div>
