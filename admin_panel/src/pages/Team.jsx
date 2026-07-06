@@ -64,10 +64,10 @@ const Team = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">
-            {mode === 'view' ? "Team Members" : editSelectedItem ? "Edit Team Member" : "Create Team Member"}
+            {mode === 'view' ? "Committee Management" : editSelectedItem ? "Edit Committee Member" : "Add Committee Member"}
           </h1>
           <p className="text-muted-foreground mt-1">
-            {mode === 'view' ? "Manage your organization's team members" : "Fill in the details below"}
+            {mode === 'view' ? "Manage your organization's committee members" : "Fill in the details below"}
           </p>
         </div>
         <Button

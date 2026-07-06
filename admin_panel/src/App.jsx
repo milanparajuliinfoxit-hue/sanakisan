@@ -16,6 +16,8 @@ import {
 import Holiday from "./pages/Holiday";
 import BadaPatra from "./pages/BadaPatra";
 import GalleryAlbum from "./pages/GalleryAlbum";
+import CommitteeTypes from "./pages/CommitteeTypes";
+import CommitteePositions from "./pages/CommitteePositions";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +33,8 @@ const router = createBrowserRouter([
       { path: "/events", element: <Events /> },
       { path: "/notice", element: <Notice /> },
       { path: "/teams", element: <Team /> },
+      { path: "/committee-types", element: <CommitteeTypes /> },
+      { path: "/committee-positions", element: <CommitteePositions /> },
       { path: "/gallery", element: <Gallery /> },
       { path: "/gallery/:eventName", element: <GalleryAlbum /> },
       { path: "/holiday", element: <Holiday /> },
