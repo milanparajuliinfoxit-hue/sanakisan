@@ -1,10 +1,11 @@
 
-const TeamMember = require("../../models/TeamMember");;
+const TeamMember = require("../../models/TeamMember");
+const CommitteeType = require("../../models/CommitteeType");
+const CommitteePosition = require("../../models/CommitteePosition");
 
 const postTeamMember = async (teamMemberData, created_by, feature_image) => {
-  
-  const { name, position, type, email, contact, tenure } = teamMemberData;
-  const data = await TeamMember.create({ feature_image, name, position, type, email, contact, tenure, created_by });
+  const { name, committee_type_id, committee_position_id, email, contact, tenure } = teamMemberData;
+  const data = await TeamMember.create({ feature_image, name, committee_type_id, committee_position_id, email, contact, tenure, created_by });
   return data;
 };
 
@@ -13,26 +14,28 @@ const updateTeamMemberType = async (teamMemberId, type) => {
   return result;
 };
 
-const updateTeamMember = async (teamData, created_by, feature_image) => {
-  const { id, name, position, type, email, contact, tenure } = teamData;
+const updateTeamMemberPublishStatus = async (teamMemberId, publish_status) => {
+  const result = await TeamMember.update({ status: publish_status }, { where: { id: teamMemberId } });
+  return result;
+};
 
-  // Build the update object dynamically
+const updateTeamMember = async (teamData, created_by, feature_image) => {
+  const { id, name, committee_type_id, committee_position_id, email, contact, tenure } = teamData;
+
   const updateData = {
     name,
-    position,
-    type,
+    committee_type_id,
+    committee_position_id,
     email,
     contact,
     tenure,
-    created_by
+    created_by,
   };
 
-  // Only add feature_image to the updateData if it's not null or undefined
   if (feature_image) {
     updateData.feature_image = feature_image;
   }
 
-  // Perform the update
   const [affectedRows] = await TeamMember.update(updateData, { where: { id } });
 
   if (affectedRows === 0) {
@@ -50,7 +53,11 @@ const deleteTeamMember = async (teamMemberId) => {
 
 const getTeamMember = async (teamMemberId) => {
   const result = await TeamMember.findByPk(teamMemberId, {
-    attributes: ['id', 'feature_image', 'name', 'position', 'type', 'email', 'contact', 'tenure', 'created_by', 'createdAt', 'updatedAt']
+    attributes: ['id', 'feature_image', 'name', 'committee_type_id', 'committee_position_id', 'email', 'contact', 'tenure', 'created_by', 'createdAt', 'updatedAt'],
+    include: [
+      { model: CommitteeType, as: 'committeeType', attributes: ['id', 'name'] },
+      { model: CommitteePosition, as: 'committeePosition', attributes: ['id', 'name'] },
+    ],
   });
 
   if (!result) {
@@ -58,7 +65,6 @@ const getTeamMember = async (teamMemberId) => {
   }
 
   return result.dataValues;
-
 };
 
 
@@ -69,15 +75,19 @@ const getTeamMemberPagination = async (page = 1, limit = 10, filters = {}) => {
   const offset = (pageNumber - 1) * pageSize;
 
   const whereClause = {
-    status: 1, 
-    ...filters, 
+    status: 1,
+    ...filters,
   };
 
   const result = await TeamMember.findAndCountAll({
     where: whereClause,
     limit: pageSize,
-    offset: offset,
-    order: [['createdAt', 'DESC']]
+    offset,
+    order: [['createdAt', 'DESC']],
+    include: [
+      { model: CommitteeType, as: 'committeeType', attributes: ['id', 'name'] },
+      { model: CommitteePosition, as: 'committeePosition', attributes: ['id', 'name'] },
+    ],
   });
 
   const totalPages = Math.ceil(result.count / pageSize);
@@ -85,10 +95,9 @@ const getTeamMemberPagination = async (page = 1, limit = 10, filters = {}) => {
   return {
     data: result.rows,
     totalItems: result.count,
-    totalPages: totalPages,
+    totalPages,
     currentPage: pageNumber,
   };
-
 };
 
 
@@ -96,6 +105,7 @@ const getTeamMemberPagination = async (page = 1, limit = 10, filters = {}) => {
 module.exports = {
   postTeamMember,
   updateTeamMemberType,
+  updateTeamMemberPublishStatus,
   updateTeamMember,
   deleteTeamMember,
   getTeamMember,
