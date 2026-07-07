@@ -7,3 +7,5 @@ export { default as Team } from "./Team"
  export { default as SharedLayout } from "./SharedLayout";
 export { default as PageNotfound } from "./PageNotFound";
 export { default as Gallery } from "./Gallery";
+export { default as Messages } from "./Messages";
+export { default as MessageDetail } from "./MessageDetail";

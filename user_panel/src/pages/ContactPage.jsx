@@ -1,18 +1,92 @@
 import { useState } from 'react';
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaFacebook, FaYoutube, FaTwitter, FaPaperPlane, FaCheckCircle } from 'react-icons/fa';
+import { toast } from 'react-toastify';
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock, FaFacebook, FaYoutube, FaTwitter, FaPaperPlane, FaCheckCircle, FaSpinner } from 'react-icons/fa';
 import PageBreadcrumb from '../components/PageBreadcrumb';
+import { submitContactMessage } from '../api/config';
 
 export default function ContactPage() {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [form, setForm] = useState({ full_name: '', email: '', phone: '', message: '' });
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  const validateField = (name, value) => {
+    const trimmed = value.trim();
+    switch (name) {
+      case 'full_name':
+        if (!trimmed) return 'Full name is required.';
+        if (trimmed.length < 3 || trimmed.length > 150) return 'Full name must be 3–150 characters.';
+        if (/<[^>]*>/g.test(trimmed)) return 'Invalid characters detected.';
+        return '';
+      case 'email':
+        if (!trimmed) return 'Email is required.';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return 'Invalid email format.';
+        return '';
+      case 'phone':
+        if (!trimmed) return '';
+        if (!/^[+]?[\d\s\-()]{7,20}$/.test(trimmed)) return 'Invalid phone number format.';
+        return '';
+      case 'message':
+        if (!trimmed) return 'Message is required.';
+        if (trimmed.length < 10) return 'Message must be at least 10 characters.';
+        if (trimmed.length > 3000) return 'Message must not exceed 3000 characters.';
+        if (/<[^>]*>/g.test(trimmed)) return 'Invalid characters detected.';
+        return '';
+      default:
+        return '';
+    }
+  };
 
-  const handleSubmit = e => {
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    const err = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: err }));
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    Object.keys(form).forEach(key => {
+      const err = validateField(key, form[key]);
+      if (err) newErrors[key] = err;
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async e => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 5000);
-    setForm({ name: '', email: '', phone: '', message: '' });
+    if (submitting || submitted) return;
+
+    if (!validateForm()) return;
+
+    setSubmitting(true);
+    try {
+      const res = await submitContactMessage({
+        full_name: form.full_name.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        message: form.message.trim(),
+      });
+      toast.success(res?.message || 'Your message has been sent successfully.');
+      setSubmitted(true);
+      setForm({ full_name: '', email: '', phone: '', message: '' });
+      setErrors({});
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err) {
+      if (err.errors) {
+        const fieldErrors = {};
+        Object.keys(err.errors).forEach(key => {
+          const mappedKey = key === 'full_name' ? 'full_name' : key;
+          fieldErrors[mappedKey] = err.errors[key][0];
+        });
+        setErrors(fieldErrors);
+      } else {
+        toast.error(err.message || 'Something went wrong. Please try again.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -131,7 +205,7 @@ export default function ContactPage() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -139,13 +213,15 @@ export default function ContactPage() {
                     </label>
                     <input
                       type="text"
-                      name="name"
-                      value={form.name}
+                      name="full_name"
+                      value={form.full_name}
                       onChange={handleChange}
-                      required
                       placeholder="Your full name"
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-3 focus:ring-emerald-500/10"
+                      className={`w-full rounded-xl border px-4 py-3 text-sm text-slate-700 outline-none transition focus:ring-3 ${
+                        errors.full_name ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/10'
+                      }`}
                     />
+                    {errors.full_name && <p className="mt-1 text-xs text-red-500">{errors.full_name}</p>}
                   </div>
                   <div>
                     <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Phone Number</label>
@@ -155,8 +231,11 @@ export default function ContactPage() {
                       value={form.phone}
                       onChange={handleChange}
                       placeholder="+977-XXXXXXXXXX"
-                      className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-3 focus:ring-emerald-500/10"
+                      className={`w-full rounded-xl border px-4 py-3 text-sm text-slate-700 outline-none transition focus:ring-3 ${
+                        errors.phone ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/10'
+                      }`}
                     />
+                    {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
                   </div>
                 </div>
                 <div>
@@ -168,10 +247,12 @@ export default function ContactPage() {
                     name="email"
                     value={form.email}
                     onChange={handleChange}
-                    required
                     placeholder="your@email.com"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-3 focus:ring-emerald-500/10"
+                    className={`w-full rounded-xl border px-4 py-3 text-sm text-slate-700 outline-none transition focus:ring-3 ${
+                      errors.email ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/10'
+                    }`}
                   />
+                  {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
@@ -181,17 +262,24 @@ export default function ContactPage() {
                     name="message"
                     value={form.message}
                     onChange={handleChange}
-                    required
                     rows={5}
                     placeholder="How can we help you? Please describe your query or request..."
-                    className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-3 focus:ring-emerald-500/10"
+                    className={`w-full resize-none rounded-xl border px-4 py-3 text-sm text-slate-700 outline-none transition focus:ring-3 ${
+                      errors.message ? 'border-red-400 focus:border-red-500 focus:ring-red-500/10' : 'border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/10'
+                    }`}
                   />
+                  {errors.message && <p className="mt-1 text-xs text-red-500">{errors.message}</p>}
                 </div>
                 <button
                   type="submit"
-                  className="btn-primary w-full justify-center"
+                  disabled={submitting || submitted}
+                  className="btn-primary w-full justify-center disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <FaPaperPlane className="text-sm" /> Send Message
+                  {submitting ? (
+                    <><FaSpinner className="text-sm animate-spin" /> Sending...</>
+                  ) : (
+                    <><FaPaperPlane className="text-sm" /> Send Message</>
+                  )}
                 </button>
               </form>
             </div>

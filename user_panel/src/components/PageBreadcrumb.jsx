@@ -6,7 +6,7 @@ export default function PageBreadcrumb({ title, items = [] }) {
     <div className="border-b border-emerald-100 bg-white">
       <div className="mx-auto max-w-7xl px-2 py-2 sm:px-6 lg:px-8">
         {/* Breadcrumb navigation */}
-        <nav aria-label="Breadcrumb" className="mb-2">
+        <nav aria-label="Breadcrumb" className="mb-0">
           <ol className="flex items-center gap-1.5 text-sm text-slate-500">
             {items.map((item, i) => {
               const isLast = i === items.length - 1;

@@ -89,6 +89,26 @@ export const fetchTeamMembers = async (type = '', limit = 100, page = 1) => {
   return data?.data?.data || [];
 };
 
+// Contact Messages
+export const submitContactMessage = async ({ full_name, phone, email, message }) => {
+  const res = await fetch(`${API_BASE}/contact/messages`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ full_name, phone, email, message }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    const error = new Error(data?.message || "Failed to send message.");
+    error.status = res.status;
+    error.errors = data?.errors;
+    throw error;
+  }
+
+  return data;
+};
+
 // Images
 export const getImageUrl = (filename) => {
   if (!filename) return null;

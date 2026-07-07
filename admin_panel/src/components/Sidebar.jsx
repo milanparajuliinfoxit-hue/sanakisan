@@ -13,6 +13,7 @@ import {
   Briefcase,
   Users2,
   ChevronDown,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -36,6 +37,7 @@ const navLinks = [
     ],
   },
   { href: "/gallery", icon: Images, label: "Gallery" },
+  { href: "/messages", icon: MessageSquare, label: "Messages" },
   { href: "/holiday", icon: Gift, label: "Holiday" },
   { href: "/bada-patra", icon: FileText, label: "बडा पत्र" },
 ];
