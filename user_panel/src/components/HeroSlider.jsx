@@ -9,14 +9,16 @@ const defaultSlides = [
     id: 1,
     image: jalthal,
     title: "Sana Kisan Agro Cooperative Ltd.",
-    subtitle: "Member-led financial and agricultural services for a stronger Jalthal community.",
+    subtitle:
+      "Member-led financial and agricultural services for a stronger Jalthal community.",
     badge: "Cooperative excellence",
   },
   {
     id: 2,
     image: jalthal1,
     title: "Progress through collective action",
-    subtitle: "Dairy, savings, and rural development programs built around member needs.",
+    subtitle:
+      "Dairy, savings, and rural development programs built around member needs.",
     badge: "Community impact",
   },
 ];
@@ -25,13 +27,19 @@ export default function HeroSlider({ slides = defaultSlides }) {
   const [current, setCurrent] = useState(0);
   const [prev, setPrev] = useState(null);
 
-  const goTo = useCallback((index) => {
-    setPrev(current);
-    setCurrent(index);
-  }, [current]);
+  const goTo = useCallback(
+    (index) => {
+      setPrev(current);
+      setCurrent(index);
+    },
+    [current],
+  );
 
   const prevSlide = () => goTo((current - 1 + slides.length) % slides.length);
-  const next = useCallback(() => goTo((current + 1) % slides.length), [current, slides.length, goTo]);
+  const next = useCallback(
+    () => goTo((current + 1) % slides.length),
+    [current, slides.length, goTo],
+  );
 
   useEffect(() => {
     const timer = setInterval(next, 6000);
@@ -44,7 +52,8 @@ export default function HeroSlider({ slides = defaultSlides }) {
     <div className="relative h-full w-full overflow-hidden">
       <div className="relative flex min-h-[500px] w-full items-center md:min-h-[620px]">
         {/* Background image with overlay */}
-        <div className="absolute inset-0 transition-all duration-1000 ease-out"
+        <div
+          className="absolute inset-0 transition-all duration-1000 ease-out"
           style={{
             backgroundImage: `url(${slide.image})`,
             backgroundSize: "cover",
@@ -59,10 +68,19 @@ export default function HeroSlider({ slides = defaultSlides }) {
         <div className="absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-emerald-300/10 blur-3xl" />
 
         {/* Animated floating shapes */}
-        <svg className="absolute right-[8%] top-[15%] h-16 w-16 text-white/5 animate-pulse" viewBox="0 0 100 100" fill="currentColor">
+        <svg
+          className="absolute right-[8%] top-[15%] h-16 w-16 text-white/5 animate-pulse"
+          viewBox="0 0 100 100"
+          fill="currentColor"
+        >
           <circle cx="50" cy="50" r="40" />
         </svg>
-        <svg className="absolute bottom-[20%] left-[5%] h-10 w-10 text-amber-300/10 animate-bounce" viewBox="0 0 100 100" fill="currentColor" style={{ animationDuration: '4s' }}>
+        <svg
+          className="absolute bottom-[20%] left-[5%] h-10 w-10 text-amber-300/10 animate-bounce"
+          viewBox="0 0 100 100"
+          fill="currentColor"
+          style={{ animationDuration: "4s" }}
+        >
           <polygon points="50,10 90,90 10,90" />
         </svg>
 
@@ -97,21 +115,7 @@ export default function HeroSlider({ slides = defaultSlides }) {
           </div>
         </div>
 
-        {/* Navigation arrows */}
-        <button
-          onClick={prevSlide}
-          className="absolute left-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:shadow-lg hover:scale-110 sm:left-8"
-          aria-label="Previous slide"
-        >
-          <FaChevronLeft className="text-sm" />
-        </button>
-        <button
-          onClick={next}
-          className="absolute right-4 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition-all duration-300 hover:bg-white/20 hover:shadow-lg hover:scale-110 sm:right-8"
-          aria-label="Next slide"
-        >
-          <FaChevronRight className="text-sm" />
-        </button>
+        {/* Navigationarrows */}
 
         {/* Dots */}
         <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-3">
