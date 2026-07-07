@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   ArrowLeft, Mail, Phone, User, Calendar, Clock, Globe,
-  Monitor, Smartphone, Cpu, MessageSquare, Archive, Trash2,
+  MessageSquare, Archive, Trash2,
   X, CheckCircle2, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,8 @@ import {
   useUpdateMessageStatusMutation,
   useDeleteContactMessageMutation,
 } from "@/redux/api/contactMessageApi";
+
+import PropTypes from "prop-types";
 
 const statusBadge = (status, size = "sm") => {
   const map = {
@@ -47,28 +49,12 @@ function InfoRow({ icon: Icon, label, value, mono }) {
   );
 }
 
-function parseUserAgent(ua) {
-  if (!ua) return { browser: "—", os: "—" };
-  let browser = "Unknown";
-  let os = "Unknown";
-
-  if (ua.includes("Firefox/")) browser = "Firefox";
-  else if (ua.includes("Edg/")) browser = "Edge";
-  else if (ua.includes("Chrome/")) browser = "Chrome";
-  else if (ua.includes("Safari/")) browser = "Safari";
-  else if (ua.includes("MSIE") || ua.includes("Trident/")) browser = "Internet Explorer";
-
-  if (ua.includes("Windows NT 10")) os = "Windows 10";
-  else if (ua.includes("Windows NT 11")) os = "Windows 11";
-  else if (ua.includes("Windows NT 6.3")) os = "Windows 8.1";
-  else if (ua.includes("Windows NT 6.1")) os = "Windows 7";
-  else if (ua.includes("Mac OS X")) os = "macOS";
-  else if (ua.includes("Linux") && ua.includes("Android")) os = "Android";
-  else if (ua.includes("iPhone") || ua.includes("iPad")) os = "iOS";
-  else if (ua.includes("Linux")) os = "Linux";
-
-  return { browser, os };
-}
+InfoRow.propTypes = {
+  icon: PropTypes.elementType.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.node,
+  mono: PropTypes.bool,
+};
 
 function StatusChangeModal({ currentStatus, onClose, onConfirm, loading }) {
   const [selected, setSelected] = useState(currentStatus);
@@ -120,6 +106,13 @@ function StatusChangeModal({ currentStatus, onClose, onConfirm, loading }) {
   );
 }
 
+StatusChangeModal.propTypes = {
+  currentStatus: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+};
+
 function ArchiveConfirm({ item, onCancel, onConfirm, loading }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onCancel}>
@@ -152,6 +145,18 @@ function ArchiveConfirm({ item, onCancel, onConfirm, loading }) {
   );
 }
 
+const messagePropType = PropTypes.shape({
+  id: PropTypes.number,
+  full_name: PropTypes.string,
+});
+
+ArchiveConfirm.propTypes = {
+  item: messagePropType.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+};
+
 function DeleteConfirm({ item, onCancel, onConfirm, loading }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onCancel}>
@@ -183,6 +188,13 @@ function DeleteConfirm({ item, onCancel, onConfirm, loading }) {
     </div>
   );
 }
+
+DeleteConfirm.propTypes = {
+  item: messagePropType.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  loading: PropTypes.bool,
+};
 
 function DetailSkeleton() {
   return (
@@ -239,8 +251,6 @@ export default function MessageDetail() {
       </div>
     );
   }
-
-  const { browser, os } = parseUserAgent(item.user_agent);
 
   const handleStatusChange = async (newStatus) => {
     try {
@@ -400,23 +410,6 @@ export default function MessageDetail() {
               )}
               <div>
                 <InfoRow icon={Globe} label="Status" value={statusBadge(item.status)} />
-              </div>
-              <div>
-                <InfoRow icon={Globe} label="IP Address" value={item.ip_address} mono />
-              </div>
-              <div>
-                <InfoRow icon={Monitor} label="Browser" value={browser} />
-              </div>
-              <div>
-                <InfoRow icon={Cpu} label="Operating System" value={os} />
-              </div>
-              <div className="sm:col-span-2 lg:col-span-3">
-                <InfoRow
-                  icon={Smartphone}
-                  label="User Agent"
-                  value={item.user_agent}
-                  mono
-                />
               </div>
             </div>
           </div>
