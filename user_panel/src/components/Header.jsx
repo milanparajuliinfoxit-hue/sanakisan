@@ -16,24 +16,8 @@ const navItems = [
   { label: "About Us", path: "/about" },
   { label: "Notice Board", path: "/notices" },
   { label: "Gallery", path: "/gallery" },
-  {
-    label: "Dairy Industry",
-    path: "/dairy",
-    sub: [
-      { label: "Description", path: "/dairy#description" },
-      { label: "Product Catalog", path: "/dairy#products" },
-    ],
-  },
-  {
-    label: "Financial",
-    path: "/financial",
-    sub: [
-      { label: "Overview", path: "/financial#overview" },
-      { label: "Deposit Services", path: "/financial#deposit" },
-      { label: "Loan Services", path: "/financial#loan" },
-      { label: "Required Documents", path: "/financial#documents" },
-    ],
-  },
+  { label: "Dairy Industry", path: "/dairy" },
+  { label: "Financial", path: "/financial" },
   { label: "News / Blogs", path: "/blogs" },
   { label: "Contact Us", path: "/contact" },
 ];
