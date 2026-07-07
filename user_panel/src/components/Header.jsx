@@ -9,7 +9,6 @@ import {
   FaBars,
   FaTimes,
   FaChevronDown,
-  FaUser,
 } from "react-icons/fa";
 
 const navItems = [
@@ -90,9 +89,7 @@ export default function Header() {
                 <Icon className="text-xs" />
               </a>
             ))}
-            <Link to="/login" className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-400 px-3 py-1.5 text-[11px] font-bold text-white shadow-sm transition hover:shadow-md hover:brightness-110">
-              <FaUser className="text-[10px]" /> Login
-            </Link>
+
           </div>
         </div>
       </div>
@@ -133,9 +130,9 @@ export default function Header() {
                   }`}
                 >
                   {item.label}
-                  {item.sub ? <FaChevronDown className="text-[9px] opacity-50 transition group-hover:rotate-180" /> : null}
+                  {item.sub?.length > 0 ? <FaChevronDown className="text-[9px] opacity-50 transition group-hover:rotate-180" /> : null}
                 </Link>
-                {item.sub && (
+                {item.sub?.length > 0 && (
                   <div className="invisible absolute left-0 top-full z-50 min-w-48 origin-top-right scale-95 rounded-xl border border-slate-100 bg-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:scale-100 group-hover:opacity-100">
                     <div className="overflow-hidden rounded-xl py-1">
                       {item.sub.map((sub, idx) => (
@@ -189,7 +186,7 @@ export default function Header() {
                   >
                     {item.label}
                   </Link>
-                  {item.sub && (
+                  {item.sub?.length > 0 && (
                     <button
                       className="px-4 py-3.5 text-slate-500 transition hover:text-emerald-700"
                       onClick={() => setOpenDropdown(openDropdown === item.path ? null : item.path)}
@@ -199,7 +196,7 @@ export default function Header() {
                     </button>
                   )}
                 </div>
-                {item.sub && openDropdown === item.path && (
+                {item.sub?.length > 0 && openDropdown === item.path && (
                   <div className="bg-slate-50">
                     {item.sub.map((sub) => (
                       <Link

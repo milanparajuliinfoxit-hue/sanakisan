@@ -10,7 +10,6 @@ import GalleryPage from './pages/GalleryPage';
 import DairyPage from './pages/DairyPage';
 import FinancialPage from './pages/FinancialPage';
 import ContactPage from './pages/ContactPage';
-import LoginPage from './pages/LoginPage';
 import CalendarModule from './pages/CalendarModule';
 import EventSinglePage from './pages/EventSinglePage';
 import { useAnchorNavigation } from './hooks/useAnchorNavigation';
@@ -52,7 +51,6 @@ export default function App() {
             <Route path="/dairy" element={<DairyPage />} />
             <Route path="/financial" element={<FinancialPage />} />
             <Route path="/contact" element={<ContactPage />} />
-            <Route path="/login" element={<LoginPage />} />
             <Route path="/events" element={<CalendarModule />} /> 
             <Route path='/events/:id' element={<EventSinglePage/>}/>
             <Route path="*" element={
