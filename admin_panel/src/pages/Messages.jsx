@@ -39,9 +39,9 @@ function SkeletonRow() {
       <div className="hidden sm:block w-44 h-4 bg-muted rounded" />
       <div className="hidden lg:block w-28 h-4 bg-muted rounded" />
       <div className="hidden md:block flex-1 h-4 bg-muted rounded w-1/3" />
-      <div className="w-16 h-5 bg-muted rounded-full" />
+      <div className="w-24 h-5 bg-muted rounded-full" />
       <div className="hidden lg:block w-20 h-4 bg-muted rounded" />
-      <div className="w-7 h-7 bg-muted rounded-lg" />
+      <div className="w-[72px] h-7 bg-muted rounded-lg" />
     </div>
   );
 }
@@ -296,15 +296,15 @@ export default function Messages() {
 
         {/* Column Headers */}
         {!isLoading && items.length > 0 && (
-          <div className="hidden sm:flex items-center gap-4 px-5 py-2.5 bg-muted/40 border-b border-border">
+            <div className="hidden sm:flex items-center gap-4 px-5 py-2.5 bg-muted/40 border-b border-border">
             <div className="w-8 flex-shrink-0 text-xs text-muted-foreground">#</div>
             <div className="flex-1 min-w-0"><SortBtn field="full_name">Name</SortBtn></div>
             <div className="hidden sm:block w-44"><SortBtn field="email">Email</SortBtn></div>
             <div className="hidden lg:block w-28">Phone</div>
             <div className="hidden md:block flex-1 min-w-0">Message</div>
-            <div className="w-16"><SortBtn field="status">Status</SortBtn></div>
+            <div className="w-24"><SortBtn field="status">Status</SortBtn></div>
             <div className="hidden lg:block w-20"><SortBtn field="createdAt">Date</SortBtn></div>
-            <div className="w-7" />
+            <div className="w-[72px] flex-shrink-0" />
           </div>
         )}
 
@@ -326,10 +326,14 @@ export default function Messages() {
         ) : (
           <div className="divide-y divide-border">
             {items.map((item) => (
-              <div key={item.id} className={cn(
-                "flex items-center gap-4 px-5 py-3.5 hover:bg-muted/30 transition-colors group",
-                !item.is_read && "bg-primary/[0.02]"
-              )}>
+              <div
+                key={item.id}
+                onClick={() => navigate(`/messages/${item.id}`)}
+                className={cn(
+                  "flex items-center gap-4 px-5 py-3.5 cursor-pointer hover:bg-muted/50 transition-colors duration-150 group",
+                  !item.is_read && "bg-primary/[0.02]"
+                )}
+              >
                 <div className="w-8 flex-shrink-0">
                   {!item.is_read && <div className="w-2 h-2 rounded-full bg-primary mx-auto" title="Unread" />}
                 </div>
@@ -345,22 +349,15 @@ export default function Messages() {
                 <div className="hidden md:block flex-1 min-w-0">
                   <p className="text-xs text-muted-foreground truncate">{item.message}</p>
                 </div>
-                <div className="w-16 flex-shrink-0">{statusBadge(item.status)}</div>
+                <div className="w-24 flex-shrink-0 flex justify-start">{statusBadge(item.status)}</div>
                 <div className="hidden lg:block w-20 flex-shrink-0">
                   <p className="text-xs text-muted-foreground">
                     {new Date(item.createdAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
                   </p>
                 </div>
-                <div className="flex-shrink-0">
+                <div className="w-[72px] flex-shrink-0 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
                   <ActionMenu
                     items={[
-                      {
-                        label: "View",
-                        icon: <Eye className="w-3.5 h-3.5 text-muted-foreground" />,
-                        onClick: () => navigate(`/messages/${item.id}`),
-                        className: "text-foreground hover:bg-muted",
-                      },
-                      { type: "separator" },
                       {
                         label: "Change Status",
                         icon: <MessageCircle className="w-3.5 h-3.5 text-muted-foreground" />,
