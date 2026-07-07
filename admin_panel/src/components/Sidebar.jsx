@@ -8,14 +8,17 @@ import {
   Images,
   Gift,
   FileText,
-  ChevronLeft,
-  ChevronRight,
+  PanelLeftClose,
+  PanelLeftOpen,
   Briefcase,
   Users2,
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import PropTypes from "prop-types";
+
+const SIDEBAR_KEY = "sidebar_collapsed";
 
 const navLinks = [
   { href: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -36,6 +39,23 @@ const navLinks = [
   { href: "/holiday", icon: Gift, label: "Holiday" },
   { href: "/bada-patra", icon: FileText, label: "बडा पत्र" },
 ];
+
+const childShape = PropTypes.shape({
+  href: PropTypes.string.isRequired,
+  icon: PropTypes.elementType.isRequired,
+  label: PropTypes.string.isRequired,
+});
+
+NavGroup.propTypes = {
+  item: PropTypes.shape({
+    icon: PropTypes.elementType.isRequired,
+    label: PropTypes.string.isRequired,
+    children: PropTypes.arrayOf(childShape).isRequired,
+  }).isRequired,
+  pathname: PropTypes.string.isRequired,
+  collapsed: PropTypes.bool.isRequired,
+  defaultOpen: PropTypes.bool,
+};
 
 function NavGroup({ item, pathname, collapsed, defaultOpen }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -98,30 +118,66 @@ function NavGroup({ item, pathname, collapsed, defaultOpen }) {
 
 const Sidebar = () => {
   const { pathname } = useLocation();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem(SIDEBAR_KEY) === "true"
+  );
+
+  const toggle = () => {
+    setCollapsed((v) => {
+      localStorage.setItem(SIDEBAR_KEY, String(!v));
+      return !v;
+    });
+  };
 
   return (
     <aside
       className={cn(
-        "sidebar-gradient flex flex-col h-screen sticky top-0 overflow-hidden transition-all duration-300 ease-in-out",
-        collapsed ? "w-[72px]" : "w-[260px]"
+        "sidebar-gradient flex flex-col h-screen sticky top-0 transition-all duration-250 ease-in-out",
+        collapsed ? "w-[68px]" : "w-[260px]"
       )}
     >
-      {/* Logo */}
-      <div className={cn(
-        "flex items-center gap-3 px-4 h-16 flex-shrink-0 border-b border-border",
-        collapsed && "justify-center px-2"
-      )}>
-        <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden">
-          <img src="/jalthal.png" className="w-7 h-7 object-contain" alt="Logo" />
-        </div>
-        {!collapsed && (
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-foreground leading-tight truncate">
-              साना किसान कृषि सहकारी संस्था लि.
-            </p>
+      {/* ── Sidebar Header ─────────────────────────────────────── */}
+      <div className="flex items-center justify-between h-[56px] flex-shrink-0 px-4 border-b border-border">
+
+        {/* Logo + wordmark */}
+        <div className="flex items-center gap-2.5 min-w-0 overflow-hidden">
+          {/* Logo mark — always visible, fixed size */}
+          <div className="flex-shrink-0 w-[32px] h-[32px] rounded-[8px] bg-primary/10 flex items-center justify-center overflow-hidden">
+            <img src="/jalthal.png" className="w-[22px] h-[22px] object-contain" alt="Logo" />
           </div>
-        )}
+
+          {/* Wordmark — fades + clips when collapsed, gap collapses with it */}
+          <span
+            className={cn(
+              "text-[11.5px] font-semibold text-foreground leading-snug whitespace-nowrap overflow-hidden",
+              "transition-[opacity,max-width,margin] duration-200 ease-in-out",
+              collapsed ? "opacity-0 max-w-0 ml-0" : "opacity-100 max-w-[160px]"
+            )}
+          >
+            साना किसान कृषि<br />सहकारी संस्था लि.
+          </span>
+        </div>
+
+        {/* Collapse / expand button — always at far right, never moves */}
+        <button
+          onClick={toggle}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className={cn(
+            "flex-shrink-0 flex items-center justify-center",
+            "w-[34px] h-[34px] rounded-[8px]",
+            "text-muted-foreground hover:text-foreground",
+            "hover:bg-accent",
+            "transition-colors duration-150 ease-in-out",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
+            "cursor-pointer"
+          )}
+        >
+          {collapsed
+            ? <PanelLeftOpen className="w-[18px] h-[18px]" />
+            : <PanelLeftClose className="w-[18px] h-[18px]" />
+          }
+        </button>
       </div>
 
       {/* Navigation */}
@@ -161,26 +217,6 @@ const Sidebar = () => {
           );
         })}
       </nav>
-
-      {/* Collapse Toggle */}
-      <div className="flex-shrink-0 border-t border-white/10 p-3">
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className={cn(
-            "flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200",
-            collapsed && "justify-center px-2"
-          )}
-        >
-          {collapsed ? (
-            <ChevronRight className="w-4.5 h-4.5" />
-          ) : (
-            <>
-              <ChevronLeft className="w-4.5 h-4.5" />
-              <span>Collapse</span>
-            </>
-          )}
-        </button>
-      </div>
     </aside>
   );
 };

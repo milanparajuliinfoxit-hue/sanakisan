@@ -27,6 +27,8 @@ const holidayRoutes = require("./routes/holidayRoutes");
 const badaPatraRoutes = require("./routes/badaPatraRoutes");
 const committeeTypeRoutes = require("./routes/committeeTypeRoutes");
 const committeePositionRoutes = require("./routes/committeePositionRoutes");
+const dashboardController = require("./controller/dashboardController");
+const auth = require("./middlewares/auth");
 
 // CORS Options
 const corsOptions = {
@@ -64,6 +66,7 @@ app.use(
 );
 
 // API routes
+app.get("/api/admin/dashboard/stats", auth, dashboardController.getDashboardStats);
 app.use("/api", holidayRoutes);
 app.use("/api", badaPatraRoutes);
 app.use("/api", committeeTypeRoutes);
