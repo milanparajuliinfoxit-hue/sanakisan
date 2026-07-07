@@ -1,12 +1,10 @@
-// config/database.js
 const { Sequelize } = require('sequelize');
-const config = require('./config.json');
+const { DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME } = require('./constant');
 
-const environment = process.env.NODE_ENV || 'development';
-const { username, password, database, host, dialect } = config[environment];
-const sequelize = new Sequelize(database, username, password, {
-  host,
-  dialect,
+const sequelize = new Sequelize(DB_NAME, DB_USERNAME, DB_PASSWORD, {
+  host: DB_HOST,
+  dialect: 'mysql',
+  port: 3306,
 });
 
 

@@ -61,7 +61,7 @@ const TeamMemberList = ({
                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-[60px]">Image</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Name</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Position</th>
-                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Type</th>
+                <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Committee Type</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Email</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Contact</th>
                 <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tenure</th>
@@ -78,10 +78,10 @@ const TeamMemberList = ({
                     />
                   </td>
                   <td className="py-3 px-4 text-sm font-medium text-foreground">{member.name}</td>
-                  <td className="py-3 px-4 text-sm text-muted-foreground">{member.position}</td>
+                  <td className="py-3 px-4 text-sm text-muted-foreground">{member.committeePosition?.name || member.position || '—'}</td>
                   <td className="py-3 px-4">
                     <span className="inline-flex px-2 py-0.5 rounded-md text-xs font-medium bg-primary/10 text-primary">
-                      {member.type}
+                      {member.committeeType?.name || member.type || '—'}
                     </span>
                   </td>
                   <td className="py-3 px-4 text-sm text-muted-foreground">{member.email}</td>
