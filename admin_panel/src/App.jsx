@@ -18,6 +18,8 @@ import BadaPatra from "./pages/BadaPatra";
 import GalleryAlbum from "./pages/GalleryAlbum";
 import CommitteeTypes from "./pages/CommitteeTypes";
 import CommitteePositions from "./pages/CommitteePositions";
+import Messages from "./pages/Messages";
+import MessageDetail from "./pages/MessageDetail";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +37,8 @@ const router = createBrowserRouter([
       { path: "/teams", element: <Team /> },
       { path: "/committee-types", element: <CommitteeTypes /> },
       { path: "/committee-positions", element: <CommitteePositions /> },
+      { path: "/messages", element: <Messages /> },
+      { path: "/messages/:id", element: <MessageDetail /> },
       { path: "/gallery", element: <Gallery /> },
       { path: "/gallery/:eventName", element: <GalleryAlbum /> },
       { path: "/holiday", element: <Holiday /> },

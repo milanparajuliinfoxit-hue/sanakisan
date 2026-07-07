@@ -27,6 +27,7 @@ const holidayRoutes = require("./routes/holidayRoutes");
 const badaPatraRoutes = require("./routes/badaPatraRoutes");
 const committeeTypeRoutes = require("./routes/committeeTypeRoutes");
 const committeePositionRoutes = require("./routes/committeePositionRoutes");
+const contactMessageRoutes = require("./routes/contactMessageRoutes");
 const dashboardController = require("./controller/dashboardController");
 const auth = require("./middlewares/auth");
 
@@ -71,6 +72,7 @@ app.use("/api", holidayRoutes);
 app.use("/api", badaPatraRoutes);
 app.use("/api", committeeTypeRoutes);
 app.use("/api", committeePositionRoutes);
+app.use("/api", contactMessageRoutes);
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api", teamRoutes);

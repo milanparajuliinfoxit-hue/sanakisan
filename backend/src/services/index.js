@@ -7,6 +7,7 @@ const pressReleaseServices = require('./pressReleaseServices');
 const teamMemberServices = require('./teamMemberServices');
 const committeeTypeServices = require('./committeeTypeServices');
 const committeePositionServices = require('./committeePositionServices');
+const contactMessageServices = require('./contactMessageServices');
 
 module.exports = {
   authServices,
@@ -17,4 +18,5 @@ module.exports = {
   teamMemberServices,
   committeeTypeServices,
   committeePositionServices,
+  contactMessageServices,
 };
