@@ -112,21 +112,40 @@ const getTeamMember = asyncHandler(async (req, res, next) => {
 });
 
 const getTeamMemberPagination = asyncHandler(async (req, res, next) => {
+  const {
+    page,
+    limit,
+    publishedStatus,
+    committee_type_id,
+    committee_position_id,
+  } = req.query;
 
-  const { page, limit, publishedStatus } = req.query;
-  const data = await teamMemberServices.getTeamMemberPagination(page, limit, publishedStatus);
+  const filters = {};
 
-  if (data) {
-    return res.status(200).json({
-      status: true,
-      message: "Team Member found successfully.",
-      data: data
-    });
+  if (publishedStatus) {
+    filters.status = publishedStatus;
   }
 
+  if (committee_type_id) {
+    filters.committee_type_id = committee_type_id;
+  }
+
+  if (committee_position_id) {
+    filters.committee_position_id = committee_position_id;
+  }
+
+  const data = await teamMemberServices.getTeamMemberPagination(
+    page,
+    limit,
+    filters
+  );
+
+  console.log(JSON.stringify(data.data, null, 2));
+
   return res.status(200).json({
-    status: false,
-    message: "Team Member cannot be found."
+    status: true,
+    message: "Team Member found successfully.",
+    data,
   });
 });
 
