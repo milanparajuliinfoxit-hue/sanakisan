@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Megaphone, CalendarDays, FileText, ArrowRight } from 'lucide-react';
-import { fetchNotices, getImageUrl } from '../api/config';
-import { formatDate } from '../utils/dateUtils';
-import SectionHeader from './SectionHeader';
-import { SkeletonGrid } from './Skeleton';
-import EmptyState from './EmptyState';
+import { useState, useEffect, useRef, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { Megaphone, CalendarDays, FileText, ArrowRight } from "lucide-react";
+import { fetchNotices, getImageUrl } from "../api/config";
+import { formatDate } from "../utils/dateUtils";
+import SectionHeader from "./SectionHeader";
+import { SkeletonGrid } from "./Skeleton";
+import EmptyState from "./EmptyState";
 
 export default function NoticeBoard({ limit = 5 }) {
   const [notices, setNotices] = useState([]);
@@ -18,13 +18,13 @@ export default function NoticeBoard({ limit = 5 }) {
     setLoading(true);
     setError(null);
     fetchNotices(limit)
-      .then(data => {
+      .then((data) => {
         const items = data?.data || data?.notices || data?.rows || data || [];
         setNotices(Array.isArray(items) ? items : []);
         setLoading(false);
       })
       .catch(() => {
-        setError('Could not load notices');
+        setError("Could not load notices");
         setLoading(false);
       });
   }, [limit]);
@@ -33,10 +33,10 @@ export default function NoticeBoard({ limit = 5 }) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('animate-fade-in-section');
+          entry.target.classList.add("animate-fade-in-section");
         }
       },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
     );
     const el = sectionRef.current;
     if (el) observer.observe(el);
@@ -46,7 +46,7 @@ export default function NoticeBoard({ limit = 5 }) {
   }, []);
 
   const handleImgError = (id) => {
-    setFailedImages(prev => ({ ...prev, [id]: true }));
+    setFailedImages((prev) => ({ ...prev, [id]: true }));
   };
 
   const isNew = (dateStr) => {
@@ -78,18 +78,26 @@ export default function NoticeBoard({ limit = 5 }) {
           label="Latest Updates"
           title="Notice Board"
           description="Stay informed with our latest announcements, circulars and organizational updates."
-          viewAllLink={!loading && notices.length > 0 ? '/notices' : undefined}
+          viewAllLink={!loading && notices.length > 0 ? "/notices" : undefined}
           viewAllText="View All Notices"
         />
 
         {loading && <SkeletonGrid count={Math.min(limit, 4)} />}
 
         {error && !loading && (
-          <EmptyState icon={Megaphone} title={error} description="Please check back later." />
+          <EmptyState
+            icon={Megaphone}
+            title={error}
+            description="Please check back later."
+          />
         )}
 
         {!loading && !error && notices.length === 0 && (
-          <EmptyState icon={Megaphone} title="No Notices Available" description="There are no notices at this time. Please check back later." />
+          <EmptyState
+            icon={Megaphone}
+            title="No Notices Available"
+            description="There are no notices at this time. Please check back later."
+          />
         )}
 
         {!loading && !error && displayed.length > 0 && (
@@ -101,7 +109,9 @@ export default function NoticeBoard({ limit = 5 }) {
                   key={notice.id || i}
                   to={`/notices/${notice.id}`}
                   className="group flex flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
-                  style={{ animation: `fadeUpStagger 0.6s ease-out ${100 + i * 100}ms both` }}
+                  style={{
+                    animation: `fadeUpStagger 0.6s ease-out ${100 + i * 100}ms both`,
+                  }}
                   aria-label={`Read notice: ${notice.title}`}
                 >
                   <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-emerald-200 to-emerald-100">
@@ -115,12 +125,18 @@ export default function NoticeBoard({ limit = 5 }) {
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-700 to-emerald-900">
-                        <FileText className="h-8 w-8 text-white/40" strokeWidth={1.5} />
+                        <FileText
+                          className="h-8 w-8 text-white/40"
+                          strokeWidth={1.5}
+                        />
                       </div>
                     )}
                     <div className="absolute bottom-2 left-2">
                       <span className="inline-flex items-center gap-1 rounded-md bg-white/90 px-2 py-1 text-[10px] font-medium text-slate-600 shadow-xs backdrop-blur-sm">
-                        <CalendarDays className="h-3 w-3 text-emerald-600" strokeWidth={2} />
+                        <CalendarDays
+                          className="h-3 w-3 text-emerald-600"
+                          strokeWidth={2}
+                        />
                         {formatDate(dateStr)}
                       </span>
                     </div>
@@ -136,7 +152,9 @@ export default function NoticeBoard({ limit = 5 }) {
                       {notice.title}
                     </h3>
                     <div className="mt-auto flex items-center justify-between pt-2">
-                      <span className="invisible text-[11px] text-slate-400">—</span>
+                      <span className="invisible text-[11px] text-slate-400">
+                        —
+                      </span>
                       <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 transition-all duration-300 group-hover:gap-1.5">
                         Read
                         <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-0.5" />
