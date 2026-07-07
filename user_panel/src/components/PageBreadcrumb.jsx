@@ -4,9 +4,9 @@ import { ChevronRight } from "lucide-react";
 export default function PageBreadcrumb({ title, items = [] }) {
   return (
     <div className="border-b border-emerald-100 bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
         {/* Breadcrumb navigation */}
-        <nav aria-label="Breadcrumb" className="mb-2">
+        <nav aria-label="Breadcrumb" className="mb-0">
           <ol className="flex items-center gap-1.5 text-sm text-slate-500">
             {items.map((item, i) => {
               const isLast = i === items.length - 1;
@@ -26,10 +26,7 @@ export default function PageBreadcrumb({ title, items = [] }) {
           </ol>
         </nav>
 
-        {/* Title */}
-        <h1 className="font-display text-3xl font-bold text-emerald-950 sm:text-4xl">
-          {title}
-        </h1>
+        {/* Title intentionally omitted to avoid duplication with breadcrumb */}
       </div>
     </div>
   );
