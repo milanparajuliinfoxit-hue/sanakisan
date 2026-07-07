@@ -79,25 +79,40 @@ const getTeamMemberPagination = async (page = 1, limit = 10, filters = {}) => {
     ...filters,
   };
 
-  const result = await TeamMember.findAndCountAll({
+    const result = await TeamMember.findAndCountAll({
     where: whereClause,
     limit: pageSize,
     offset,
     order: [['createdAt', 'DESC']],
-    include: [
-      { model: CommitteeType, as: 'committeeType', attributes: ['id', 'name'] },
-      { model: CommitteePosition, as: 'committeePosition', attributes: ['id', 'name'] },
-    ],
-  });
-
+  include: [
+  {
+    model: CommitteeType,
+    as: "committeeType",
+    attributes: ["id", "name"],
+    where: { status: 1 },
+    required: true,
+  },
+  {
+    model: CommitteePosition,
+    as: "committeePosition",
+    attributes: ["id", "name"],
+    where: { status: 1 },
+    required: true,
+  },
+],
+});
   const totalPages = Math.ceil(result.count / pageSize);
 
   return {
-    data: result.rows,
-    totalItems: result.count,
-    totalPages,
-    currentPage: pageNumber,
-  };
+  data: result.rows.map(member => ({
+    ...member.toJSON(),
+    committee_type_name: member.committeeType?.name || null,
+    committee_position_name: member.committeePosition?.name || null,
+  })),
+  totalItems: result.count,
+  totalPages,
+  currentPage: pageNumber,
+};
 };
 
 

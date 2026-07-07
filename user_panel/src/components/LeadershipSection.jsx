@@ -77,106 +77,77 @@ function MemberCard({ member, animDelay }) {
   const showFallback = !imageUrl || imgError;
   const gradient = gradientFor(member.name);
   const initials = getInitials(member.name);
-  const hasContact = member.email || member.contact;
 
   return (
     <div
       ref={ref}
-      className="fade-in-up group relative overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm
-                 transition-all duration-300 ease-out
-                 hover:-translate-y-2 hover:shadow-2xl hover:border-emerald-200"
+      className="fade-in-up group relative overflow-hidden rounded-2xl border border-transparent bg-white shadow-lg
+                 transition-all duration-300 ease-out w-full
+                 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-2xl"
     >
-      {/* ── IMAGE / AVATAR AREA ── */}
-      <div className="relative h-52 overflow-hidden bg-emerald-50">
+      {/* ── AVATAR AREA ── */}
+      <div className="relative flex items-center justify-center bg-gradient-to-b from-emerald-50/50 to-transparent pt-8 pb-4">
         {showFallback ? (
           <div
-            className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${gradient}`}
+            className={`flex h-40 w-40 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-4xl font-bold text-white shadow-md ring-4 ring-white`}
           >
-            <span className="text-4xl font-bold text-white/90 tracking-wide select-none">
-              {initials}
-            </span>
+            {initials}
           </div>
         ) : (
           <img
             src={imageUrl}
             alt={member.name}
-            className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+            className="h-40 w-40 rounded-full object-cover shadow-md ring-4 ring-white"
             onError={() => setImgError(true)}
           />
-        )}
-
-        {/* Gradient overlay — always present, deepens on hover */}
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        />
-
-        {/* Contact icons — slide up on hover */}
-        {hasContact && (
-          <div
-            className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-3 pb-4
-                          translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"
-          >
-            {member.email && (
-              <a
-                href={`mailto:${member.email}`}
-                onClick={(e) => e.stopPropagation()}
-                title={member.email}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm
-                           border border-white/30 text-white hover:bg-white hover:text-emerald-700
-                           transition-all duration-200"
-              >
-                <FaEnvelope className="text-sm" />
-              </a>
-            )}
-            {member.contact && (
-              <a
-                href={`tel:${member.contact}`}
-                onClick={(e) => e.stopPropagation()}
-                title={member.contact}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm
-                           border border-white/30 text-white hover:bg-white hover:text-emerald-700
-                           transition-all duration-200"
-              >
-                <FaPhone className="text-sm" />
-              </a>
-            )}
-          </div>
         )}
       </div>
 
       {/* ── CARD BODY ── */}
-      <div className="p-5">
+      <div className="px-6 pb-8 pt-4 text-center">
         <h4
-          className="font-display text-base font-semibold leading-snug text-emerald-950
-                       group-hover:text-emerald-700 transition-colors duration-200"
+          className="font-display text-xl font-semibold leading-tight text-emerald-900
+                     group-hover:text-emerald-700 transition-colors duration-200"
         >
           {member.name}
         </h4>
 
-        {member.position && (
-          <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-emerald-600">
-            {member.position}
+        {(member.committee_position_name || member.position) && (
+          <p className="mt-1 text-base font-medium text-emerald-600">
+            {member.committee_position_name || member.position}
           </p>
         )}
 
-        {member.tenure && (
-          <p className="mt-2 flex items-center gap-1.5 text-xs text-slate-500">
-            <FaClock className="flex-shrink-0 text-amber-400" />
-            {member.tenure}
+        {/* Contact Number */}
+        {member.contact && (
+          <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-slate-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="flex-shrink-0 h-4 w-4 text-emerald-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+              />
+            </svg>
+            {member.contact}
           </p>
         )}
 
-        {/* Animated accent bar */}
+        {/* Animated accent bar – centered */}
         <div
-          className="mt-4 h-0.5 w-8 rounded-full bg-gradient-to-r from-emerald-400 to-amber-400
-                        scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"
+          className="mt-5 mx-auto h-0.5 w-16 rounded-full bg-gradient-to-r from-emerald-400 to-amber-400
+                        scale-x-0 group-hover:scale-x-100 origin-center transition-transform duration-300"
         />
       </div>
     </div>
   );
 }
-
 /* ─────────────────────────────────────────────────────────────────────────
    EMPTY STATE
    ───────────────────────────────────────────────────────────────────────── */
@@ -232,7 +203,7 @@ export default function LeadershipSection() {
 
   const handleRetry = () => {
     setStatus("loading");
-    fetchTeamMembers("executive")
+    fetchTeamMembers()
       .then((data) => {
         setMembers(data);
         setStatus("success");
@@ -242,14 +213,19 @@ export default function LeadershipSection() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchTeamMembers("executive")
+    fetchTeamMembers()
       .then((data) => {
         if (cancelled) return;
         setMembers(data);
         setStatus("success");
+        console.log(data);
       })
-      .catch(() => { if (!cancelled) setStatus("error"); });
-    return () => { cancelled = true; };
+      .catch(() => {
+        if (!cancelled) setStatus("error");
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Animate section header on scroll
@@ -271,40 +247,103 @@ export default function LeadershipSection() {
 
   const isLoading = status === "loading";
 
+  {
+    /*For displaying card  */
+  }
+
+  const groupedMembers = members.reduce((groups, member) => {
+    const type = member.committee_type_name || "Others";
+
+    if (!groups[type]) {
+      groups[type] = [];
+    }
+
+    groups[type].push(member);
+
+    return groups;
+  }, {});
+
+  const orderedGroups = Object.entries(groupedMembers).sort(([a], [b]) => {
+    if (a === "Executive Committee") return -1;
+    if (b === "Executive Committee") return 1;
+    return a.localeCompare(b);
+  });
+
   return (
     <section className="px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-emerald-50/30">
       <div className="mx-auto max-w-7xl">
-        {/* ── HEADER ── */}
         <div ref={sectionRef} className="mb-14 text-center opacity-0">
           <div
             className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200
-                          bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"
+                        bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700"
           >
             <FaUsers className="text-amber-500" />
             Core Team
           </div>
+
           <h2 className="mb-3 font-display text-3xl font-bold text-emerald-950 sm:text-4xl">
             Our Leadership
           </h2>
+
           <p className="mx-auto max-w-2xl text-lg text-slate-600">
             Dedicated individuals steering our cooperative toward greater
             heights
           </p>
         </div>
 
-        {/* ── GRID ── */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {isLoading && [...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
-
-          {status === "error" && <ErrorState onRetry={handleRetry} />}
-
-          {status === "success" && members.length === 0 && <EmptyState />}
-
-          {status === "success" &&
-            members.map((member, i) => (
-              <MemberCard key={member.id} member={member} animDelay={i * 80} />
+        {isLoading && (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[...Array(4)].map((_, i) => (
+              <SkeletonCard key={i} />
             ))}
-        </div>
+          </div>
+        )}
+
+        {status === "error" && <ErrorState onRetry={handleRetry} />}
+
+        {status === "success" && members.length === 0 && <EmptyState />}
+
+        {status === "success" && members.length > 0 && (
+          <>
+            {orderedGroups.map(([typeName, committeeMembers]) => {
+              const chairperson = committeeMembers.find(
+                (m) => m.committee_position_name === "Chairperson",
+              );
+
+              const others = committeeMembers.filter(
+                (m) => m.committee_position_name !== "Chairperson",
+              );
+
+              return (
+                <div key={typeName} className="mt-20">
+                  <h3 className="mb-8 text-center text-3xl font-bold text-emerald-900">
+                    {typeName}
+                  </h3>
+
+                  {chairperson && (
+                    <div className="mb-10 flex justify-center">
+                      <div className="w-full max-w-sm">
+                        <MemberCard member={chairperson} animDelay={0} />
+                      </div>
+                    </div>
+                  )}
+
+                  {others.length > 0 && (
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                      {others.map((member, index) => (
+                        <MemberCard
+                          key={member.id}
+                          member={member}
+                          animDelay={(index + 1) * 80}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </>
+        )}
       </div>
     </section>
   );
