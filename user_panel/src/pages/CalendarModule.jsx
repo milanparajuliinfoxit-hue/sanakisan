@@ -1,23 +1,27 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { CalendarRange, ArrowRight, MapPin, Gift, CalendarDays, Clock } from "lucide-react";
-import { fetchEvents } from "../api/config";
+import {
+  ArrowRight,
+  Clock,
+  MapPin,
+  CalendarRange,
+  CalendarDays,
+} from "lucide-react";
 
+import { fetchEvents } from "../api/config";
 import {
   BS_MONTHS,
   BS_MONTHS_EN,
   adToBs,
   bsToAd,
-  nepaliDigits
-} from '../utils/bsCalendarUtils';
-
-import { BSCalendar } from '../components/BSCalander';
+  nepaliDigits,
+} from "../utils/bsCalendarUtils";
+import { BSCalendar } from "../components/BSCalander";
 import SectionHeader from "../components/SectionHeader";
 
-export default function CalendarModule() {
+export default function Events() {
   const API = import.meta.env.VITE_API_URL;
-  const sectionRef = useRef(null);
   const todayBs = adToBs(new Date());
   const [selectedBs, setSelectedBs] = useState(todayBs);
   const [events, setEvents] = useState([]);
@@ -25,24 +29,23 @@ export default function CalendarModule() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animate-fade-in-section');
-        }
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => {
-      if (sectionRef.current) observer.unobserve(sectionRef.current);
-    };
-  }, []);
-
-  useEffect(() => {
     fetchEvents(50)
-      .then(data => {
-        setEvents(Array.isArray(data) ? data : []);
+      .then((data) => {
+        const eventList = Array.isArray(data) ? data : [];
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const upcoming = eventList
+          .filter((event) => {
+            if (!event.event_date) return false;
+            const date = new Date(event.event_date);
+            date.setHours(0, 0, 0, 0);
+            return date >= today;
+          })
+          .sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+
+        setEvents(upcoming);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -62,75 +65,55 @@ export default function CalendarModule() {
     return () => clearInterval(interval);
   }, [API]);
 
-  const holidayMap = new Map();
-  holidays.forEach(holiday => {
-    if (!holiday.holiday_date) return;
-    const adDate = new Date(holiday.holiday_date);
-    if (isNaN(adDate)) return;
-    const bs = adToBs(adDate);
-    const key = `${bs.year}-${bs.month}-${bs.day}`;
-    if (!holidayMap.has(key)) holidayMap.set(key, []);
-    holidayMap.get(key).push(holiday.title);
-  });
+  // Same shape BSCalendar expects: Map keyed by "year-month-day" (BS)
+  const holidayMap = useMemo(() => {
+    const map = new Map();
+    holidays.forEach((holiday) => {
+      if (!holiday.holiday_date) return;
+      const adDate = new Date(holiday.holiday_date);
+      if (isNaN(adDate)) return;
+      const bs = adToBs(adDate);
+      const key = `${bs.year}-${bs.month}-${bs.day}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(holiday.title);
+    });
+    return map;
+  }, [holidays]);
 
-  const eventDates = events
-    .filter(e => e.event_date)
-    .map(e => adToBs(new Date(e.event_date)));
+  const eventDates = useMemo(
+    () =>
+      events
+        .filter((e) => e.event_date)
+        .map((e) => adToBs(new Date(e.event_date))),
+    [events],
+  );
 
-  const selectedAdDate = bsToAd(selectedBs.year, selectedBs.month, selectedBs.day);
-  const selectedEvents = events.filter(event => {
+  const selectedAdDate = bsToAd(
+    selectedBs.year,
+    selectedBs.month,
+    selectedBs.day,
+  );
+
+  const selectedEvents = events.filter((event) => {
     if (!event.event_date) return false;
-    const evDate = new Date(event.event_date);
+
+    const date = new Date(event.event_date);
+
     return (
-      evDate.getFullYear() === selectedAdDate.getFullYear() &&
-      evDate.getMonth() === selectedAdDate.getMonth() &&
-      evDate.getDate() === selectedAdDate.getDate()
+      date.getFullYear() === selectedAdDate.getFullYear() &&
+      date.getMonth() === selectedAdDate.getMonth() &&
+      date.getDate() === selectedAdDate.getDate()
     );
   });
 
-  const selectedHolidayKey = `${selectedBs.year}-${selectedBs.month}-${selectedBs.day}`;
-  const selectedHolidayTitles = holidayMap.get(selectedHolidayKey) || [];
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const allUpcomingEvents = events
-    .filter(e => {
-      if (!e.event_date) return false;
-      const eventDate = new Date(e.event_date);
-      eventDate.setHours(0, 0, 0, 0);
-      return eventDate >= today;
-    })
-    .sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
-
-  const UPCOMING_LIMIT = 4;
-  const upcomingEvents = allUpcomingEvents.slice(0, UPCOMING_LIMIT);
-
-  const hasSelectedContent = selectedEvents.length > 0 || selectedHolidayTitles.length > 0;
-  const displayEvents = hasSelectedContent ? selectedEvents : upcomingEvents;
-  const isShowingSelected = hasSelectedContent;
-
-  const selectedBsLabel = `${nepaliDigits(selectedBs.day)} ${BS_MONTHS[selectedBs.month]} ${nepaliDigits(selectedBs.year)}`;
-  const selectedAdLabel = selectedAdDate.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const displayEvents = selectedEvents.length > 0 ? selectedEvents : events;
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative px-4 py-20 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-emerald-50/30"
-    >
+    <section className="bg-white py-20 px-4 sm:px-6 lg:px-6">
       <div className="mx-auto max-w-7xl">
-        <SectionHeader
-          icon={CalendarRange}
-          iconBg="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white"
-          label="Community Calendar"
-          title="Event Calendar"
-          viewAllLink={!loading && events.length > 0 ? "/events" : undefined}
-          viewAllText="View All Events"
-        />
-
-        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2">
-          {/* BS Calendar */}
-          <div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          {/* LEFT: sticky calendar */}
+          <div className="lg:sticky lg:top-24 self-start">
             <BSCalendar
               selectedBs={selectedBs}
               onSelect={setSelectedBs}
@@ -139,128 +122,101 @@ export default function CalendarModule() {
             />
           </div>
 
-          {/* Events Panel */}
-          <div>
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <h3 className="font-display text-xl font-bold text-emerald-950">
-                  {isShowingSelected ? `Events on ${selectedBsLabel}` : "Upcoming Events"}
-                </h3>
-                {isShowingSelected && <p className="text-xs text-slate-500 mt-1">{selectedAdLabel}</p>}
-              </div>
-              {isShowingSelected && (selectedEvents.length + selectedHolidayTitles.length) > 2 && (
-                <Link
-                  to="/events"
-                  className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900 group"
-                >
-                  +{(selectedEvents.length + selectedHolidayTitles.length) - 2} more
-                  <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              )}
-            </div>
+          {/* RIGHT: header fixed, list scrolls */}
+          <div className="flex flex-col lg:h-[calc(100vh-6rem)]">
+            <SectionHeader
+              icon={CalendarRange}
+              label="Community Events"
+              title={
+                selectedEvents.length > 0
+                  ? `Events on ${nepaliDigits(selectedBs.day)} ${
+                      BS_MONTHS[selectedBs.month]
+                    } ${nepaliDigits(selectedBs.year)}`
+                  : "Upcoming Events"
+              }
+            />
 
-            {/* Skeleton */}
-            {loading && (
-              <div className="space-y-3">
-                {[...Array(3)].map((_, i) => (
+            <div className="mt-3 h-[750px] overflow-y-auto pr-2 space-y-4">
+              {loading ? (
+                [1, 2, 3].map((item) => (
                   <div
-                    key={i}
-                    className="flex animate-pulse items-start gap-4 rounded-xl border border-emerald-100 bg-white p-4"
+                    key={item}
+                    className="animate-pulse rounded-xl border p-5"
                   >
-                    <div className="h-12 w-12 flex-shrink-0 rounded-lg bg-slate-200" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 w-3/4 rounded bg-slate-200" />
-                      <div className="h-3 w-1/2 rounded bg-slate-200" />
+                    <div className="flex gap-4">
+                      <div className="h-12 w-12 rounded-lg bg-slate-200"></div>
+
+                      <div className="flex-1">
+                        <div className="h-4 w-2/3 rounded bg-slate-200 mb-3"></div>
+                        <div className="h-3 w-1/2 rounded bg-slate-200"></div>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                ))
+              ) : displayEvents.length > 0 ? (
+                displayEvents.map((event) => {
+                  const bs = event.event_date
+                    ? adToBs(new Date(event.event_date))
+                    : null;
 
-            {!loading && (
-              <div className="space-y-3">
-                {/* Holidays */}
-                {selectedHolidayTitles.map((title, idx) => (
-                  <div
-                    key={`holiday-${idx}`}
-                    className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/80 p-4 transition-all duration-300 hover:shadow-md"
-                    style={{ animation: `fadeUpStagger 0.6s ease-out ${100 + idx * 100}ms both` }}
-                  >
-                    <div className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-amber-200">
-                      <Gift className="h-5 w-5 text-amber-700" strokeWidth={2} />
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-amber-950">{title}</p>
-                      <p className="text-xs text-amber-700">Holiday</p>
-                    </div>
-                  </div>
-                ))}
+                  const eventDate = new Date(event.event_date);
 
-                {/* Events */}
-                {displayEvents.map((event, i) => {
-                  const evBs = event.event_date ? adToBs(new Date(event.event_date)) : null;
-                  const evDate = new Date(event.event_date);
-                  const eventTime = evDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+                  const eventTime = eventDate.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
 
                   return (
                     <Link
-                      key={event.id || i}
+                      key={event.id}
                       to={`/events/${event.id}`}
-                      className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-white p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-                      style={{ animation: `fadeUpStagger 0.6s ease-out ${200 + i * 100}ms both` }}
+                      className="group flex items-start gap-4 rounded-xl border border-emerald-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500 hover:shadow-xl"
                     >
-                      {evBs && (
-                        <div className="mt-0.5 flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-600 to-emerald-700 flex flex-col items-center justify-center text-white shadow-md">
-                          <div className="text-xs font-bold leading-none">{nepaliDigits(evBs.day)}</div>
-                          <div className="text-[9px] opacity-90 uppercase mt-0.5 font-semibold">{BS_MONTHS_EN[evBs.month]?.slice(0, 3)}</div>
+                      {bs && (
+                        <div className="flex h-14 w-14 flex-col items-center justify-center rounded-lg bg-emerald-600 text-white">
+                          <span className="text-sm font-bold">
+                            {nepaliDigits(bs.day)}
+                          </span>
+
+                          <span className="text-[10px] uppercase">
+                            {BS_MONTHS_EN[bs.month]?.slice(0, 3)}
+                          </span>
                         </div>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-emerald-950 group-hover:text-emerald-700 line-clamp-2">
+
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-emerald-950 group-hover:text-emerald-700">
                           {event.title}
-                        </h4>
-                        <div className="mt-2 space-y-1">
-                          {eventTime && (
-                            <div className="flex items-center gap-2 text-xs text-slate-600">
-                              <Clock className="h-3 w-3 flex-shrink-0 text-emerald-600" />
-                              <span>{eventTime}</span>
-                            </div>
-                          )}
+                        </h3>
+
+                        <div className="mt-3 space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-slate-600">
+                            {event.author}
+                          </div>
+
                           {event.location && (
-                            <div className="flex items-center gap-2 text-xs text-slate-600 line-clamp-1">
-                              <MapPin className="h-3 w-3 flex-shrink-0 text-emerald-600" />
-                              <span className="line-clamp-1">{event.location}</span>
+                            <div className="flex items-center gap-2 text-sm text-slate-600">
+                              <MapPin className="h-4 w-4 text-emerald-600" />
+                              {event.location}
                             </div>
                           )}
                         </div>
                       </div>
-                      <ArrowRight className="mt-1 h-4 w-4 flex-shrink-0 text-emerald-400 transition-transform group-hover:translate-x-1" />
+
+                      <ArrowRight className="h-5 w-5 text-emerald-400 transition-transform group-hover:translate-x-1" />
                     </Link>
                   );
-                })}
+                })
+              ) : (
+                <div className="rounded-xl border-2 border-dashed border-emerald-200 py-16 text-center">
+                  <CalendarDays className="mx-auto mb-3 h-10 w-10 text-emerald-300" />
 
-                {/* Empty state */}
-                {displayEvents.length === 0 && selectedHolidayTitles.length === 0 && (
-                  <div className="rounded-xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 py-10 text-center">
-                    <CalendarDays className="mx-auto h-8 w-8 text-emerald-300 mb-2" />
-                    <p className="text-sm text-emerald-700 font-medium">No events scheduled</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Mobile "View All" */}
-            {!loading && events.length > 0 && (
-              <div className="mt-6 text-center lg:hidden">
-                <Link
-                  to="/events"
-                  className="btn-primary"
-                >
-                  View All Events
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-            )}
+                  <p className="font-medium text-emerald-700">
+                    No upcoming events found.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
