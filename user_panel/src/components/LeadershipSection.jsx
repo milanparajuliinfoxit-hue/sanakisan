@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { FaEnvelope, FaPhone, FaClock, FaUsers, FaRedo } from "react-icons/fa";
+import { FaUsers, FaRedo } from "react-icons/fa";
 import { fetchTeamMembers, getImageUrl } from "../api/config";
 
 /* ─────────────────────────────────────────────────────────────────────────
