@@ -100,7 +100,7 @@ export default function EventSinglePage() {
               to="/events"
               className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 transition hover:text-emerald-900"
             >
-              <FaArrowLeft /> Back to all events
+              <FaArrowLeft /> Back to all Home
             </Link>
 
             <div className="overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm">
@@ -181,7 +181,6 @@ export default function EventSinglePage() {
             <h2 className="mb-5 text-xl font-bold text-emerald-950">
               Upcoming Events
             </h2>
-            
 
             {upcomingEvents.length > 0 ? (
               <div className="max-h-[520px] space-y-4 overflow-y-auto pr-1 custom-scroll">

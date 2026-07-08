@@ -109,7 +109,7 @@ export default function Events() {
   const displayEvents = selectedEvents.length > 0 ? selectedEvents : events;
 
   return (
-    <section className="bg-white py-20 px-4 sm:px-6 lg:px-6">
+    <section className="bg-white py-20 px-4 sm:px-6 lg:px-4">
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* LEFT: sticky calendar */}
@@ -123,7 +123,7 @@ export default function Events() {
           </div>
 
           {/* RIGHT: header fixed, list scrolls */}
-          <div className="flex flex-col lg:h-[calc(100vh-6rem)]">
+          <div className="flex flex-col lg:h-[calc(75vh-6rem)]">
             <SectionHeader
               icon={CalendarRange}
               label="Community Events"
@@ -136,22 +136,13 @@ export default function Events() {
               }
             />
 
-            <div className="mt-3 h-[750px] overflow-y-auto pr-2 space-y-4">
+            <div className="mt-3 h-[650px] w-[550px] overflow-y-auto pr-2 space-y-2">
               {loading ? (
                 [1, 2, 3].map((item) => (
                   <div
                     key={item}
                     className="animate-pulse rounded-xl border p-5"
-                  >
-                    <div className="flex gap-4">
-                      <div className="h-12 w-12 rounded-lg bg-slate-200"></div>
-
-                      <div className="flex-1">
-                        <div className="h-4 w-2/3 rounded bg-slate-200 mb-3"></div>
-                        <div className="h-3 w-1/2 rounded bg-slate-200"></div>
-                      </div>
-                    </div>
-                  </div>
+                  ></div>
                 ))
               ) : displayEvents.length > 0 ? (
                 displayEvents.map((event) => {
@@ -170,15 +161,15 @@ export default function Events() {
                     <Link
                       key={event.id}
                       to={`/events/${event.id}`}
-                      className="group flex items-start gap-4 rounded-xl border border-emerald-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500 hover:shadow-xl"
+                      className="group flex items-start gap-3 rounded-xl border border-emerald-200 bg-white p-3 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500 hover:shadow-xl"
                     >
                       {bs && (
-                        <div className="flex h-14 w-14 flex-col items-center justify-center rounded-lg bg-emerald-600 text-white">
+                        <div className="flex h-10 w-10 flex-col items-center justify-center rounded-lg bg-emerald-600 text-white">
                           <span className="text-sm font-bold">
                             {nepaliDigits(bs.day)}
                           </span>
 
-                          <span className="text-[10px] uppercase">
+                          <span className="text-[8px] uppercase">
                             {BS_MONTHS_EN[bs.month]?.slice(0, 3)}
                           </span>
                         </div>
@@ -188,19 +179,6 @@ export default function Events() {
                         <h3 className="font-semibold text-emerald-950 group-hover:text-emerald-700">
                           {event.title}
                         </h3>
-
-                        <div className="mt-3 space-y-2">
-                          <div className="flex items-center gap-2 text-sm text-slate-600">
-                            {event.author}
-                          </div>
-
-                          {event.location && (
-                            <div className="flex items-center gap-2 text-sm text-slate-600">
-                              <MapPin className="h-4 w-4 text-emerald-600" />
-                              {event.location}
-                            </div>
-                          )}
-                        </div>
                       </div>
 
                       <ArrowRight className="h-5 w-5 text-emerald-400 transition-transform group-hover:translate-x-1" />
