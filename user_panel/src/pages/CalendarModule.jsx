@@ -110,6 +110,17 @@ export default function Events() {
 
   return (
     <section className="bg-white py-20 px-4 sm:px-6 lg:px-6">
+      <SectionHeader
+        icon={CalendarRange}
+        label="Community Events"
+        title={
+          selectedEvents.length > 0
+            ? `Events on ${nepaliDigits(selectedBs.day)} ${
+                BS_MONTHS[selectedBs.month]
+              } ${nepaliDigits(selectedBs.year)}`
+            : "Upcoming Events"
+        }
+      />
       <div className="mx-auto max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* LEFT: sticky calendar */}
@@ -123,20 +134,8 @@ export default function Events() {
           </div>
 
           {/* RIGHT: header fixed, list scrolls */}
-          <div className="flex flex-col lg:h-[calc(100vh-6rem)]">
-            <SectionHeader
-              icon={CalendarRange}
-              label="Community Events"
-              title={
-                selectedEvents.length > 0
-                  ? `Events on ${nepaliDigits(selectedBs.day)} ${
-                      BS_MONTHS[selectedBs.month]
-                    } ${nepaliDigits(selectedBs.year)}`
-                  : "Upcoming Events"
-              }
-            />
-
-            <div className="mt-3 h-[750px] overflow-y-auto pr-2 space-y-4">
+          <div className="flex flex-col lg:h-[calc(75vh-6rem)]">
+            <div className="mt-3 h-[500px] w-[600px] overflow-y-auto pr-2 space-y-4">
               {loading ? (
                 [1, 2, 3].map((item) => (
                   <div
@@ -144,7 +143,7 @@ export default function Events() {
                     className="animate-pulse rounded-xl border p-5"
                   >
                     <div className="flex gap-4">
-                      <div className="h-12 w-12 rounded-lg bg-slate-200"></div>
+                      <div className="h-10 w-10 rounded-lg bg-slate-200"></div>
 
                       <div className="flex-1">
                         <div className="h-4 w-2/3 rounded bg-slate-200 mb-3"></div>
@@ -173,7 +172,7 @@ export default function Events() {
                       className="group flex items-start gap-4 rounded-xl border border-emerald-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500 hover:shadow-xl"
                     >
                       {bs && (
-                        <div className="flex h-14 w-14 flex-col items-center justify-center rounded-lg bg-emerald-600 text-white">
+                        <div className="flex h-10 w-10 flex-col items-center justify-center rounded-lg bg-emerald-600 text-white">
                           <span className="text-sm font-bold">
                             {nepaliDigits(bs.day)}
                           </span>
@@ -188,19 +187,6 @@ export default function Events() {
                         <h3 className="font-semibold text-emerald-950 group-hover:text-emerald-700">
                           {event.title}
                         </h3>
-
-                        <div className="mt-3 space-y-2">
-                          <div className="flex items-center gap-2 text-sm text-slate-600">
-                            {event.author}
-                          </div>
-
-                          {event.location && (
-                            <div className="flex items-center gap-2 text-sm text-slate-600">
-                              <MapPin className="h-4 w-4 text-emerald-600" />
-                              {event.location}
-                            </div>
-                          )}
-                        </div>
                       </div>
 
                       <ArrowRight className="h-5 w-5 text-emerald-400 transition-transform group-hover:translate-x-1" />
